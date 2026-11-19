@@ -1,0 +1,60 @@
+# ===== 数据与大文件（不进 Git）=====
+data/dataset/
+data/raw/
+data/*.zip
+data/*.csv
+*.parquet
+*.orc
+*.avro
+
+# ===== 密钥与凭证（绝对不能提交）=====
+*.pem
+*.key
+**/application-prod.*
+**/secrets/
+.env
+.env.*
+
+# ===== Java / Maven =====
+**/target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+
+# ===== Python =====
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ===== 前端 =====
+node_modules/
+dist/
+*.log
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+*.swp
+.DS_Store
+
+# ===== 系统文件 =====
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ===== 临时 =====
+*.tmp
+*.temp
+*.bak
+scratch/
+tmp/
+
+# ===== 备注 =====
+# 大数据文件一律走 HDFS / MySQL，不进 Git。
+# 数据字典、指标定义、接口规范、表结构 DDL 全部是文本，必须进 Git。
