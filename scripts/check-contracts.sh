@@ -46,8 +46,8 @@ for f in "${REQUIRED[@]}"; do
     fail "$f 不存在"
     continue
   fi
-  if ! grep -qE '^\> \*\*版本\*\*' "$path"; then
-    fail "$f 缺少版本号声明"
+  if ! grep -qE '\*\*版本\*\*\s*[:：]' "$path"; then
+    fail "$f 缺少版本号声明（格式：> **版本**：v1.0）"
   elif ! grep -q '变更记录' "$path"; then
     fail "$f 缺少变更记录表"
   elif [ $(wc -c < "$path") -lt 500 ]; then
