@@ -381,12 +381,15 @@ wc -l data/raw/*.csv
 | occupancy.csv | 4344 | e_price.csv | 4344 |
 | duration.csv | 4344 | s_price.csv | 4344 |
 | volume.csv | 4344 | weather_airport.csv | 4344 |
-| volume-11kW.csv | 3085 | weather_central.csv | 4344 |
+| volume-11kW.csv | 4344 | weather_central.csv | 4344 |
 | inf.csv | 275 | adj.csv | 275 |
 | distance.csv | 275 | poi.csv | 712135 |
 
-> ⚠️ `volume-11kW.csv` 只有 3085 行（比其他的少），这是官方数据本身的不完整，
-> **不是下载失败**。计算时注意做时间对齐。
+> ✅ **实测复核（2026-11-19）**：12 个文件行数全部符合预期，
+> `volume-11kW.csv` 也是完整的 4344 行（早期下载未完成时的误判已修正）。
+>
+> 各文件的 SHA256 校验值见 `数据说明/数据校验清单.md`，
+> 组员下载后可用 `bash scripts/verify_data.sh` 一键核对。
 
 ---
 

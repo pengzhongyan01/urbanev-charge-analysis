@@ -1,11 +1,21 @@
-# ===== 数据与大文件（不进 Git）=====
-data/dataset/
-data/raw/
-data/*.zip
-data/*.csv
+# ===== 数据与大文件（绝不进 Git）=====
+# 全局规则：任何位置的 CSV/ZIP/JAR 都排除，防止误提交把仓库撑爆
+*.csv
+*.zip
+*.tar
+*.gz
 *.parquet
 *.orc
 *.avro
+*.h5
+*.npy
+
+# 数据目录
+data/
+!data/.gitkeep
+
+# 例外：以下路径下的文本数据字典可以进 Git
+!docs/**/*.md
 
 # ===== 密钥与凭证（绝对不能提交）=====
 *.pem
