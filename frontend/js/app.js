@@ -111,13 +111,101 @@
         });
     }
 
-    /* ---------------- 5. 热力图 / 地图 ---------------- */
+    /* ---------------- 5. 底图加载 ---------------- */
+    /**
+     * 加载深圳行政区划轮廓作为空间参考底图
+     *
+     * ⚠️ 注意：底图是深圳市 9 个行政区，而数据是 275 个交通分区，
+     *    两者是不同划分体系。本系统用经纬度定位散点，不做分区与行政区的对应。
+     */
+    async function loadBaseMap() {
+        if (echarts.getMap('shenzhen')) return true;   // 已注册
+
+        try {
+            const res = await fetch('assets/shenzhen_440300_full.json');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const geoJson = await res.json();
+
+            echarts.registerMap('shenzhen', {
+                type: 'FeatureCollection',
+                features: (geoJson.features || []).map(f => ({
+                    type: 'Feature',
+                    properties: { name: f.properties.name },
+                    geometry: {
+                        type: 'Polygon',
+                        // ECharts 5 不支持 MultiPolygon 嵌套，需展平一层
+                        coordinates: f.geometry.type === 'MultiPolygon'
+                            ? f.geometry.coordinates.flat()
+                            : f.geometry.coordinates
+                    }
+                }))
+            });
+            console.log('[底图] 深圳行政区划已加载');
+            return true;
+        } catch (e) {
+            console.warn('[底图] 加载失败，将使用散点降级方案:', e.message);
+            return false;
+        }
+    }
+
+    /* ---------------- 6. 热力图 / 地图 ---------------- */
     async function loadHeatmap(f) {
+        await loadBaseMap();
+
         const data = await safeQuery(() => apiGet('/zones/occupancy', f), '#chartHeatmap');
         if (!data) return;
 
         const zones = data.zones || [];
         if (!zones.length) return;
+
+        // 有底图 → 散点叠加；无底图 → 纯散点降级
+        if (echarts.getMap('shenzhen')) {
+            STATE.charts.heatmap = initChart('chartHeatmap', baseOption({
+                tooltip: {
+                    trigger: 'item',
+                    formatter: p => {
+                        const z = zones[p.dataIndex];
+                        if (!z) return '';
+                        return `<b>分区 ${z.zoneId}</b><br>` +
+                               `占用率：${formatPercent(z.avgOccupancy)}<br>` +
+                               `充电桩：${z.chargeCount} 个<br>` +
+                               `POI 总数：${z.poiTotal || '--'}`;
+                    }
+                },
+                legend: { show: false },
+                geo: {
+                    map: 'shenzhen',
+                    roam: false,
+                    itemStyle: {
+                        areaColor: '#0f2038',
+                        borderColor: '#1e3a5f',
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        itemStyle: { areaColor: '#1a3a5f' },
+                        label: { show: false }
+                    },
+                    label: { show: false }
+                },
+                series: [{
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    symbolSize: d => 5 + (d[2] || 0) * 14,
+                    data: zones.map(z => [z.longitude, z.latitude, z.avgOccupancy]),
+                    itemStyle: {
+                        color: p => {
+                            const t = p.value[2] || 0;
+                            if (t > 0.7) return '#ff6b35';   // 紧张
+                            if (t > 0.4) return '#00d4ff';   // 正常
+                            return '#22c55e';                 // 闲置
+                        },
+                        opacity: 0.85
+                    },
+                    emphasis: { scale: 1.5 }
+                }]
+            }));
+            return;
+        }
 
         STATE.charts.heatmap = initChart('chartHeatmap', baseOption({
             tooltip: {
@@ -185,7 +273,7 @@
         }));
     }
 
-    /* ---------------- 6. 24 小时供需曲线 ---------------- */
+    /* ---------------- 7. 24 小时供需曲线 ---------------- */
     async function loadHourly(f) {
         const data = await safeQuery(() => apiGet('/charts/hourly', f), '#chartHourly');
         if (!data) return;
@@ -228,7 +316,7 @@
         }));
     }
 
-    /* ---------------- 7. 失衡指数 TOP10 ---------------- */
+    /* ---------------- 8. 失衡指数 TOP10 ---------------- */
     async function loadImbalance(f) {
         const data = await safeQuery(() => apiGet('/charts/imbalance', f), '#chartImbalance');
         if (!data) return;
@@ -275,7 +363,7 @@
         }));
     }
 
-    /* ---------------- 8. 电价弹性对比 ---------------- */
+    /* ---------------- 9. 电价弹性对比 ---------------- */
     async function loadPriceElasticity(f) {
         const data = await safeQuery(() => apiGet('/charts/price-elasticity', f), '#chartPriceElasticity');
         if (!data) return;
@@ -321,7 +409,7 @@
         }
     }
 
-    /* ---------------- 9. 需求预测曲线 ---------------- */
+    /* ---------------- 10. 需求预测曲线 ---------------- */
     async function loadForecast(f) {
         const data = await safeQuery(() => apiGet('/charts/forecast', f), '#chartForecast');
         if (!data) return;
@@ -363,7 +451,7 @@
         }
     }
 
-    /* ---------------- 10. 布点建议 ---------------- */
+    /* ---------------- 11. 布点建议 ---------------- */
     async function loadSuggestion(f) {
         const data = await safeQuery(() => apiGet('/charts/suggestions', f), '#chartSuggestion');
         if (!data) return;
@@ -409,6 +497,6 @@
     }
 
     // 暴露到全局，便于控制台调试
-    window.UEV = { STATE, loadAll, loadKpi, loadHeatmap, loadHourly,
+    window.UEV = { STATE, loadAll, loadKpi, loadBaseMap, loadHeatmap, loadHourly,
                     loadImbalance, loadPriceElasticity, loadForecast, loadSuggestion };
 })();

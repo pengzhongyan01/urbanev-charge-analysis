@@ -226,18 +226,18 @@ git clone <仓库地址>
 cd urbanev-charge-analysis
 
 # 2. 数据（不进 Git，体积大）—— 一条命令搞定
-bash scripts/download_data.sh          # 12 个 CSV，132MB，含重试与镜像加速
+bash scripts/download_data.sh          # 12 个 CSV，129MB，含重试与镜像加速
 bash scripts/download_data.sh --5min   # 额外下载 5 分钟粒度（可选，42MB）
 ```
 
-> ⚠️ 数据目录是 `data/raw/`（旧文档写的是 `data/dataset/`，已统一）。
+> **数据位置说明**：所有脚本通过 `scripts/find_data.sh` 自动探测，按以下优先级：
+> 1. 环境变量 `UEV_DATA_DIR`
+> 2. 仓库内 `data/raw/`
+> 3. 仓库同级 `../数据/UrbanEV/`（★组长本机：大作业/数据/UrbanEV）
+> 4. 更上层的 `../../数据/UrbanEV/` 等
+>
+> 也就是说 **放哪都能找到**，不用改任何配置。
 > 5 分钟粒度在 Google Drive，国内慢且可能失效，**建议放弃**——1 小时粒度已足够做全套功能。
-
----
-
-## 九、目录结构
-
-```
 urbanev-charge-analysis/
 ├── README.md
 ├── docker-compose.yml               ★ 一键编排（A 维护）
@@ -270,18 +270,20 @@ urbanev-charge-analysis/
 │   ├── index.html
 │   ├── js/{common.js, app.js, echarts.min.js}   ★ echarts 已本地化
 │   ├── css/style.css
-│   ├── assets/shenzhen.geojson     ★ C 待补
-│   └── nginx.conf
+│   ├── assets/shenzhen_440300_full.json  ★ 深圳行政区划底图（已下载）
+│   ├── assets/深圳地图底图_使用指引.md    ★ 贺欢欢看这个
 ├── notebooks/                      E 的分析 Notebook
 ├── scripts/
 │   ├── sync.sh                     ★ 每人每天跑
 │   ├── check-contracts.sh          ★ 提交前自检
-│   ├── smoke_test.sh               ★ 端到端体检（7 项）
+│   ├── smoke_test.sh               ★ 端到端体检（7 项 32 检查点）
+│   ├── find_data.sh                ★ 统一数据探测（改这里就能换数据路径）
 │   ├── start_all.sh / stop_all.sh  ★ A 维护
 │   ├── start_native.sh / stop_native.sh
 │   ├── download_data.sh            ★ 数据下载（含镜像加速）
 │   └── start_flume.sh              ★ Flume 采集启动
-├── data/raw/                       数据（.gitignore，132MB）
+├── data/raw/                       数据（.gitignore，组员 clone 后放这里）
+│                                   组长本机实际位置：../数据/UrbanEV/
 ```
 
 ---

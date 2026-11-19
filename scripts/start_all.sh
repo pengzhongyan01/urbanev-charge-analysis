@@ -53,15 +53,17 @@ fi
 # 1. 数据检查（缺失时给出明确指引，而不是静默继续）
 # ------------------------------------------------------------------------------
 echo -e "\n${BLUE}[1/5]${NC} 检查数据..."
-DATA_DIR="data/raw"
-if [ ! -d "$DATA_DIR" ]; then DATA_DIR="data/dataset"; fi
-if [ -d "$DATA_DIR" ] && [ -n "$(ls -A "$DATA_DIR" 2>/dev/null)" ]; then
-  CSV_COUNT=$(ls -1 "$DATA_DIR"/*.csv 2>/dev/null | wc -l)
-  TOTAL_SIZE=$(du -sh "$DATA_DIR" 2>/dev/null | cut -f1)
-  echo -e "    ${GREEN}✓${NC} $DATA_DIR 下有 ${CSV_COUNT} 个 CSV（$TOTAL_SIZE）"
+# shellcheck source=scripts/find_data.sh
+source scripts/find_data.sh
+if [ -n "${UEV_DATA_DIR:-}" ]; then
+  CSV_COUNT=$(ls -1 "$UEV_DATA_DIR"/*.csv 2>/dev/null | wc -l)
+  TOTAL_SIZE=$(du -sh "$UEV_DATA_DIR" 2>/dev/null | cut -f1)
+  echo -e "    ${GREEN}✓${NC} 数据目录：$UEV_DATA_DIR"
+  echo -e "    ${GREEN}✓${NC} 有 ${CSV_COUNT} 个 CSV（$TOTAL_SIZE）"
 else
-  echo -e "    ${RED}✗${NC} 数据目录为空"
+  echo -e "    ${RED}✗${NC} 未找到数据目录"
   echo -e "       ${YELLOW}→${NC} 执行 ${CYAN}bash scripts/download_data.sh${NC} 下载 UrbanEV 数据集"
+  echo -e "       ${YELLOW}→${NC} 或手动把 12 个 CSV 放到 ${CYAN}data/raw/${NC} 或 ${CYAN}大作业/数据/UrbanEV/${NC}"
   echo -e "       ${YELLOW}→${NC} 数据是全组命脉，缺数据后面全部返工"
   exit 1
 fi

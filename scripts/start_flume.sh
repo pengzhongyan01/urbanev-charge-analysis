@@ -21,11 +21,12 @@ echo "=============================================================="
 # ------------------------------------------------------------------------------
 # 1. 检查数据
 # ------------------------------------------------------------------------------
-DATA_DIR="data/raw"
-[ -d "$DATA_DIR" ] || DATA_DIR="data/dataset"
+# shellcheck source=scripts/find_data.sh
+source scripts/find_data.sh
+DATA_DIR="${UEV_DATA_DIR:-}"
 CSV_COUNT=$(ls -1 "$DATA_DIR"/*.csv 2>/dev/null | wc -l)
-if [ "$CSV_COUNT" -eq 0 ]; then
-  echo -e "\n${RED}✗ ${DATA_DIR} 下没有 CSV${NC}"
+if [ "$CSV_COUNT" -eq 0 ] || [ -z "$DATA_DIR" ]; then
+  echo -e "\n${RED}✗ 未找到数据目录或其中没有 CSV${NC}"
   echo -e "  ${YELLOW}→${NC} 先执行 bash scripts/download_data.sh"
   exit 1
 fi

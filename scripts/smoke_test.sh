@@ -62,9 +62,10 @@ run_mysql() {
 
 # ------------------------------------------------------------------------------
 section "[1/7] 数据文件"
-DATA_DIR="data/raw"
-[ -d "$DATA_DIR" ] || DATA_DIR="data/dataset"
-if [ -d "$DATA_DIR" ]; then
+# shellcheck source=scripts/find_data.sh
+source scripts/find_data.sh
+DATA_DIR="${UEV_DATA_DIR:-}"
+if [ -n "$DATA_DIR" ] && [ -d "$DATA_DIR" ]; then
   CSV_COUNT=$(ls -1 "$DATA_DIR"/*.csv 2>/dev/null | wc -l)
   if [ "$CSV_COUNT" -ge 12 ]; then
     pass "有 $CSV_COUNT 个 CSV（预期 12 个）"
@@ -79,22 +80,28 @@ if [ -d "$DATA_DIR" ]; then
   # 抽查关键文件的行数
   if [ -f "$DATA_DIR/occupancy.csv" ]; then
     OCC_LINES=$(wc -l < "$DATA_DIR/occupancy.csv" | tr -d ' ')
-    if [ "$OCC_LINES" -ge 4343 ] 2>/dev/null; then
-      pass "occupancy.csv 行数 $OCC_LINES（预期 4344）"
+    # wc -l 含表头行，数据行 = 行数 - 1，预期 4344 条数据
+    if [ "$OCC_LINES" -eq 4345 ] 2>/dev/null; then
+      pass "occupancy.csv 数据行 4344（文件 $OCC_LINES 行，含表头）"
+    elif [ "$OCC_LINES" -ge 4343 ] 2>/dev/null; then
+      warn "occupancy.csv 行数 $OCC_LINES（预期 4345，含表头）"
     else
-      fail "occupancy.csv 行数 $OCC_LINES 异常（预期 4344）"
+      fail "occupancy.csv 行数 $OCC_LINES 异常（预期 4345）"
     fi
   fi
   if [ -f "$DATA_DIR/inf.csv" ]; then
     INF_LINES=$(wc -l < "$DATA_DIR/inf.csv" | tr -d ' ')
-    if [ "$INF_LINES" -ge 275 ] 2>/dev/null; then
-      pass "inf.csv 行数 $INF_LINES（预期 275 分区）"
+    # wc -l 含表头行，数据行 = 行数 - 1，预期 275 个分区
+    if [ "$INF_LINES" -eq 276 ] 2>/dev/null; then
+      pass "inf.csv 分区数 275（文件 $INF_LINES 行，含表头）"
+    elif [ "$INF_LINES" -ge 275 ] 2>/dev/null; then
+      warn "inf.csv 行数 $INF_LINES（预期 276，含表头）"
     else
-      fail "inf.csv 行数 $INF_LINES 异常（预期 275）"
+      fail "inf.csv 行数 $INF_LINES 异常（预期 276）"
     fi
   fi
 else
-  fail "$DATA_DIR 目录不存在"
+  fail "未找到数据目录（执行 bash scripts/download_data.sh）"
 fi
 
 # ------------------------------------------------------------------------------

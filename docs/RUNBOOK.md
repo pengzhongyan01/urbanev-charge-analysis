@@ -349,10 +349,18 @@ bash scripts/download_data.sh           # 1 小时粒度（核心）
 bash scripts/download_data.sh --5min    # 额外下载 5 分钟粒度（可选，42MB）
 ```
 
+> **数据放在哪都行** —— 所有脚本通过 `scripts/find_data.sh` 自动探测：
+> 1. 环境变量 `UEV_DATA_DIR`
+> 2. 仓库内 `data/raw/`
+> 3. 仓库同级 `../数据/UrbanEV/`
+> 4. `../../数据/UrbanEV/` 及更上层
+>
+> 想指定其他位置：`export UEV_DATA_DIR=/你的/路径`
+
 ### 5.3 手动下载（备用）
 
 从 https://github.com/whewhewhenew/UrbanEV/tree/main/data 下载以下 12 个文件，
-放入 `data/raw/`：
+放入 `data/raw/`（或 `../数据/UrbanEV/`，或任意路径后设 `UEV_DATA_DIR`）：
 
 ```
 occupancy.csv  duration.csv  volume.csv  volume-11kW.csv

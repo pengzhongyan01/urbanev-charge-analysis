@@ -21,7 +21,10 @@ cd "$(dirname "$0")/.." || exit 1
 
 GREEN='\033[1;32m'; RED='\033[1;31m'; YELLOW='\033[1;33m'; BLUE='\033[1;34m'; CYAN='\033[1;36m'; NC='\033[0m'
 
-RAW_DIR="data/raw"
+# 数据存放位置：优先用已有的探测逻辑，找不到就默认放 data/raw
+# shellcheck source=scripts/find_data.sh
+source scripts/find_data.sh
+RAW_DIR="${UEV_DATA_DIR:-data/raw}"
 BASE_URL="https://raw.githubusercontent.com/whewhewhenew/UrbanEV/main/data"
 MIRROR_URL="https://ghfast.top/https://raw.githubusercontent.com/whewhewhenew/UrbanEV/main/data"
 
@@ -49,6 +52,7 @@ echo -e " 许可：CC0　引用：Li Han, Haohao Qu et al., arXiv:2309.05259 (20
 echo ""
 
 mkdir -p "$RAW_DIR"
+echo "数据目录: $RAW_DIR"
 
 # ------------------------------------------------------------------------------
 # 下载单个文件（带重试 + 镜像加速降级）
