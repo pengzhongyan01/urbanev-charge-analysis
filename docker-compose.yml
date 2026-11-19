@@ -1,0 +1,303 @@
+version: "3.8"
+
+# ==============================================================================
+# UrbanEV 充电桩分析系统 · 一键编排
+#
+# 维护人：A（组长）　|　用途：答辩演示 + 别人拿到源码后一键复现
+#
+# 用法：
+#   bash scripts/start_all.sh          # 推荐，走 profile 自动降级
+#   docker compose --profile full up -d   # 完整模式（含 Hadoop 伪分布式）
+#   docker compose --profile app  up -d   # 仅应用层（本机已有 Hadoop 时）
+#
+# 分层说明：
+#   base   —— MySQL + Redis（所有模式都起）
+#   app    —— Spring Boot 后端 + Nginx 前端
+#   hadoop —— Hadoop 伪分布式（NameNode/DataNode/ResourceManager/NodeManager）
+#   hive   —— HiveServer2 + Metastore
+# ==============================================================================
+
+services:
+
+  # ============================ 基础设施 ============================
+  mysql:
+    image: mysql:8.0
+    container_name: uev-mysql
+    restart: unless-stopped
+    profiles: ["base", "app", "full"]
+    environment:
+      MYSQL_ROOT_PASSWORD: uev123456
+      MYSQL_DATABASE: uev_charge
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --default-time-zone=+08:00
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../db/mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-puev123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks: [uev-net]
+
+  redis:
+    image: redis:7-alpine
+    container_name: uev-redis
+    restart: unless-stopped
+    profiles: ["base", "app", "full"]
+    command: redis-server --appendonly yes --requirepass uev_redis_pass
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "uev_redis_pass", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks: [uev-net]
+
+  # ============================ Hadoop 伪分布式 ============================
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: uev-namenode
+    restart: unless-stopped
+    profiles: ["hadoop", "full"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      HADOOP_HEAPSIZE_MAX: 1024
+      HADOOP_HEAPSIZE_MIN: 512
+      HDFS_NAMENODE_USER: root
+      HDFS_DATANODE_USER: root
+      HDFS_SECONDARYNAMENODE_USER: root
+      CORE_SITE_CONF: >-
+        fs.defaultFS=hdfs://namenode:8020
+      HDFS_SITE_CONF: >-
+        dfs.replication=1
+        dfs.namenode.name.dir=file:///tmp/hadoop-root/dfs/name
+        dfs.datanode.data.dir=file:///tmp/hadoop-root/dfs/data
+      YARN_SITE_CONF: >-
+        yarn.nodemanager.aux-services=mapreduce_shuffle
+        yarn.nodemanager.aux-services.mapreduce_shuffle.class=org.apache.hadoop.mapred.ShuffleHandler
+        yarn.nodemanager.resource.memory-mb=2048
+        yarn.nodemanager.resource.cpu-vcores=2
+        yarn.scheduler.minimum-allocation-mb=512
+        yarn.scheduler.maximum-allocation-mb=2048
+    ports:
+      - "9870:9870"      # NameNode Web UI
+      - "8020:8020"      # HDFS RPC
+      - "9000:9000"      # HDFS 老端口
+    volumes:
+      - hadoop-conf:/opt/hadoop/etc/hadoop
+      - hadoop-logs:/opt/hadoop/logs
+    command: >
+      bash -c "
+      hdfs namenode -format -force -nonInteractive &&
+      hdfs --daemon start namenode &&
+      hdfs --daemon start secondarynamenode &&
+      sleep infinity"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9870/ | grep -q NameNode"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 40s
+    networks: [uev-net]
+
+  datanode:
+    image: apache/hadoop:3.3.6
+    container_name: uev-datanode
+    restart: unless-stopped
+    profiles: ["hadoop", "full"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      HADOOP_HEAPSIZE_MAX: 1024
+      HDFS_DATANODE_USER: root
+      CORE_SITE_CONF: >-
+        fs.defaultFS=hdfs://namenode:8020
+      HDFS_SITE_CONF: >-
+        dfs.replication=1
+        dfs.namenode.name.dir=file:///tmp/hadoop-root/dfs/name
+        dfs.datanode.data.dir=file:///tmp/hadoop-root/dfs/data
+    volumes:
+      - hadoop-conf:/opt/hadoop/etc/hadoop
+      - hadoop-logs:/opt/hadoop/logs
+    command: >
+      bash -c "
+      hdfs --daemon start datanode &&
+      sleep infinity"
+    depends_on:
+      namenode:
+        condition: service_healthy
+    networks: [uev-net]
+
+  resourcemanager:
+    image: apache/hadoop:3.3.6
+    container_name: uev-rm
+    restart: unless-stopped
+    profiles: ["hadoop", "full"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      HADOOP_HEAPSIZE_MAX: 1024
+      YARN_NODEMANAGER_USER: root
+      HDFS_NODEMANODE_USER: root
+      CORE_SITE_CONF: >-
+        fs.defaultFS=hdfs://namenode:8020
+      HDFS_SITE_CONF: >-
+        dfs.replication=1
+      YARN_SITE_CONF: >-
+        yarn.nodemanager.aux-services=mapreduce_shuffle
+        yarn.nodemanager.aux-services.mapreduce_shuffle.class=org.apache.hadoop.mapred.ShuffleHandler
+        yarn.resourcemanager.hostname=resourcemanager
+        yarn.nodemanager.resource.memory-mb=2048
+    ports:
+      - "8088:8088"      # ResourceManager Web UI
+    volumes:
+      - hadoop-conf:/opt/hadoop/etc/hadoop
+      - hadoop-logs:/opt/hadoop/logs
+    command: >
+      bash -c "
+      yarn --daemon start resourcemanager &&
+      sleep infinity"
+    depends_on:
+      namenode:
+        condition: service_healthy
+    networks: [uev-net]
+
+  nodemanager:
+    image: apache/hadoop:3.3.6
+    container_name: uev-nm
+    restart: unless-stopped
+    profiles: ["hadoop", "full"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      YARN_NODEMANAGER_USER: root
+      HDFS_DATANODE_USER: root
+      CORE_SITE_CONF: >-
+        fs.defaultFS=hdfs://namenode:8020
+      YARN_SITE_CONF: >-
+        yarn.nodemanager.aux-services=mapreduce_shuffle
+        yarn.nodemanager.aux-services.mapreduce_shuffle.class=org.apache.hadoop.mapred.ShuffleHandler
+        yarn.nodemanager.resource.memory-mb=2048
+        yarn.nodemanager.resource.cpu-vcores=2
+        yarn.scheduler.minimum-allocation-mb=512
+        yarn.scheduler.maximum-allocation-mb=2048
+    volumes:
+      - hadoop-conf:/opt/hadoop/etc/hadoop
+      - hadoop-logs:/opt/hadoop/logs
+    command: >
+      bash -c "
+      yarn --daemon start nodemanager &&
+      sleep infinity"
+    depends_on:
+      resourcemanager:
+        condition: service_started
+    networks: [uev-net]
+
+  # ============================ Hive ============================
+  hive:
+    image: apache/hive:4.0.0
+    container_name: uev-hive
+    restart: unless-stopped
+    profiles: ["hive", "full"]
+    environment:
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      HIVE_CONF_DIR: /opt/hive/conf
+      HADOOP_HEAPSIZE: 1024
+      HIVE_CUSTOM_CONF_DIR: /hive_custom_conf
+      DERBY_DRIVER: org.apache.derby.jdbc.EmbeddedDriver
+      SERVICE_NAME: hiveserver2
+      HIVE_CUSTOM_CONF: >-
+        javax.jdo.option.ConnectionDriverName=org.apache.derby.jdbc.EmbeddedDriver
+        javax.jdo.option.ConnectionURL=jdbc:derby:;databaseName=/opt/hive/metastore_db;create=true
+        hive.metastore.warehouse.dir=/user/hive/warehouse
+        hive.server2.thrift.bind.host=0.0.0.0
+        hive.server2.thrift.port=10002
+        hive.server2.transport.mode=http
+        hive.server2.thrift.http.path=cliservice
+    ports:
+      - "10000:10000"    # HiveServer2 JDBC
+      - "10002:10002"    # HiveServer2 Thrift
+    volumes:
+      - hive-conf:/hive_custom_conf
+      - hive-warehouse:/user/hive/warehouse
+      - hive-metastore:/opt/hive/metastore_db
+    command: >
+      bash -c "
+      /opt/hive/bin/hive --service hiveserver2 &
+      sleep infinity"
+    depends_on:
+      namenode:
+        condition: service_healthy
+      resourcemanager:
+        condition: service_started
+    networks: [uev-net]
+
+  # ============================ 应用层 ============================
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: uev-backend
+    restart: unless-stopped
+    profiles: ["app", "full"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/uev_charge?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: uev123456
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: uev_redis_pass
+      REDIS_HOST: redis
+      REDIS_PASSWORD: uev_redis_pass
+      HIVE_JDBC_URL: jdbc:hive2://hive:10000/default
+      TZ: Asia/Shanghai
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    networks: [uev-net]
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: uev-frontend
+    restart: unless-stopped
+    profiles: ["app", "full"]
+    environment:
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks: [uev-net]
+
+networks:
+  uev-net:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  hadoop-conf:
+  hadoop-logs:
+  hive-conf:
+  hive-warehouse:
+  hive-metastore:

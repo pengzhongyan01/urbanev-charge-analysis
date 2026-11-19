@@ -1,0 +1,114 @@
+# ==============================================================================
+# application.yml —— 后端配置
+#
+# 维护人：D（杨珊珊）　|　骨架由 A（彭忠燕）提供
+#
+# 关键点：
+#   - 环境变量优先，用 ${VAR:default} 形式
+#   - Docker 部署时由 docker-compose.yml 注入 SPRING_* 环境变量
+#   - 本机开发时改下面的默认值即可
+# ==============================================================================
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  application:
+    name: uev-charge-analysis
+
+  # ---------- 数据源 ----------
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:uev_charge}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:uev123456}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: UevHikariPool
+
+  # ---------- Redis ----------
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:uev_redis_pass}
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 2
+          max-wait: 3000ms
+
+  # ---------- Jackson ----------
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
+
+  # ---------- 文件上传 ----------
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 50MB
+
+# ---------- MyBatis ----------
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.uev.mapper
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 500
+    default-statement-timeout: 30
+
+# ---------- Hive（可选，查 ADS 用） ----------
+hive:
+  jdbc:
+    url: ${HIVE_JDBC_URL:jdbc:hive2://localhost:10000/default}
+    username: ${HIVE_USER:}
+
+# ---------- 业务配置 ----------
+uev:
+  # 缓存过期时间（秒）
+  cache:
+    dashboard-ttl: 300
+    filter-ttl: 120
+    chart-ttl: 600
+  # 数据时间范围
+  data:
+    start-date: ${DATA_START:2022-09-01}
+    end-date: ${DATA_END:2022-10-31}
+    region-count: 96
+
+# ---------- 日志 ----------
+logging:
+  level:
+    root: INFO
+    com.uev: DEBUG
+    org.springframework.jdbc.core: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/uev-backend.log
+
+---
+# 开发环境（覆盖上面的默认值）
+spring:
+  config:
+    activate:
+      on-profile: dev
+  devtools:
+    restart:
+      enabled: true
+logging:
+  level:
+    com.uev: DEBUG
+    com.uev.mapper: DEBUG
