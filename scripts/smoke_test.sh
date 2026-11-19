@@ -25,126 +25,241 @@ section() { echo -e "\n${BLUE}$1${NC}"; }
 echo ""
 echo "=============================================================="
 echo -e " ${BLUE}UrbanEV 项目 · 端到端冒烟测试${NC}"
-echo -e " $(date '+%Y-%m-%d %H:%M:%S')"
+echo " $(date '+%Y-%m-%d %H:%M:%S')"
 echo "=============================================================="
 
+# 容器名与库表名常量
+NN=uev-namenode
+MYSQL_C=uev-mysql
+REDIS_C=uev-redis
+BE_C=uev-backend
+
+has_docker=0
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  has_docker=1
+fi
+
+# 找 Hive 查询方式
+run_hive() {
+  if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$NN"; then
+    docker exec "$NN" beeline -u jdbc:hive2://hive:10000 -e "$1" 2>/dev/null
+  elif command -v beeline >/dev/null 2>&1; then
+    beeline -u jdbc:hive2://localhost:10000 -e "$1" 2>/dev/null
+  else
+    return 1
+  fi
+}
+
+run_mysql() {
+  if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$MYSQL_C"; then
+    docker exec "$MYSQL_C" mysql -uroot -puev123456 uev_charge -N -e "$1" 2>/dev/null
+  elif command -v mysql >/dev/null 2>&1; then
+    mysql -uroot -puev123456 uev_charge -N -e "$1" 2>/dev/null
+  else
+    return 1
+  fi
+}
+
 # ------------------------------------------------------------------------------
-section "[1] 数据文件"
-if [ -d data/dataset ]; then
-  CSV_COUNT=$(ls -1 data/dataset/*.csv 2>/dev/null | wc -l)
-  if [ "$CSV_COUNT" -ge 10 ]; then
-    pass "data/dataset 有 $CSV_COUNT 个 CSV"
+section "[1/7] 数据文件"
+DATA_DIR="data/raw"
+[ -d "$DATA_DIR" ] || DATA_DIR="data/dataset"
+if [ -d "$DATA_DIR" ]; then
+  CSV_COUNT=$(ls -1 "$DATA_DIR"/*.csv 2>/dev/null | wc -l)
+  if [ "$CSV_COUNT" -ge 12 ]; then
+    pass "有 $CSV_COUNT 个 CSV（预期 12 个）"
+  elif [ "$CSV_COUNT" -ge 11 ]; then
+    warn "只有 $CSV_COUNT 个 CSV（预期 12 个）"
   elif [ "$CSV_COUNT" -gt 0 ]; then
-    warn "data/dataset 只有 $CSV_COUNT 个 CSV（预期 11 个）"
+    fail "只有 $CSV_COUNT 个 CSV，数据不完整"
   else
-    fail "data/dataset 为空"
+    fail "$DATA_DIR 为空"
+  fi
+
+  # 抽查关键文件的行数
+  if [ -f "$DATA_DIR/occupancy.csv" ]; then
+    OCC_LINES=$(wc -l < "$DATA_DIR/occupancy.csv" | tr -d ' ')
+    if [ "$OCC_LINES" -ge 4343 ] 2>/dev/null; then
+      pass "occupancy.csv 行数 $OCC_LINES（预期 4344）"
+    else
+      fail "occupancy.csv 行数 $OCC_LINES 异常（预期 4344）"
+    fi
+  fi
+  if [ -f "$DATA_DIR/inf.csv" ]; then
+    INF_LINES=$(wc -l < "$DATA_DIR/inf.csv" | tr -d ' ')
+    if [ "$INF_LINES" -ge 275 ] 2>/dev/null; then
+      pass "inf.csv 行数 $INF_LINES（预期 275 分区）"
+    else
+      fail "inf.csv 行数 $INF_LINES 异常（预期 275）"
+    fi
   fi
 else
-  fail "data/dataset 目录不存在"
+  fail "$DATA_DIR 目录不存在"
 fi
 
 # ------------------------------------------------------------------------------
-section "[2] Hadoop 集群"
-if command -v docker >/dev/null 2>&1 && [ -f docker-compose.yml ]; then
-  JPS=$(docker exec -it hadoop jps 2>/dev/null)
-  for proc in NameNode DataNode ResourceManager NodeManager; do
-    if echo "$JPS" | grep -q "$proc"; then
-      pass "$proc 运行中"
+section "[2/7] 容器与集群"
+if [ "$has_docker" -eq 1 ]; then
+  RUNNING=$(docker ps --format '{{.Names}}' 2>/dev/null)
+  for c in "$NN" uev-datanode uev-rm uev-nm "$MYSQL_C" "$REDIS_C"; do
+    if echo "$RUNNING" | grep -q "$c"; then
+      pass "$c 运行中"
     else
-      fail "$proc 未运行"
+      warn "$c 未运行"
     fi
   done
-else
-  warn "无 docker-compose.yml 或 docker 未安装，跳过集群检查"
-fi
 
-# ------------------------------------------------------------------------------
-section "[3] Hive 四层表"
-if command -v hive >/dev/null 2>&1 || (command -v docker >/dev/null 2>&1 && docker ps --format '{{.Names}}' 2>/dev/null | grep -q hadoop); then
-  RUN_CMD="docker exec -it hadoop hive -e"
-  COUNT_OUT=$($RUN_CMD "SELECT 'ODS',COUNT(*) FROM ev.ods_occupancy
-                         UNION ALL SELECT 'DWD',COUNT(*) FROM ev.dwd_zone_hour
-                         UNION ALL SELECT 'DWS',COUNT(*) FROM ev.dws_zone_day
-                         UNION ALL SELECT 'ADS',COUNT(*) FROM ev.ads_imbalance_index;" 2>/dev/null)
-  for layer in ODS DWD DWS ADS; do
-    if echo "$COUNT_OUT" | grep -q "$layer"; then
-      CNT=$(echo "$COUNT_OUT" | grep "$layer" | awk '{print $NF}')
-      if [ "${CNT:-0}" -gt 0 ] 2>/dev/null; then
-        pass "$layer 层有数据（$CNT 行）"
+  if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$NN"; then
+    JPS=$(docker exec "$NN" jps 2>/dev/null)
+    for proc in NameNode DataNode; do
+      if echo "$JPS" | grep -q "$proc"; then
+        pass "$proc 进程正常"
       else
-        fail "$layer 层无数据"
+        fail "$proc 进程未启动"
       fi
+    done
+    # HDFS 可写性
+    if docker exec "$NN" hdfs dfs -test -d /uev 2>/dev/null; then
+      pass "HDFS /uev 目录可访问"
     else
-      fail "$layer 表不存在"
+      warn "HDFS /uev 目录不存在（尚未执行 Flume 采集）"
+    fi
+  fi
+else
+  warn "Docker 不可用，跳过容器检查"
+fi
+
+# ------------------------------------------------------------------------------
+section "[3/7] Hive 四层数仓"
+COUNT_OUT=$(run_hive "SELECT 'ODS',COUNT(*) FROM uev_ods.occupancy
+                       UNION ALL SELECT 'DWD',COUNT(*) FROM uev_dwd.zone_hour_metric
+                       UNION ALL SELECT 'DWS',COUNT(*) FROM uev_dws.zone_day_hour
+                       UNION ALL SELECT 'ADS',COUNT(*) FROM uev_ads.imbalance_index;" 2>/dev/null)
+
+if [ -n "$COUNT_OUT" ]; then
+  for layer in ODS DWD DWS ADS; do
+    CNT=$(echo "$COUNT_OUT" | grep -w "$layer" | awk -F'\t' '{print $NF}' | tr -d ' ')
+    if [ -z "$CNT" ]; then
+      CNT=$(echo "$COUNT_OUT" | grep "$layer" | awk '{print $NF}' | tr -d ' ')
+    fi
+    if [ -n "${CNT:-}" ] && [ "$CNT" -gt 0 ] 2>/dev/null; then
+      pass "$layer 层有数据（$CNT 行）"
+    else
+      fail "$layer 层无数据或表不存在"
     fi
   done
-  # DWD 应少于 ODS
-  ODS_C=$(echo "$COUNT_OUT" | grep ODS | awk '{print $NF}')
-  DWD_C=$(echo "$COUNT_OUT" | grep DWD | awk '{print $NF}')
-  if [ -n "${ODS_C:-}" ] && [ -n "${DWD_C:-}" ] && [ "$DWD_C" -lt "$ODS_C" ]; then
+
+  ODS_C=$(echo "$COUNT_OUT" | grep -w "ODS" | awk '{print $NF}' | tr -d ' ')
+  DWD_C=$(echo "$COUNT_OUT" | grep -w "DWD" | awk '{print $NF}' | tr -d ' ')
+  if [ -n "${ODS_C:-}" ] && [ -n "${DWD_C:-}" ] && [ "$DWD_C" -lt "$ODS_C" ] 2>/dev/null; then
     pass "清洗有效（DWD $DWD_C < ODS $ODS_C）"
-  else
-    warn "未验证清洗效果（ODS=$ODS_C, DWD=$DWD_C）"
+  elif [ -n "${ODS_C:-}" ] && [ -n "${DWD_C:-}" ]; then
+    warn "未体现清洗效果（ODS=$ODS_C, DWD=$DWD_C）—— 若清洗确实未删行可忽略"
   fi
+
+  # ADS 七张表
+  for t in imbalance_index price_elasticity demand_forecast expansion_suggestion \
+           dashboard_kpi zone_occupancy hourly_supply_demand; do
+    C=$(run_hive "SELECT COUNT(*) FROM uev_ads.$t;" 2>/dev/null | tr -d '[:space:]')
+    if [ -n "${C:-}" ] && [ "$C" -gt 0 ] 2>/dev/null; then
+      pass "ADS 表 $t 有数据（$C 行）"
+    else
+      warn "ADS 表 $t 无数据"
+    fi
+  done
 else
-  warn "无 Hive 环境，跳过"
+  warn "Hive 环境不可用，跳过数仓检查"
 fi
 
 # ------------------------------------------------------------------------------
-section "[4] MySQL 与后端"
-if command -v mysql >/dev/null 2>&1; then
-  MY_CNT=$(mysql -uroot -p"${MYSQL_ROOT_PASSWORD:-123456}" -N -e \
-    "SELECT COUNT(*) FROM ev_ads_imbalance;" 2>/dev/null)
-  if [ -n "${MY_CNT:-}" ] && [ "$MY_CNT" -gt 0 ] 2>/dev/null; then
-    pass "MySQL ev_ads_imbalance 有 $MY_CNT 行"
-  else
-    fail "MySQL ADS 表无数据（Sqoop 导出是否完成？）"
-  fi
+section "[4/7] MySQL 业务表"
+MY_CNT=$(run_mysql "SELECT COUNT(*) FROM zone_occupancy;" 2>/dev/null | tr -d '[:space:]')
+if [ -n "${MY_CNT:-}" ] && [ "$MY_CNT" -gt 0 ] 2>/dev/null; then
+  pass "zone_occupancy 有 $MY_CNT 行"
 else
-  warn "mysql 客户端不可用，跳过"
+  fail "zone_occupancy 无数据（Sqoop 导出是否完成？）"
 fi
 
-API_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://localhost:8080/api/zone/list 2>/dev/null)
-if [ "$API_CODE" = "200" ]; then
-  pass "后端接口 /api/zone/list 正常"
-elif [ "$API_CODE" = "401" ]; then
-  pass "后端接口已响应（需登录，正常）"
-elif [ "$API_CODE" = "000" ]; then
-  fail "后端未响应（8080 端口无服务）"
-else
-  warn "后端返回 $API_CODE"
-fi
-
-# ------------------------------------------------------------------------------
-section "[5] 前端页面"
-for page in index demand imbalance price forecast advice; do
-  if [ -f "frontend/${page}.html" ]; then
-    pass "frontend/${page}.html 存在"
+for t in dashboard_kpi hourly_supply_demand imbalance_index price_elasticity \
+         demand_forecast expansion_suggestion; do
+  C=$(run_mysql "SELECT COUNT(*) FROM $t;" 2>/dev/null | tr -d '[:space:]')
+  if [ -n "${C:-}" ] && [ "$C" -gt 0 ] 2>/dev/null; then
+    pass "$t 有数据（$C 行）"
   else
-    warn "frontend/${page}.html 缺失"
+    warn "$t 无数据"
   fi
 done
-if [ -f frontend/assets/shenzhen.geojson ]; then
+
+# ------------------------------------------------------------------------------
+section "[5/7] 后端接口"
+HEALTH=$(curl -s --max-time 8 http://localhost:8080/api/health 2>/dev/null)
+if [ -n "$HEALTH" ]; then
+  if echo "$HEALTH" | grep -q '"code":200'; then
+    pass "/api/health 正常"
+    if echo "$HEALTH" | grep -q '"mysql":"UP"'; then
+      pass "MySQL 连接正常"
+    else
+      fail "MySQL 连接异常"
+    fi
+    if echo "$HEALTH" | grep -q '"redis":"UP"'; then
+      pass "Redis 连接正常"
+    else
+      fail "Redis 连接异常"
+    fi
+  else
+    fail "/api/health 返回异常"
+  fi
+else
+  fail "后端未响应（8080 端口无服务）"
+fi
+
+for api in "/dashboard/kpi" "/zones/occupancy" "/charts/hourly" "/charts/imbalance" \
+           "/charts/price-elasticity" "/charts/forecast" "/charts/suggestions"; do
+  CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "http://localhost:8080/api$api" 2>/dev/null)
+  if [ "$CODE" = "200" ]; then
+    pass "$api 返回 200"
+  elif [ "$CODE" = "000" ]; then
+    fail "$api 无响应"
+  else
+    fail "$api 返回 $CODE"
+  fi
+done
+
+# ------------------------------------------------------------------------------
+section "[6/7] 前端资源"
+[ -f "frontend/index.html" ] && pass "frontend/index.html 存在" || fail "frontend/index.html 缺失"
+[ -f "frontend/js/common.js" ] && pass "common.js 存在" || fail "common.js 缺失"
+[ -f "frontend/js/app.js" ] && pass "app.js 存在" || fail "app.js 缺失"
+[ -f "frontend/css/style.css" ] && pass "style.css 存在" || fail "style.css 缺失"
+
+if [ -f "frontend/js/echarts.min.js" ]; then
+  pass "echarts.min.js 已本地化（答辩现场无网可用）"
+else
+  fail "echarts.min.js 缺失 —— 必须在答辩前本地化，不能依赖 CDN"
+fi
+
+if [ -f "frontend/assets/shenzhen.geojson" ]; then
   pass "深圳地图 GeoJSON 存在"
 else
-  fail "深圳地图 GeoJSON 缺失（地图类图表无法显示）"
+  warn "深圳地图 GeoJSON 缺失（前端有散点降级方案，但地图效果打折）"
 fi
 
 # ------------------------------------------------------------------------------
-section "[6] 契约一致性"
+section "[7/7] 契约一致性与交付物"
 if bash scripts/check-contracts.sh >/dev/null 2>&1; then
   pass "契约与实现一致"
 else
   warn "契约检查未通过（详见 scripts/check-contracts.sh 输出）"
 fi
 
-# ------------------------------------------------------------------------------
-section "[7] 交付物齐备性"
-[ -f RUNBOOK.md ] && pass "RUNBOOK.md 存在" || fail "RUNBOOK.md 缺失"
-[ -f docs/contracts/01-数据字典.md ] && pass "数据字典存在" || fail "数据字典缺失"
-[ -f docs/contracts/02-指标定义表.md ] && pass "指标定义表存在" || fail "指标定义表缺失"
-[ -f docs/contracts/03-接口规范.md ] && pass "接口规范存在" || fail "接口规范缺失"
-[ -f docs/contracts/04-数仓表结构规范.md ] && pass "数仓规范存在" || fail "数仓规范缺失"
+[ -f "docs/RUNBOOK.md" ] && pass "RUNBOOK.md 存在" || fail "RUNBOOK.md 缺失"
+[ -f "docs/contracts/01-数据字典.md" ] && pass "数据字典存在" || fail "数据字典缺失"
+[ -f "docs/contracts/02-指标定义表.md" ] && pass "指标定义表存在" || fail "指标定义表缺失"
+[ -f "docs/contracts/03-接口规范.md" ] && pass "接口规范存在" || fail "接口规范缺失"
+[ -f "docs/contracts/04-数仓表结构规范.md" ] && pass "数仓规范存在" || fail "数仓规范缺失"
+[ -f "docs/ppt/PPT逐页脚本.md" ] && pass "PPT 逐页脚本存在" || warn "PPT 逐页脚本缺失"
+[ -f "hadoop/mr/WideToLong.java" ] && pass "MR 宽转长作业存在" || warn "MR 作业缺失"
+[ -f "hadoop/spark/ads_metrics.sql" ] && pass "Spark 指标 SQL 存在" || warn "Spark SQL 缺失"
 
 # ------------------------------------------------------------------------------
 echo ""

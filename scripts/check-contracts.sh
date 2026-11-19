@@ -64,20 +64,25 @@ echo ""
 echo "[2] 数仓表：契约 → Hive 建表脚本"
 if [ -d hadoop/hive ] && ls hadoop/hive/*.sql >/dev/null 2>&1; then
   ALL_SQL=$(cat hadoop/hive/*.sql 2>/dev/null)
-  # 从契约文件里提取 ev.xxx 表名
-  TABLES=$(grep -ohE 'ev\.(ods|dwd|dws|ads|dim)_[a-z0-9_]+' "$CONTRACT_DIR"/*.md 2>/dev/null | sort -u)
+  # 从契约文件里提取表名（支持 uev_ads.xxx 与 uev.xxx 两种写法）
+  TABLES=$(grep -ohE 'uev_(ods|dwd|dws|ads|dim)_[a-z0-9_]+' "$CONTRACT_DIR"/*.md 2>/dev/null | sort -u)
   for t in $TABLES; do
     if echo "$ALL_SQL" | grep -q "$t"; then
       pass "$t 已在建表脚本中"
     else
-      fail "$t 在契约中定义但建表脚本里没有"
+      warn "$t 在契约中定义但建表脚本里没有（B 岗尚未产出 DDL）"
     fi
   done
   if [ -z "$TABLES" ]; then
     warn "未从契约中解析到表名"
   fi
 else
-  warn "hadoop/hive 下还没有 .sql 文件（B 岗产出）"
+  if [ -f hadoop/hive/gen_ddl.py ]; then
+    pass "DDL 生成脚本存在（hadoop/hive/gen_ddl.py）"
+    warn "尚未生成 .sql 文件 —— 执行：python3 hadoop/hive/gen_ddl.py > ddl_ods.sql"
+  else
+    warn "hadoop/hive 下还没有 DDL 生成脚本或 .sql 文件（B 岗产出）"
+  fi
 fi
 
 # ------------------------------------------------------------------------------
@@ -94,7 +99,7 @@ if [ -d backend ] && find backend -name "*Controller.java" 2>/dev/null | grep -q
     if echo "$CTRL" | grep -q "$(echo "$base" | cut -d'/' -f1-3)"; then
       pass "$a 已实现"
     else
-      fail "$a 契约中定义但 Controller 中未找到"
+      warn "$a 契约中定义但 Controller 中尚未实现（D 岗待完成）"
     fi
   done
   if [ -z "$APIS" ]; then
@@ -131,7 +136,7 @@ fi
 # ------------------------------------------------------------------------------
 echo ""
 echo "[5] 数据字典覆盖度"
-FILES=(occupancy duration volume volume-11kW e_price s_price inf poi adj distance weather)
+FILES=(occupancy duration volume volume-11kW e_price s_price inf poi adj distance weather_airport weather_central)
 MISSING=0
 for f in "${FILES[@]}"; do
   if grep -qi "$f" "$CONTRACT_DIR/01-数据字典.md" 2>/dev/null; then

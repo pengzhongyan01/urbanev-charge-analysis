@@ -24,10 +24,10 @@ bash scripts/sync.sh
 ```
 docs/contracts/
 ├── README.md                  ← 契约机制说明（先读这个）
-├── 01-数据字典.md              ← C 维护：11 个 CSV 的字段说明
-├── 02-指标定义表.md            ← E 维护：12 项指标的口径
-├── 03-接口规范.md              ← D 维护：API 路径与出入参
-└── 04-数仓表结构规范.md        ← B 维护：四层建表 DDL
+├── 01-数据字典.md              ← C 维护：12 个 CSV 的字段说明（v1.0 实测版已就位）
+├── 02-指标定义表.md            ← E 维护：12 基础 + 3 创新指标（v1.0 已就位）
+├── 03-接口规范.md              ← D 维护：11 个 API（v1.0 已就位）
+└── 04-数仓表结构规范.md        ← B 维护：四层建表 DDL（v1.0 已就位）
 ```
 
 **契约文件才是交接物，聊天记录不是。** 别人的口径变了，你 pull 一下就看到了。
@@ -43,25 +43,26 @@ docs/contracts/
 ## 二、技术架构
 
 ```
-UrbanEV 数据集（GitHub + Google Drive）
-  275 交通分区 × 8760 小时 × {occupancy, duration, volume, volume-11kW, e_price, s_price}
-  + {inf, poi, adj, distance} 维表 + {weather_airport, weather_central}
-        │  Flume 批量采集
+UrbanEV 数据集（GitHub 直链，CC0 协议）
+  275 交通分区 × 4,344 小时 × 6 项指标（宽表：time + 275 列）
+  + inf（分区坐标/桩数）、poi（71 万条）、adj、distance 维表
+  + weather_airport / weather_central 两个气象站
+        │  Flume taildir 增量采集
         ▼
-  HDFS（按月分区）
-        │  MapReduce 清洗校验
+  HDFS  /uev/raw/
+        │  MapReduce ① WideToLong（宽表转长）② DataQualityCheck（质量清洗）
         ▼
   Hive 四层数仓
-    ODS  原始贴源
-    DWD  清洗后明细事实表（一行 = 分区 × 小时）
-    DWS  轻度汇总（按天、滚动均值、峰谷标识）
-    ADS  应用指标（一张表 = 前端一个图表）
-        │  Sqoop
+    ODS  uev_ods.*        贴源宽表（275 列原貌）
+    DWD  uev_dwd.*        长表（一行 = 分区×小时×指标）+ 分区维度表
+    DWS  uev_dws.*        分区 × 日 × 小时 汇总
+    ADS  uev_ads.*        7 张应用指标表（一表 = 一图表）
+        │  Sqoop export
         ▼
-  MySQL
-        │  Spring Boot + MyBatis-Plus + Redis
+  MySQL  uev_charge（9 张业务表）
+        │  Spring Boot 3.2 + MyBatis + Redis
         ▼
-  ECharts 大屏（原生 JS，不用 Vue/React）
+  ECharts 5 大屏（原生 JS，不用 Vue/React）
 ```
 
 ---
@@ -224,18 +225,13 @@ git push origin feat/<你的分支>
 git clone <仓库地址>
 cd urbanev-charge-analysis
 
-# 2. 数据（不进 Git，体积大）
-mkdir -p data/dataset
-# 方式一：GitHub 仓库里的 1 小时粒度数据（推荐，够用）
-git clone --depth 1 https://github.com/whewhewhenew/UrbanEV.git /tmp/UrbanEV
-cp -r /tmp/UrbanEV/data/dataset/* data/dataset/
-
-# 方式二：5 分钟粒度数据（可选，加分项）
-pip install gdown
-gdown --folder https://drive.google.com/drive/folders/1VUgdb8uNgmtvO93BHBK_OrSxjndrF-48
+# 2. 数据（不进 Git，体积大）—— 一条命令搞定
+bash scripts/download_data.sh          # 12 个 CSV，132MB，含重试与镜像加速
+bash scripts/download_data.sh --5min   # 额外下载 5 分钟粒度（可选，42MB）
 ```
 
-> ⚠️ Google Drive 可能慢。**只用 1 小时粒度也完全够做全套功能**，5 分钟粒度是加分项不是必需。
+> ⚠️ 数据目录是 `data/raw/`（旧文档写的是 `data/dataset/`，已统一）。
+> 5 分钟粒度在 Google Drive，国内慢且可能失效，**建议放弃**——1 小时粒度已足够做全套功能。
 
 ---
 
@@ -244,36 +240,48 @@ gdown --folder https://drive.google.com/drive/folders/1VUgdb8uNgmtvO93BHBK_OrSxj
 ```
 urbanev-charge-analysis/
 ├── README.md
-├── RUNBOOK.md                      ★ 运行说明（A 维护）
+├── docker-compose.yml               ★ 一键编排（A 维护）
 ├── docs/
+│   ├── RUNBOOK.md                  ★★ 运行手册（A 维护，别人照着能跑）
 │   ├── contracts/                  ★★ 契约目录（唯一事实来源）
 │   │   ├── README.md
-│   │   ├── 01-数据字典.md
-│   │   ├── 02-指标定义表.md
-│   │   ├── 03-接口规范.md
-│   │   ├── 04-数仓表结构规范.md
+│   │   ├── 01-数据字典.md          v1.0 实测版
+│   │   ├── 02-指标定义表.md        v1.0（12 基础 + 3 创新指标）
+│   │   ├── 03-接口规范.md          v1.0（11 个接口）
+│   │   ├── 04-数仓表结构规范.md    v1.0（四层完整 DDL）
 │   │   └── CHANGELOG.md
+│   ├── report/第1-2章_初稿.md      ★ 报告初稿（A 写）
+│   ├── ppt/PPT逐页脚本.md          ★★ 11 页 PPT 逐页脚本 + 演示秒表 + 问答
 │   ├── screenshots/                所有截图（编号命名）
 │   └── images/                     报告用图表
 ├── hadoop/
 │   ├── flume/flume-env.conf        ★ A
-│   ├── hive/01_ods.sql ~ 04_ads.sql ★ B
-│   ├── mr/CleanMapper.java 等      ★ B
-│   └── spark/AdsCompute.py         ★ B
-├── db/mysql/                       MySQL 建表 + 种子数据
-├── backend/                        Spring Boot 工程 ★ D
-├── frontend/                       静态页面 ★ C
-│   ├── index.html demand.html imbalance.html
-│   ├── price.html forecast.html advice.html
-│   ├── js/common.js
-│   └── assets/shenzhen.geojson
+│   ├── flume/flume-csv-hdfs.conf   ★ A
+│   ├── hive/gen_ddl.py             ★ 275 列宽表 DDL 自动生成（已实测可用）
+│   ├── mr/WideToLong.java          ★ 宽表转长 MR 作业
+│   ├── mr/DataQualityCheck.java    ★ 数据质量检查 MR 作业
+│   ├── mr/PoiZoneJoin.java         ★ POI 空间连接 MR 作业
+│   └── spark/ads_metrics.sql       ★ 三个创新指标的 Spark SQL
+├── db/mysql/01_schema.sql          ★ MySQL 9 张业务表 DDL
+├── backend/                        Spring Boot 工程 ★ D（骨架已就位）
+│   ├── pom.xml / Dockerfile
+│   └── src/main/java/com/uev/{common,config,controller}/
+├── frontend/                       静态页面 ★ C（骨架已就位）
+│   ├── index.html
+│   ├── js/{common.js, app.js, echarts.min.js}   ★ echarts 已本地化
+│   ├── css/style.css
+│   ├── assets/shenzhen.geojson     ★ C 待补
+│   └── nginx.conf
 ├── notebooks/                      E 的分析 Notebook
 ├── scripts/
 │   ├── sync.sh                     ★ 每人每天跑
 │   ├── check-contracts.sh          ★ 提交前自检
-│   ├── smoke_test.sh               ★ A 维护，端到端检测
+│   ├── smoke_test.sh               ★ 端到端体检（7 项）
 │   ├── start_all.sh / stop_all.sh  ★ A 维护
-├── data/                           数据（.gitignore）
+│   ├── start_native.sh / stop_native.sh
+│   ├── download_data.sh            ★ 数据下载（含镜像加速）
+│   └── start_flume.sh              ★ Flume 采集启动
+├── data/raw/                       数据（.gitignore，132MB）
 ```
 
 ---
@@ -300,8 +308,8 @@ A：说明你的实现和契约对不上。**以契约为准改代码**，或者
 
 ## 十一、答辩预设问答
 
-1. 数据哪来的？→ UrbanEV，CC0 协议，GitHub 可查，论文 arXiv:2309.05259
-2. 为什么用 Hadoop？→ 275 分区 × 8760 小时 × 多指标时序聚合，单机是瓶颈
+1. 数据哪来的？→ UrbanEV，CC0 协议，GitHub 可查，论文 arXiv:2309.05259，深圳真实数据
+2. 为什么用 Hadoop？→ 275 分区 × 4,344 小时 × 6 指标（长表 717 万行）+ 71 万 POI，含宽转长/空间连接/多维聚合三类重计算
 3. 创新点是什么？→ 供需失衡指数 + 分时电价弹性 + 布点扩容建议
 4. 为什么不用 LSTM？→ 可解释性与工程可复现性优先，深度学习列入展望
 5. 数据是分区级还是桩级？→ 官方清洗后为分区级 275 个，报告中已说明
@@ -313,9 +321,11 @@ A：说明你的实现和契约对不上。**以契约为准改代码**，或者
 
 ## 十二、数据来源与引用
 
-> 本系统选用 UrbanEV 开放数据集作为研究数据源。该数据集由中山大学 Li Han 与香港理工大学 Qu Haohao 等人构建并公开发布（https://github.com/whewhewhenew/UrbanEV），原始数据取自深圳市 1,682 个公共充电站、24,798 个充电桩在 2022 年 9 月至 2023 年 2 月的逐小时运行记录，并经异常值检测与零值校验后清洗为 1,362 个充电站、17,532 个充电桩、275 个交通分区的数据集，采用 CC0 1.0 Universal 协议开放授权，相关研究成果发表于 arXiv:2309.05259。
+> 本系统选用 UrbanEV 开放数据集作为研究数据源。该数据集由中山大学 Li Han 与香港理工大学 Qu Haohao 等人构建并公开发布（https://github.com/whewhewhenew/UrbanEV），原始数据取自深圳市 1,682 个公共充电站、24,798 个充电桩在 2022 年 9 月至 2023 年 2 月的逐小时运行记录，并经异常值检测与零值校验后清洗为 275 个交通分区的分区级数据集（分区充电桩数合计 23,441 个），采用 CC0 1.0 Universal 协议开放授权，相关研究成果发表于 arXiv:2309.05259。
 >
-> 选择该数据集的理由有三：其一，数据规模（275 分区 × 8760 小时的多指标时序记录）满足分布式计算对数据量的基本要求，使 Hadoop 与 Spark 生态组件的引入具有必要性；其二，数据同时包含充电占用率、充电时长、充电电量三类运行指标与电价、服务费、天气、时段四类动态影响因素，以及兴趣点、邻接关系等空间属性，为供需失衡分析、弹性分析等多维建模提供了充分特征；其三，数据来源于中国城市并以 CC0 协议开放，不存在版权与合规风险，便于结果复现。
+> 经本组实测校验，该数据集各时序表共 4,344 个逐小时时点（2022-09-01 00:00 ~ 2023-02-28 23:00，181 天），单表结构为"时间戳列 + 275 个分区列"的宽表形式，并包含 71 万条兴趣点记录、三类充电指标（占用率、充电时长、充电电量两种口径）、电价与服务费时序。
+>
+> 选择该数据集的理由有三：其一，数据规模（275 分区 × 4,344 小时 × 6 项指标，长表化后约 717 万行，叠加 71 万条 POI）满足分布式计算对数据量的基本要求，使 Hadoop 与 Spark 生态组件的引入具有必要性；其二，数据同时包含充电占用率、充电时长、充电电量三类运行指标与电价、服务费、天气、时段四类动态影响因素，以及兴趣点、邻接关系等空间属性，为供需失衡分析、电价弹性分析等多维建模提供了充分特征；其三，数据来源于中国城市并以 CC0 协议开放，不存在版权与合规风险，便于结果复现。
 
 **参考文献**
 ```

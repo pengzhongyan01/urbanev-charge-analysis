@@ -58,3 +58,6 @@ tmp/
 # ===== 备注 =====
 # 大数据文件一律走 HDFS / MySQL，不进 Git。
 # 数据字典、指标定义、接口规范、表结构 DDL 全部是文本，必须进 Git。
+
+# 前端第三方库（本地化，避免答辩现场依赖 CDN）
+!frontend/js/echarts.min.js
