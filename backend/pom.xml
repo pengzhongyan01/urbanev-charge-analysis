@@ -1,13 +1,30 @@
-# ==============================================================================
-# pom.xml —— Spring Boot 后端 Maven 配置（骨架模板）
-#
-# 维护人：D（杨珊珊）　|　骨架由 A（彭忠燕）提供，11/26 前按需修改
-#
-# 说明：这是可直接编译运行的最小骨架。
-#      杨珊珊在此基础上补充 Controller / Service / Mapper / Entity。
-#      依赖版本已按 Java 17 + Spring Boot 3.x 对齐，不要随意升级大版本。
-# ==============================================================================
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  pom.xml —— Spring Boot 后端 Maven 配置（骨架模板）
+
+  维护人：D（杨珊珊）　|　骨架由 A（彭忠燕）提供，11/26 前按需修改
+
+  说明：这是可直接编译运行的最小骨架。
+       杨珊珊在此基础上补充 Controller / Service / Mapper / Entity。
+       依赖版本已按 Java 17 + Spring Boot 3.2.5 对齐，不要随意升级大版本。
+
+  ★ 版本历史
+    v1.0  11/19  A  建立骨架
+    v1.1  11/20  A  【修复致命 bug】原文件在 <?xml?> 声明之前写了 9 行 # 注释，
+                   XML 规范不允许，导致 Maven 直接报
+                   "Non-parseable POM ... only whitespace content allowed before start tag"
+                   → 项目完全无法编译。已把注释改为合法 XML 注释并移到声明之后。
+                   ★ D 同学 11/20 拉代码后请先跑一次 mvn clean package 验证。
+
+  ★ 如果你要用 MyBatis-Plus（而不是 MyBatis），必须换成 SB3 专用坐标：
+      <dependency>
+          <groupId>com.baomidou</groupId>
+          <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+          <version>3.5.5</version>
+      </dependency>
+    注意 artifactId 必须是 mybatis-plus-spring-boot3-starter（带 spring-boot3），
+    用 mybatis-plus-boot-starter 在 Spring Boot 3 下会启动失败。
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
