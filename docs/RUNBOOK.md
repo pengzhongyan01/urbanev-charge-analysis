@@ -136,7 +136,8 @@ git clone <你的仓库地址>
 cd urbanev-charge-analysis
 
 # 2. 下载数据（约 4 分钟，132MB）
-bash scripts/download_data.sh
+bash scripts/download_data.sh              # 全部 12 个 CSV
+bash scripts/download_data.sh --only=timeseries   # 只下 6 个时序表 + inf.csv（≈96MB，E 岗用这个）
 
 # 3. 一键启动（自动选择 full / app / native 模式）
 bash scripts/start_all.sh
@@ -232,8 +233,32 @@ bash scripts/start_flume.sh
 
 # 等待 30 秒后验证
 docker exec uev-namenode hdfs dfs -ls /uev/raw/
-docker exec uev-namenode hdfs dfs -cat '/uev/raw/*.csv' | head -3
+# 期望看到 12 个子目录
+docker exec uev-namenode hdfs dfs -ls /uev/raw/occupancy/
+docker exec uev-namenode hdfs dfs -cat '/uev/raw/occupancy/*.gz' | head -3
 ```
+
+> ★ **采集结构：12 个 CSV 各一个独立采集通道**（source / channel / sink），
+> 落到 HDFS 的 **12 个独立子目录**，与 Hive 建表脚本一一对应。
+> （2026-11-20 修正：原配置只有一个 sink，12 个 CSV 会混进同一文件，B 岗无法按表建表。）
+
+```
+uev/raw/occupancy/       → uev_ods.occupancy
+uev/raw/duration/        → uev_ods.duration
+uev/raw/volume/          → uev_ods.volume
+uev/raw/volume-11kW/     → uev_ods.volume_11kw
+uev/raw/e_price/         → uev_ods.e_price
+uev/raw/s_price/         → uev_ods.s_price
+uev/raw/inf/             → uev_ods.inf
+uev/raw/poi/             → uev_ods.poi
+uev/raw/adj/             → uev_ods.adj
+uev/raw/distance/        → uev_ods.distance
+uev/raw/weather_airport/ → uev_ods.weather_airport
+uev/raw/weather_central/ → uev_ods.weather_central
+```
+
+> ★ 数据目录不写死：`start_flume.sh` 用 `find_data.sh` 自动探测后注入环境变量
+> `FLUME_SOURCE_DIR`（优先级 `UEV_DATA_DIR` > `data/raw/` > `../数据/UrbanEV/`）。
 
 ### 步骤 7：运行 MapReduce 作业
 
@@ -245,27 +270,37 @@ docker exec uev-namenode bash -c '
   javac -cp $(hadoop classpath) *.java
   jar cf uev-mr.jar *.class'
 
-# 7.2 宽表转长表
+# 7.2 宽表转长表（以 occupancy 为例，输入是 HDFS 的独立子目录）
 docker exec uev-namenode bash -c '
   hadoop jar /opt/mr/uev-mr.jar com.uev.mr.WideToLong \
-    /uev/raw/ /uev/dwd/long/occupancy \
+    /uev/raw/occupancy/ /uev/dwd/long/occupancy \
     -D uev.metric.name=occupancy'
 
 # 7.3 数据质量检查
 docker exec uev-namenode bash -c '
   hadoop jar /opt/mr/uev-mr.jar com.uev.mr.DataQualityCheck \
-    /uev/raw/ /uev/dwd/dq/occupancy \
+    /uev/raw/occupancy/ /uev/dwd/dq/occupancy \
     -D uev.metric.name=occupancy -D uev.metric.min=0 -D uev.metric.max=1'
 
 # 7.4 POI 空间连接
 docker exec uev-namenode bash -c '
   hadoop jar /opt/mr/uev-mr.jar com.uev.mr.PoiZoneJoin \
-    /uev/poi/poi.csv /uev/dwd/zone_poi_count \
-    -D uev.zone.info.path=/uev/inf/inf.csv'
+    /uev/raw/poi/ /uev/dwd/zone_poi_count \
+    -D uev.zone.info.path=/uev/raw/inf/'
 ```
 
-> 各指标重复执行步骤 7.2，把 `uev.metric.name` 换成
-> `duration` / `volume` / `volume_11kw` / `e_price` / `s_price`。
+> ★ 各时序指标重复执行步骤 7.2 与 7.3，**输入目录与指标名要同时改**：
+>
+> | 指标 | 输入目录 | `uev.metric.name` |
+> |---|---|---|
+> | 占用率 | `/uev/raw/occupancy/` | `occupancy` |
+> | 充电时长 | `/uev/raw/duration/` | `duration` |
+> | 充电电量 | `/uev/raw/volume/` | `volume` |
+> | 电量(11kW) | `/uev/raw/volume-11kW/` | `volume_11kw` |
+> | 电价 | `/uev/raw/e_price/` | `e_price` |
+> | 服务费 | `/uev/raw/s_price/` | `s_price` |
+>
+> ★ 作业结束后核对行数：`DWD < ODS` 才能证明清洗真的做了（报告 3.2 的核心证据）。
 
 ### 步骤 8：计算 DWS / ADS 层
 
@@ -474,7 +509,7 @@ bash scripts/smoke_test.sh
 
 | 现象 | 原因 | 解决 |
 |---|---|---|
-| `docker compose` 提示找不到 | Docker 未安装或未启动 | 装 Docker Desktop 并启动守护进程 |
+| Maven 报 `Non-parseable POM` | `pom.xml` 的 `<?xml?>` 声明必须在**第一行**，前面不能有任何注释（`#` 在 XML 里不是合法注释符） | `docker compose` 提示找不到 | Docker 未安装或未启动 | 装 Docker Desktop 并启动守护进程 |
 | 镜像拉取超时 | 国内网络 | 用镜像加速：`docker compose --profile full pull` 配 registry mirror |
 | 内存不足，容器被 kill | 物理内存 < 8G | Docker Desktop → Settings → Resources 调到 8G+ |
 | `start_all.sh` 提示数据目录为空 | 没下载数据 | `bash scripts/download_data.sh` |

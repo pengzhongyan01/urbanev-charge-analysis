@@ -38,7 +38,7 @@ public class HealthController {
     private final RedisTemplate<String, Object> redisTemplate;
     private final JdbcTemplate jdbcTemplate;
 
-    @Value("${uev.data.region-count:96}")
+    @Value("${uev.data.region-count:275}")
     private int regionCount;
 
     public HealthController(DataSource dataSource,

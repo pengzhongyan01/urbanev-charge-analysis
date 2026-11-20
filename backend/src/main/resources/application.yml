@@ -83,10 +83,14 @@ uev:
     filter-ttl: 120
     chart-ttl: 600
   # 数据时间范围
+  # ★ 口径以 docs/contracts/01-数据字典.md v1.0 为准：
+  #   2022-09-01 00:00 ~ 2023-02-28 23:00，4344 小时 = 181 天 × 24
   data:
     start-date: ${DATA_START:2022-09-01}
-    end-date: ${DATA_END:2022-10-31}
-    region-count: 96
+    end-date: ${DATA_END:2023-02-28}
+    region-count: ${DATA_REGION_COUNT:275}
+    pile-count: ${DATA_PILE_COUNT:23441}
+    hour-count: ${DATA_HOUR_COUNT:4344}
 
 # ---------- 日志 ----------
 logging:

@@ -88,19 +88,6 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
-        <!-- Apache Hive JDBC（只读查 ADS 表，可选） -->
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-jdbc</artifactId>
-            <version>3.1.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- 开发工具 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -115,6 +102,43 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <!--
+      ★ Hive JDBC —— 默认不启用（profile: hive）
+      原因：hive-jdbc 3.1.3 的传递依赖里有 jdk.tools:jdk.tools:1.6（system scope），
+            那是 JDK 8 的产物，在 JDK 17 下已移除，会导致
+            "Could not find artifact jdk.tools:jdk.tools:jar:1.6" 而构建失败。
+            而且它会拖入 hadoop-common / guava / netty 等大量传递依赖，
+            与 Spring Boot 的依赖版本容易冲突，首次构建要多花 3–5 分钟。
+      本系统后端的 16 个接口全部基于 MySQL 视图查询，不需要连 Hive，
+      因此把它做成可选 profile：
+            mvn clean package                → 默认构建（不含 hive-jdbc，快）
+            mvn clean package -Phive         → 需要直连 Hive 时启用
+      备注：契约 04 中「数据准确性测试」的 Hive 侧对照值，由 B 岗用 beeline 查，
+            不走后端接口，不需要 hive-jdbc。
+    -->
+    <profiles>
+        <profile>
+            <id>hive</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.hive</groupId>
+                    <artifactId>hive-jdbc</artifactId>
+                    <version>3.1.3</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>jdk.tools</groupId>
+                            <artifactId>jdk.tools</artifactId>
+                        </exclusion>
+                        <exclusion>
+                            <groupId>org.slf4j</groupId>
+                            <artifactId>slf4j-log4j12</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <finalName>uev-charge-analysis</finalName>

@@ -42,9 +42,9 @@ fi
 # 找 Hive 查询方式
 run_hive() {
   if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$NN"; then
-    docker exec "$NN" beeline -u jdbc:hive2://hive:10000 -e "$1" 2>/dev/null
+    timeout 20 docker exec "$NN" beeline -u jdbc:hive2://hive:10000 -e "$1" 2>/dev/null
   elif command -v beeline >/dev/null 2>&1; then
-    beeline -u jdbc:hive2://localhost:10000 -e "$1" 2>/dev/null
+    timeout 20 beeline -u jdbc:hive2://localhost:10000 -e "$1" 2>/dev/null
   else
     return 1
   fi
@@ -52,9 +52,9 @@ run_hive() {
 
 run_mysql() {
   if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$MYSQL_C"; then
-    docker exec "$MYSQL_C" mysql -uroot -puev123456 uev_charge -N -e "$1" 2>/dev/null
+    timeout 20 docker exec "$MYSQL_C" timeout 20 mysql -uroot -puev123456 uev_charge -N -e "$1" 2>/dev/null
   elif command -v mysql >/dev/null 2>&1; then
-    mysql -uroot -puev123456 uev_charge -N -e "$1" 2>/dev/null
+    timeout 20 mysql -uroot -puev123456 uev_charge -N -e "$1" 2>/dev/null
   else
     return 1
   fi
@@ -198,6 +198,28 @@ for t in dashboard_kpi hourly_supply_demand imbalance_index price_elasticity \
 done
 
 # ------------------------------------------------------------------------------
+section "[4.5/7] Redis 缓存"
+# ★ 单独检查 Redis：即使后端没起来，Redis 挂了也必须能第一时间发现
+redis_ok=0
+if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$REDIS_C"; then
+  if timeout 15 docker exec "$REDIS_C" redis-cli -a uev_redis_pass ping 2>/dev/null | grep -q PONG; then
+    pass "Redis 容器响应正常（PING → PONG）"
+    redis_ok=1
+  else
+    fail "Redis 容器无响应"
+  fi
+elif command -v redis-cli >/dev/null 2>&1; then
+  if timeout 15 redis-cli -a uev_redis_pass ping 2>/dev/null | grep -q PONG; then
+    pass "Redis 响应正常（PING → PONG）"
+    redis_ok=1
+  else
+    fail "Redis 无响应"
+  fi
+else
+  warn "Redis 不可达（未装 redis-cli 且无容器）"
+fi
+
+# ------------------------------------------------------------------------------
 section "[5/7] 后端接口"
 HEALTH=$(curl -s --max-time 8 http://localhost:8080/api/health 2>/dev/null)
 if [ -n "$HEALTH" ]; then
@@ -220,8 +242,14 @@ else
   fail "后端未响应（8080 端口无服务）"
 fi
 
-for api in "/dashboard/kpi" "/zones/occupancy" "/charts/hourly" "/charts/imbalance" \
-           "/charts/price-elasticity" "/charts/forecast" "/charts/suggestions"; do
+# ★ 接口清单与 docs/contracts/03-接口规范.md 一一对应（16 个）
+#   契约新增的 5 个（clusters / forecast-evaluate / zone detail / weather / advice export）
+#   若 D 尚未实现，会报 404 提醒，属正常 —— 实现后自动转绿
+API_LIST="/dashboard/kpi /zones/occupancy /charts/hourly /charts/imbalance \
+/charts/price-elasticity /charts/forecast /charts/suggestions \
+/charts/volume-deviation /charts/poi-correlation /dictionary \
+/charts/clusters /charts/forecast-evaluate /weather/list /zones/102/detail"
+for api in $API_LIST; do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "http://localhost:8080/api$api" 2>/dev/null)
   if [ "$CODE" = "200" ]; then
     pass "$api 返回 200"
@@ -245,10 +273,10 @@ else
   fail "echarts.min.js 缺失 —— 必须在答辩前本地化，不能依赖 CDN"
 fi
 
-if [ -f "frontend/assets/shenzhen.geojson" ]; then
+if [ -f "frontend/assets/shenzhen_440300_full.json" ]; then
   pass "深圳地图 GeoJSON 存在"
 else
-  warn "深圳地图 GeoJSON 缺失（前端有散点降级方案，但地图效果打折）"
+  warn "深圳地图 GeoJSON 缺失（应为 frontend/assets/shenzhen_440300_full.json）"
 fi
 
 # ------------------------------------------------------------------------------
