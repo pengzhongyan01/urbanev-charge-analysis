@@ -1,0 +1,13 @@
+# 统一换行符：仓库内一律 LF，Windows 检出时转 CRLF
+* text=auto eol=lf
+*.sh text eol=lf
+*.java text eol=lf
+*.py text eol=lf
+*.sql text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.xml text eol=lf
+*.png binary
+*.mp4 binary
+*.geojson text eol=lf
