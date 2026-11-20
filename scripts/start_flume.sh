@@ -2,101 +2,94 @@
 # ==============================================================================
 # start_flume.sh —— 启动 Flume 采集 agent
 #
-# 维护人：A（组长）　|　交付：11/24
-# 用法：bash scripts/start_flume.sh
+# ★ 2026-11-20 重写。原来这个脚本在 uev-namenode 容器里执行 $FLUME_HOME/bin/flume-ng，
+#   但 apache/hadoop 镜像**根本不含 Flume**（官方 Dockerfile 只解 hadoop tarball），
+#   必然 "flume-ng: No such file or directory"。
+#   现在改为：docker-compose.yml 里新增了独立的 flume 服务（基于自建镜像
+#   docker/flume/Dockerfile = apache/hadoop + Flume 1.11.0），这里只负责启停与验证。
 #
-# 前置：data/raw 下已有 CSV；HDFS 可用（docker exec uev-namenode hdfs dfs -mkdir -p /uev/raw）
+# 维护人：A（组长）
 # ==============================================================================
 set -uo pipefail
-
 cd "$(dirname "$0")/.." || exit 1
 
-GREEN='\033[1;32m'; RED='\033[1;31m'; YELLOW='\033[1;33m'; BLUE='\033[1;34m'; CYAN='\033[1;36m'; NC='\033[0m'
+GREEN='\033[1;32m'; RED='\033[1;31m'; YELLOW='\033[1;33m'; BLUE='\033[1;34m'; NC='\033[0m'
+FLUME_C=uev-flume
 
 echo ""
-echo "=============================================================="
-echo -e " ${BLUE}启动 Flume 采集${NC}"
-echo "=============================================================="
+echo -e "${BLUE}==============================================================${NC}"
+echo -e " ${BLUE}启动 Flume 采集 agent${NC}"
+echo " $(date '+%Y-%m-%d %H:%M:%S')"
+echo -e "${BLUE}==============================================================${NC}"
 
-# ------------------------------------------------------------------------------
-# 1. 检查数据
-# ------------------------------------------------------------------------------
-# shellcheck source=scripts/find_data.sh
-source scripts/find_data.sh
-DATA_DIR="${UEV_DATA_DIR:-}"
-CSV_COUNT=$(ls -1 "$DATA_DIR"/*.csv 2>/dev/null | wc -l)
-if [ "$CSV_COUNT" -eq 0 ] || [ -z "$DATA_DIR" ]; then
-  echo -e "\n${RED}✗ 未找到数据目录或其中没有 CSV${NC}"
-  echo -e "  ${YELLOW}→${NC} 先执行 bash scripts/download_data.sh"
+# ---- 0. 前置检查 ----
+if ! command -v docker >/dev/null 2>&1; then
+  echo -e "  ${RED}✗${NC} 未安装 Docker —— Flume 无法启动"
+  echo "    Flume 跑在 Docker 容器里（apache/hadoop 镜像不含 Flume，必须自建镜像）"
   exit 1
 fi
-echo -e "\n${BLUE}[1/4]${NC} 数据就绪：${CSV_COUNT} 个 CSV"
-
-# ------------------------------------------------------------------------------
-# 2. 准备 HDFS 目标目录
-# ------------------------------------------------------------------------------
-echo -e "\n${BLUE}[2/4]${NC} 准备 HDFS 目录..."
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "uev-namenode"; then
-  docker exec uev-namenode hdfs dfs -mkdir -p /uev/raw/ 2>&1 | head -3
-  docker exec uev-namenode hdfs dfs -chmod 777 /uev/raw 2>&1 | head -3
-  echo -e "    ${GREEN}✓${NC} /uev/raw/ 就绪"
-else
-  echo -e "    ${YELLOW}!${NC} 未检测到 Docker 中的 NameNode，跳过"
-  echo -e "       ${YELLOW}→${NC} 若用本机 Hadoop，手动执行：hdfs dfs -mkdir -p /uev/raw/"
+if ! docker info >/dev/null 2>&1; then
+  echo -e "  ${RED}✗${NC} Docker 未运行 —— 请先启动 Docker Desktop"
+  exit 1
 fi
 
-# ------------------------------------------------------------------------------
-# 3. 分发配置到容器
-# ------------------------------------------------------------------------------
-echo -e "\n${BLUE}[3/4]${NC} 分发配置..."
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "uev-namenode"; then
-  docker exec uev-namenode mkdir -p /opt/flume/conf /opt/flume/checkpoint /opt/flume/logs 2>&1 | head -3
-  docker cp hadoop/flume/flume-csv-hdfs.conf uev-namenode:/opt/flume/conf/ 2>&1 | head -3
-  echo -e "    ${GREEN}✓${NC} 配置已复制到容器"
+# ---- 1. 准备容器内数据目录 ----
+# ★ 容器内路径固定 /data/urbanev；宿主机实际路径由 find_data.sh 探测
+DATA_DIR=""
+if [ -f scripts/find_data.sh ]; then
+  DATA_DIR=$(bash scripts/find_data.sh 2>/dev/null | grep -oE '/.*UrbanEV' | head -1)
+fi
+if [ -z "$DATA_DIR" ] || [ ! -d "$DATA_DIR" ]; then
+  echo -e "  ${YELLOW}!${NC} 未探测到数据目录，用仓库内 ./data/urbanev"
+  DATA_DIR=""
+fi
+if [ -n "$DATA_DIR" ]; then
+  mkdir -p ./data/urbanev
+  # 软链接比 bind mount 稳（Windows 上 bind mount 会有权限问题）
+  for f in "$DATA_DIR"/*.csv; do
+    [ -f "$f" ] || continue
+    ln -sf "$f" "./data/urbanev/$(basename "$f")" 2>/dev/null || cp -n "$f" "./data/urbanev/" 2>/dev/null || true
+  done
+  echo -e "  ${GREEN}✓${NC} 数据目录：$DATA_DIR → ./data/urbanev（已建立软链接）"
 else
-  echo -e "    ${YELLOW}!${NC} Docker 模式不可用，尝试本机模式"
+  echo -e "  ${YELLOW}!${NC} 未找到数据，Flume 会采不到文件。请先跑 scripts/download_data.sh"
 fi
 
-# ------------------------------------------------------------------------------
-# 4. 启动 agent
-# ------------------------------------------------------------------------------
-echo -e "\n${BLUE}[4/4]${NC} 启动 agent..."
-if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "uev-namenode"; then
-  docker exec -d uev-namenode bash -c "
-    FLUME_HOME=/opt/flume
-    \$FLUME_HOME/bin/flume-ng agent \
-      --name uev-agent \
-      --conf \$FLUME_HOME/conf \
-      --conf-file /opt/flume/conf/flume-csv-hdfs.conf \
-      > /opt/flume/logs/flume-agent.log 2>&1"
-  sleep 6
-  if docker exec uev-namenode bash -c "ps aux | grep -q '[f]lume'" 2>/dev/null; then
-    echo -e "    ${GREEN}✓${NC} Flume agent 运行中"
-  else
-    echo -e "    ${RED}✗${NC} Flume agent 启动失败"
-    echo -e "       ${YELLOW}→${NC} 查看日志：docker exec uev-namenode tail -30 /opt/flume/logs/flume-agent.log"
-    exit 1
+# ---- 2. 启动 flume 服务 ----
+echo -e "  ${BLUE}→${NC} 启动 flume 服务（首次会构建镜像，需几分钟）..."
+if ! docker compose --profile hadoop up -d flume 2>&1 | tail -15; then
+  echo -e "  ${RED}✗${NC} flume 服务启动失败"
+  exit 1
+fi
+
+# ---- 3. 等待 agent 起来 ----
+echo -e "  ${BLUE}→${NC} 等待 Flume agent 就绪..."
+for i in $(seq 1 20); do
+  if docker exec "$FLUME_C" pgrep -f flume-ng >/dev/null 2>&1; then
+    echo -e "  ${GREEN}✓${NC} Flume agent 已就绪（${i}0 秒内）"
+    break
   fi
-elif [ -n "${FLUME_HOME:-}" ]; then
-  "$FLUME_HOME/bin/flume-ng" agent --name uev-agent \
-    --conf "$FLUME_HOME/conf" \
-    --conf-file hadoop/flume/flume-csv-hdfs.conf \
-    > /tmp/flume-agent.log 2>&1 &
-  echo -e "    ${GREEN}✓${NC} 本机 Flume 已启动（日志：/tmp/flume-agent.log）"
-else
-  echo -e "    ${RED}✗${NC} 无法启动：既无 Docker 环境也未设置 FLUME_HOME"
-  echo -e "       ${YELLOW}→${NC} 参考 docs/RUNBOOK.md 第三章"
+  sleep 3
+done
+if ! docker exec "$FLUME_C" pgrep -f flume-ng >/dev/null 2>&1; then
+  echo -e "  ${RED}✗${NC} Flume agent 未起来，查看日志："
+  echo "    docker logs $FLUME_C --tail 50"
   exit 1
 fi
 
+# ---- 4. 验证 HDFS 目录 ----
+echo -e "  ${BLUE}→${NC} 验证 HDFS 采集目录..."
+docker exec uev-namenode hdfs dfs -mkdir -p /uev/raw 2>/dev/null || true
+docker exec uev-namenode hdfs dfs -ls /uev/raw/ 2>/dev/null | head -20
+
 echo ""
-echo "=============================================================="
+echo -e "${BLUE}==============================================================${NC}"
 echo -e " ${GREEN}Flume 启动完成${NC}"
-echo "=============================================================="
+echo -e "${BLUE}==============================================================${NC}"
 echo ""
-echo -e " ${CYAN}验证采集结果${NC}（等 30 秒让数据落盘）："
-echo -e "   ${YELLOW}docker exec uev-namenode hdfs dfs -ls /uev/raw/${NC}"
-echo -e "   ${YELLOW}docker exec uev-namenode hdfs dfs -cat '/uev/raw/*.csv' | head -5${NC}"
+echo "★ 采集是滚动写入的（rollInterval=300s + 默认 .tmp 后缀），"
+echo "  第一次验证请等 5 分钟后再看 hdfs dfs -ls /uev/raw/<表名>/"
 echo ""
-echo -e " ${YELLOW}停止采集${NC}：docker exec uev-namenode pkill -f flume"
+echo "查看日志：docker logs $FLUME_C --tail 50 -f"
+echo "停止采集：docker compose --profile hadoop stop flume"
 echo ""

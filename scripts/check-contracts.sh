@@ -96,7 +96,13 @@ if [ -d backend ] && find backend -name "*Controller.java" 2>/dev/null | grep -q
   for a in $APIS; do
     # 去掉可能的路径变量，做宽松匹配
     base=$(echo "$a" | sed 's/{[^}]*}/{}/g')
-    if echo "$CTRL" | grep -q "$(echo "$base" | cut -d'/' -f1-3)"; then
+    # ★ 改为 class 段 + method 段两段匹配：
+    #   原写法 cut -d'/' -f1-3 把 /api/dashboard/kpi 截成 /api/dashboard，
+    #   而 Controller 里是 @RequestMapping("/api") + @GetMapping("/dashboard/kpi")，
+    #   字面量 "/api/dashboard" 从不出现在源码里 → 连已实现的 /api/health 都报未实现。
+    _cls=$(echo "$base" | cut -d'/' -f2)
+    _mth=$(echo "$base" | cut -d'/' -f3-)
+    if echo "$CTRL" | grep -q "/${_cls}" && echo "$CTRL" | grep -q "/${_mth}"; then
       pass "$a 已实现"
     else
       warn "$a 契约中定义但 Controller 中尚未实现（D 岗待完成）"
@@ -114,8 +120,8 @@ fi
 # ------------------------------------------------------------------------------
 echo ""
 echo "[4] 指标：契约 → 计算脚本"
-if [ -d hadoop ] && find hadoop -name "*.sql" -o -name "*.py" 2>/dev/null | grep -q .; then
-  CALC=$(cat $(find hadoop -name "*.sql" -o -name "*.py" 2>/dev/null) 2>/dev/null)
+if [ -d hadoop ] && find hadoop/spark hadoop/mr -name "*.sql" -o -name "*.java" 2>/dev/null | grep -q .; then
+  CALC=$(cat $(find hadoop/spark hadoop/mr -name "*.sql" -o -name "*.java" 2>/dev/null) 2>/dev/null)
   METRICS=$(grep -ohE '`[a-z_]{6,}`' "$CONTRACT_DIR/02-指标定义表.md" 2>/dev/null | tr -d '`' | sort -u)
   FOUND=0
   for m in $METRICS; do

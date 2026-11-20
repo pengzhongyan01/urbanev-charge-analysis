@@ -28,6 +28,16 @@ echo "=============================================================="
 # ------------------------------------------------------------------------------
 # 1. 记录同步前的契约文件状态
 # ------------------------------------------------------------------------------
+# ★ 跨平台哈希：macOS 只有 shasum，没有 md5sum
+#   原版固定用 md5sum → 在 Mac 上 BEFORE/AFTER 都是空 → 恒报「契约无变更」，
+#   新人在 Mac 上完全看不出别人改了契约
+hash_cmd() {
+  if command -v sha256sum >/dev/null 2>&1; then echo "sha256sum"
+  elif command -v shasum   >/dev/null 2>&1; then echo "shasum -a 256"
+  else echo "md5sum"; fi
+}
+HASH_CMD=$(hash_cmd)
+
 BEFORE=$(mktemp)
 AFTER=$(mktemp)
 if [ -d "$CONTRACT_DIR" ]; then

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -137,7 +138,9 @@ public class WideToLong {
         }
 
         Configuration conf = new Configuration();
-        conf.set("uev.metric.name", conf.get("uev.metric.name", "occupancy"));
+        // ★ 必须解析 -D 命令行参数，否则 uev.metric.name / uev.zone.info.path 永远取不到
+        GenericOptionsParser parser = new GenericOptionsParser(args);
+        conf = parser.getConf();
 
         Job job = Job.getInstance(conf, "WideToLong-" + conf.get("uev.metric.name"));
 

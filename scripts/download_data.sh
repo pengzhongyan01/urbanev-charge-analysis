@@ -10,7 +10,7 @@
 #   论文:   arXiv:2309.05259
 #   许可:   CC0（公共领域，可自由使用，引用时注明出处即可）
 #
-# 用法：bash scripts/download_data.sh          # 下载 1 小时粒度数据（核心，11 个 CSV）
+# 用法：bash scripts/download_data.sh          # 下载 1 小时粒度数据（核心，12 个 CSV）
 #        bash scripts/download_data.sh --5min   # 额外下载 5 分钟粒度（可选，42MB）
 #
 # 说明：国内访问 raw.githubusercontent.com 偶尔超时，脚本内置了重试和镜像加速。

@@ -218,10 +218,10 @@ python3 hadoop/hive/gen_ddl.py > ddl_ods.sql
 
 # 5.2 上传并执行
 docker cp ddl_ods.sql uev-namenode:/tmp/
-docker exec uev-namenode beeline -u jdbc:hive2://hive:10000 -f /tmp/ddl_ods.sql
+docker exec uev-hive beeline -u 'jdbc:hive2://localhost:10000'  -f /tmp/ddl_ods.sql
 
 # 5.3 验证
-docker exec uev-namenode beeline -u jdbc:hive2://hive:10000 -e \
+docker exec uev-hive beeline -u 'jdbc:hive2://localhost:10000'  -e \
   "SELECT COUNT(*) FROM uev_ods.occupancy;"
 # 期望输出：4344
 ```
@@ -264,11 +264,14 @@ uev/raw/weather_central/ → uev_ods.weather_central
 
 ```bash
 # 7.1 编译 MR 作业
-docker exec uev-namenode bash -c '
-  mkdir -p /opt/mr && cd /opt/mr
-  cp -r /data/hadoop/mr/*.java .
-  javac -cp $(hadoop classpath) *.java
-  jar cf uev-mr.jar *.class'
+# ★ apache/hadoop 镜像只装了 JRE（没有 javac），容器里也没有仓库源码。
+#   改用一次性 Maven 容器编译 —— 依赖自动从阿里云镜像拉，本机不必装 Hadoop。
+docker run --rm -v "$PWD/hadoop/mr:/src" -v "$PWD/hadoop/lib:/opt/hadoop/lib" \
+  -w /src maven:3.9-eclipse-temurin-17 \
+  sh -c "javac -cp '/opt/hadoop/lib/*' *.java && jar cf uev-mr.jar *.class"
+
+# 编译产物拷进集群容器
+docker cp hadoop/mr/uev-mr.jar uev-namenode:/opt/mr/uev-mr.jar
 
 # 7.2 宽表转长表（以 occupancy 为例，输入是 HDFS 的独立子目录）
 docker exec uev-namenode bash -c '
@@ -305,15 +308,18 @@ docker exec uev-namenode bash -c '
 ### 步骤 8：计算 DWS / ADS 层
 
 ```bash
-docker cp hadoop/spark/ads_metrics.sql uev-namenode:/tmp/
-docker exec uev-namenode bash -c '
-  spark-sql --master local[*] --conf spark.sql.hive.metastore.uris=thrift://hive:9083 \
+# ★ apache/hadoop 与 apache/hive 镜像都不含 Spark，spark-sql 必须在 uev-spark 容器里跑
+docker cp hadoop/spark/ads_metrics.sql uev-spark:/tmp/ads_metrics.sql
+docker exec uev-spark bash -c '
+  /opt/spark/bin/spark-sql --master local[*] \
+    --conf spark.sql.hive.metastore.uris=thrift://hive:9083 \
+    --conf spark.sql.warehouse.dir=/user/hive/warehouse \
     -f /tmp/ads_metrics.sql'
 ```
 
 **验证**：
 ```bash
-docker exec uev-namenode beeline -u jdbc:hive2://hive:10000 -e "
+docker exec uev-hive beeline -u 'jdbc:hive2://localhost:10000' -e "
   SELECT 'imbalance', COUNT(*) FROM uev_ads.imbalance_index
   UNION ALL SELECT 'elasticity', COUNT(*) FROM uev_ads.price_elasticity
   UNION ALL SELECT 'forecast', COUNT(*) FROM uev_ads.demand_forecast
@@ -323,6 +329,23 @@ docker exec uev-namenode beeline -u jdbc:hive2://hive:10000 -e "
 ### 步骤 9：Sqoop 导出到 MySQL
 
 ```bash
+# ★ 两个坑：
+#   1) apache/hadoop 镜像不含 sqoop → 需在装好 sqoop 的环境里跑（见下方说明）
+#   2) apache/sqoop:1.4.7 自带 mysql-connector-java 5.1.x，连 MySQL 8 会报
+#      "Unknown system variable 'query_cache_size'" → 必须换成 connector 8.x
+#   兜底方案（不依赖 sqoop，推荐作业用这个）：
+#     Hive ---> CSV ---> MySQL LOAD DATA LOCAL INFILE
+docker exec uev-hive beeline -u 'jdbc:hive2://localhost:10000' -e "
+  SELECT * FROM uev_ads.imbalance_index
+  INTO LOCAL DIRECTORY '/tmp/exp'
+  ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
+docker cp uev-hive:/tmp/exp/000000_0 ./data/export/imbalance_index.csv
+mysql --local-infile=1 -h127.0.0.1 -uroot -puev123456 uev_charge -e "
+  LOAD DATA LOCAL INFILE 'data/export/imbalance_index.csv'
+  INTO TABLE ads_imbalance_index
+  FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';"
+
+# 若确实要用 Sqoop（报告里要写"用了 Sqoop"）：
 docker exec uev-namenode sqoop export \
   --connect jdbc:mysql://mysql:3306/uev_charge \
   --username root --password uev123456 \
@@ -554,7 +577,7 @@ docker exec uev-namenode hdfs dfs -ls -R /uev
 docker exec uev-namenode hdfs dfs -du -sh /uev/*
 
 # Hive 查询
-docker exec uev-namenode beeline -u jdbc:hive2://hive:10000
+docker exec uev-hive beeline -u 'jdbc:hive2://localhost:10000' 
 
 # MySQL 查询
 docker exec uev-mysql mysql -uroot -puev123456 uev_charge -e "

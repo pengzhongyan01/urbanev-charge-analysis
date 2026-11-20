@@ -40,11 +40,15 @@ if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
 fi
 
 # 找 Hive 查询方式
+# ★ beeline 属于 Hive 发行版，apache/hadoop 镜像里【没有】。
+#   原来在 uev-namenode 容器里跑 beeline → 永远失败 → run_hive 返回 1
+#   → 四层数仓检查被静默跳过，脚本却仍可能 exit 0。这是整套验收里最该验的一段。
+#   现在改为在 uev-hive 容器里查（连自己的 10000 端口）。
 run_hive() {
-  if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$NN"; then
-    timeout 20 docker exec "$NN" beeline -u jdbc:hive2://hive:10000 -e "$1" 2>/dev/null
+  if [ "$has_docker" -eq 1 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -q "uev-hive"; then
+    timeout 30 docker exec uev-hive beeline -u 'jdbc:hive2://localhost:10000' -e "$1" 2>/dev/null
   elif command -v beeline >/dev/null 2>&1; then
-    timeout 20 beeline -u jdbc:hive2://localhost:10000 -e "$1" 2>/dev/null
+    timeout 30 beeline -u 'jdbc:hive2://localhost:10000' -e "$1" 2>/dev/null
   else
     return 1
   fi
@@ -117,7 +121,7 @@ if [ "$has_docker" -eq 1 ]; then
   done
 
   if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "$NN"; then
-    JPS=$(docker exec "$NN" jps 2>/dev/null)
+    JPS=$(timeout 20 docker exec "$NN" jps 2>/dev/null)
     for proc in NameNode DataNode; do
       if echo "$JPS" | grep -q "$proc"; then
         pass "$proc 进程正常"
@@ -126,7 +130,7 @@ if [ "$has_docker" -eq 1 ]; then
       fi
     done
     # HDFS 可写性
-    if docker exec "$NN" hdfs dfs -test -d /uev 2>/dev/null; then
+    if timeout 20 docker exec "$NN" hdfs dfs -test -d /uev 2>/dev/null; then
       pass "HDFS /uev 目录可访问"
     else
       warn "HDFS /uev 目录不存在（尚未执行 Flume 采集）"
@@ -242,19 +246,24 @@ else
   fail "后端未响应（8080 端口无服务）"
 fi
 
-# ★ 接口清单与 docs/contracts/03-接口规范.md 一一对应（16 个）
-#   契约新增的 5 个（clusters / forecast-evaluate / zone detail / weather / advice export）
-#   若 D 尚未实现，会报 404 提醒，属正常 —— 实现后自动转绿
-API_LIST="/dashboard/kpi /zones/occupancy /charts/hourly /charts/imbalance \
-/charts/price-elasticity /charts/forecast /charts/suggestions \
-/charts/volume-deviation /charts/poi-correlation /dictionary \
-/charts/clusters /charts/forecast-evaluate /weather/list /zones/102/detail"
+# ★ 接口清单从契约文件动态读取 —— 不再手写，避免与契约脱节
+#   （原手写 14 条，但契约里只有 11 条，另有 5 条是 D 待新增，数字对不上）
+API_LIST=$(grep -oE '(GET|POST) +/api/[a-zA-Z0-9/_{}.-]+' \
+           docs/contracts/03-接口规范.md 2>/dev/null \
+           | awk '{print $2}' | sort -u | tr '\n' ' ')
+if [ -z "$API_LIST" ]; then
+  warn "无法从契约读取接口清单（契约文件缺失？）"
+  API_LIST="/health"
+fi
 for api in $API_LIST; do
   CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "http://localhost:8080/api$api" 2>/dev/null)
   if [ "$CODE" = "200" ]; then
     pass "$api 返回 200"
   elif [ "$CODE" = "000" ]; then
     fail "$api 无响应"
+  elif [ "$CODE" = "404" ] || [ "$CODE" = "501" ]; then
+    # 契约里定义了但 D 还没实现的接口 —— 属进度问题，不是环境问题
+    warn "$api 尚未实现（$CODE）—— D 岗待补"
   else
     fail "$api 返回 $CODE"
   fi

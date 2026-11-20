@@ -3,6 +3,7 @@ package com.uev.mr;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -145,6 +146,9 @@ public class DataQualityCheck {
         }
 
         Configuration conf = new Configuration();
+        // ★ 必须解析 -D 命令行参数，否则 uev.metric.name / uev.zone.info.path 永远取不到
+        GenericOptionsParser parser = new GenericOptionsParser(args);
+        conf = parser.getConf();
         Job job = Job.getInstance(conf, "DataQualityCheck-" + conf.get("uev.metric.name", "occupancy"));
 
         job.setJarByClass(DataQualityCheck.class);
