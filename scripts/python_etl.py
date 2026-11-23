@@ -325,7 +325,10 @@ def build_ads(zone_ids, lon, lat, piles, occ_long, dur_long, vol_long, vol11_lon
     dem_m = di.to_numpy(dtype="float64")
     n_z_m, n_c_m = imp_m.shape
     flat_abs = np.abs(imp_m).ravel()
-    k = min(200, int(np.isfinite(flat_abs).sum()))
+    # ★ 取 TOP 2000 而不是 TOP 200：绘图时要「按分区去重」再取 TOP N，
+    #   若这里只给 200 条，扁平排序后会被少数分区的多个时段占满，
+    #   去重后只剩 4 个分区，榜单失去横向可比性。
+    k = min(2000, int(np.isfinite(flat_abs).sum()))
     top_idx = np.argpartition(-np.nan_to_num(flat_abs, nan=-np.inf), k - 1)[:k]
     top_idx = top_idx[np.argsort(-np.abs(imp_m.ravel()[top_idx]))]
     z_i = top_idx // n_c_m

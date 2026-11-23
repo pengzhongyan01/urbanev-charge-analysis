@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+@page { size: A4; margin: 3.0cm 2.0cm 2.5cm 3.0cm; }
+body { font-family: "宋体", "SimSun", serif; font-size: 12pt; line-height: 1.5;
+        text-align: justify; }
+.cover { page-break-after: always; text-align: center; padding-top: 4cm; }
+.c-school { font-size: 26pt; font-weight: bold; letter-spacing: 8px; margin-bottom: 2.4cm; }
+.c-title { font-size: 18pt; font-weight: bold; line-height: 1.7; margin-bottom: 3cm; }
+.c-info { margin: 0 auto; border-collapse: collapse; font-size: 14pt; }
+.c-info td { padding: 7px 10px; text-align: left; }
+.c-info td:first-child { text-align: right; white-space: nowrap; }
+.c-date { margin-top: 3cm; font-size: 14pt; }
+.toc-page { page-break-after: always; }
+.toc-title { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 0.6cm; }
+.toc-tip { font-size: 9pt; color: #888; text-align: center; margin-bottom: 0.5cm; }
+h1 { font-family: "黑体","SimHei"; font-size: 16pt; text-align: center; margin: 1.6em 0 1em; }
+h2 { font-family: "黑体","SimHei"; font-size: 14pt; margin: 1.4em 0 0.7em; }
+h3 { font-family: "黑体","SimHei"; font-size: 12pt; margin: 1.1em 0 0.5em; }
+h4 { font-size: 12pt; font-weight: bold; margin: 0.9em 0 0.4em; }
+p { margin: 0.3em 0; text-indent: 2em; }
+blockquote { margin: 0.6em 0 0.6em 2em; padding: 0.3em 0.8em; font-size: 10.5pt;
+              color: #444; background: #F5F5F5; text-indent: 0; }
+ul { margin: 0.3em 0 0.6em 2em; padding-left: 1.2em; }
+li { margin: 0.15em 0; }
+table { border-collapse: collapse; width: 100%; margin: 0.7em 0; font-size: 10.5pt; }
+th, td { border: 1px solid #666; padding: 4px 7px; text-align: left; vertical-align: top; }
+th { background: #EFEFEF; font-weight: bold; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 10.5pt; }
+pre.code { background: #F7F7F7; border: 1px solid #DDD; border-left: 3px solid #999;
+            padding: 8px 12px; margin: 0.7em 0; overflow-x: auto; line-height: 1.35; }
+pre.code code { font-size: 9.5pt; white-space: pre; }
+p.fig { text-align: center; margin: 0.9em 0; text-indent: 0; }
+p.fig img { max-width: 15.5cm; border: 1px solid #CCC; }
+p.fig span.cap { display: block; font-size: 10.5pt; color: #333; margin-top: 4px; }
+hr { border: none; border-top: 1px solid #CCC; margin: 1.2em 0; }
+</style></head><body>
+
+<div class="cover">
+  <div class="c-school">贵州大学</div>
+  <div class="c-title">基于 Hadoop 与 Spring Boot 的城市充电桩使用行为分析与充电需求预测系统的设计与实现</div>
+  <table class="c-info">
+    <tr><td>课程名称：</td><td>Java Web 后端开发技术</td></tr>
+    <tr><td>学　　院：</td><td>（你的学院）</td></tr>
+    <tr><td>专　　业：</td><td>软件工程</td></tr>
+    <tr><td>班　　级：</td><td>2405</td></tr>
+    <tr><td>组　　别：</td><td>第 02 组</td></tr>
+    <tr><td>学生姓名：</td><td>彭忠燕　苏静　贺欢欢　杨珊珊　姬婷婷</td></tr>
+    <tr><td>本报告作者：</td><td>彭忠燕（学号 2300770041）</td></tr>
+    <tr><td>指导教师：</td><td>赵　晨</td></tr>
+  </table>
+  <div class="c-date">2026 年 11 月 29 日</div>
+</div>
+
+
+<div class="toc-page">
+  <div class="toc-title">目　　录</div>
+  <p class="toc-tip">（在 Word 中按 Ctrl+A 后按 F9，或右键目录 → 更新域 → 更新整个目录，即可生成正确页码）</p>
+  <div id="toc-here"></div>
+</div>
+
+<h1>报告第三、四章 · 需求分析与系统概要设计（初稿）</h1>
+
+
+<hr>
+
+<h1>第三章 需求分析</h1>
+
+
+<hr>
+
+<h2>3.1 需求分析目的</h2>
+
+<p>需求分析是软件工程中把业务诉求转化为可验证规格的关键环节。本章的目的有四：</p>
+<p>其一，明确系统要解决的核心问题——在 275 个交通分区规模上识别充电供需的结构性错配，</p>
+<p>并把"哪个分区、哪个时段、缺多少容量"量化出来；</p>
+<p>其二，界定数据边界与口径边界，确认分析粒度落在<b>分区（traffic zone）</b>而非充电桩级，</p>
+<p>避免出现"平均占用率很好看、但具体该建桩的地方说不清"的无效结论；</p>
+<p>其三，识别三类使用者角色（系统管理员、运营人员、城市管理者）的差异化诉求，</p>
+<p>并据此划定功能边界；</p>
+<p>其四，为第四章的概要设计、第五章的详细实现与第六章的测试方案提供同一份验收基准。</p>
+
+<hr>
+
+<h2>3.2 系统的总体目标</h2>
+
+<p>本系统的总体目标是：**构建一条从原始数据到布点决策的完整数据链路，</p>
+<p>使城市充电设施的供需失衡从"经验判断"变为"可量化、可追溯、可复现"的结论。**</p>
+<p>围绕这一总目标，分解为八项子目标：</p>
+
+<ul><li>**数据可达**：以 12 个 CSV 为入口，建立从本地目录到 HDFS 的自动化增量采集通道，</li></ul>
+<p>使原始数据不再依赖手工拷贝。</p>
+<ul><li>**口径统一**：把 12 项基础指标（M1–M12）与 4 个创新指标的公式、来源表、</li></ul>
+<p>单位与边界条件固化在契约文件中，消除"同名不同义"。</p>
+<ul><li>**结构可用**：将 276 列宽表形态的原始时序数据，转换为可做多维聚合的长表，</li></ul>
+<p>支撑分区 × 日 × 小时粒度的分析。</p>
+<ul><li>**质量可控**：对 6 项时序指标逐项执行越界与异常判定，</li></ul>
+<p>清洗动作留痕、可追溯、可复核。</p>
+<ul><li>**空间可解释**：把 712,135 条 POI 落到 275 个分区上，</li></ul>
+<p>使充电需求的城市功能成因具备可分析的数据基础。</p>
+<ul><li>**结论可比**：设计消除分区规模差异的归一化指标，</li></ul>
+<p>使 4 个桩的分区与 446 个桩的分区可以在同一把尺子上比较。</p>
+<ul><li>**决策可用**：由分析结果直接生成带优先级的布点扩容建议清单，</li></ul>
+<p>输出为运营方与规划部门可直接采用的结论文本。</p>
+<ul><li>**系统可复现**：提供一键部署脚本、端到端体检脚本与完整运行手册，</li></ul>
+<p>使第三方无需原始数据也能重建 ADS 层并启动服务。</p>
+
+<hr>
+
+<h2>3.3 系统的可行性分析</h2>
+
+<h3>3.3.1 技术可行性分析</h3>
+
+<p><b>（1）数据规模决定了必须使用 Hadoop 生态而非 MySQL 单机</b></p>
+
+<p>本课题的数据规模并非"大到必须上分布式"，但其<b>结构形态</b>使得单机关系库难以承担：</p>
+
+<table><thead><tr><th>维度</th><th>具体量级</th><th>对单机方案的影响</th></tr></thead><tbody>
+<tr><td>时序宽度</td><td>6 张时序表均为 `time` + **275 个分区列**，共 276 列</td><td>宽表无法按 `zone_id` 分组聚合，任何分析都要先转长，转换动作本身就是一次全量扫描</td></tr>
+<tr><td>时序长度</td><td>**4,344 个逐小时时点**（2022-09-01 ~ 2023-02-28，181 天）</td><td>单表约 120 万个单元格，6 表合计约 717 万</td></tr>
+<tr><td>长表化后规模</td><td>275 × 4,344 × 6 ≈ **717 万行**</td><td>需反复扫描才能完成多轮迭代（价格标准差 → 分区类型 → 分组聚合）</td></tr>
+<tr><td>POI 空间连接</td><td>**712,135** 条 POI × 275 个分区</td><td>朴素笛卡尔积约 1.96 亿次距离计算，单机单线程不可接受</td></tr>
+<tr><td>迭代轮次</td><td>电价 σ 反推 TOU 分区 → 失衡指数 → 分区类型分组 → 预测回测</td><td>每次迭代若都回读原始宽表，I/O 成倍放大</td></tr>
+</tbody></table>
+
+<p>若强行用 MySQL 单机实现，只能把 275 列宽表<b>按分区竖切成 275 张窄表</b>，</p>
+<p>再 UNION ALL 起来——这正是 Hive 的 <code>LATERAL VIEW stack()</code> 或 MapReduce 宽转长要做的事，</p>
+<p>但 MySQL 没有原生等价物，只能靠存储过程或应用层拼装，代码量与维护成本急剧上升。</p>
+<p>同时，712,135 条 POI 的空间连接在 MySQL 中只能靠逐行计算球面距离，</p>
+<p>无法利用 Map 端广播分区中心点这一标准优化。</p>
+
+<p>Hadoop 生态恰好覆盖了上述每一个痛点：</p>
+
+<table><thead><tr><th>计算环节</th><th>Hadoop 组件</th><th>解决的问题</th></tr></thead><tbody>
+<tr><td>增量采集</td><td>**Flume 1.11**（taildir + checkpoint）</td><td>12 个 CSV 各一条独立通道，断点续传</td></tr>
+<tr><td>高可靠存储</td><td>**HDFS 3.3.x**</td><td>原始数据与数仓分层落地，副本容错</td></tr>
+<tr><td>宽转长 / 质检 / 空间连接</td><td>**MapReduce 3.3.x**（`WideToLong`、`DataQualityCheck`、`PoiZoneJoin` 三个作业）</td><td>动态遍历 275 列，Map 端广播分区中心点</td></tr>
+<tr><td>分层建模</td><td>**Hive 4.0.x**（ODS/DWD/DWS/ADS）</td><td>层间职责单一、可独立追溯</td></tr>
+<tr><td>多维聚合</td><td>**Spark SQL 3.4**</td><td>一次读入长表完成 DWS 汇总与 ADS 指标计算</td></tr>
+<tr><td>库间交换</td><td>**Sqoop 1.4.7**</td><td>Hive ADS → MySQL 业务库</td></tr>
+</tbody></table>
+
+<p><b>（2）关键技术点均有可验证的工程结论</b></p>
+
+<p>宽表转长这一核心难点，本组已完成两种方案的对比实验：</p>
+<p>使用 Hive <code>stack()</code> 需要硬编码全部 275 个列名，新增指标必须改 SQL 并重新编译；</p>
+<p>使用 MapReduce 动态遍历列则可实现"新增指标零代码改动"。</p>
+<p>该对比结论已写入《01-数据字典》与《04-数仓表结构规范》，说明关键技术路线可行且已选定。</p>
+
+<p><b>（3）技术栈成熟度与资源门槛可控</b></p>
+
+<p>Hadoop 3.3.6、Hive 4.0.0、Spark 3.4、Flume 1.11、Sqoop 1.4.7 均为 Apache 顶级项目的稳定版本；</p>
+<p>后端 Spring Boot 3.2.5、前端 ECharts 5 亦为成熟选择。</p>
+<p>部署形态为 Docker Compose 单机多容器，最低 8GB 内存 / 20GB 磁盘即可运行，</p>
+<p>本组开发机上已完成全链路跑通记录（见 <code>docs/RUNBOOK.md</code>）。</p>
+
+<p><b>（4）技术风险与应对</b></p>
+
+<p><b>表 3-1 技术风险与应对措施</b></p>
+
+<table><thead><tr><th>风险</th><th>影响</th><th>应对措施</th></tr></thead><tbody>
+<tr><td>宽表 276 列，代码难维护</td><td>DWD 层开发受阻</td><td>MapReduce 动态遍历列，新增指标零代码改动</td></tr>
+<tr><td>POI 空间连接量级大</td><td>计算耗时超预期</td><td>Map 端广播 275 个分区中心点，避免笛卡尔积</td></tr>
+<tr><td>集群环境配置复杂</td><td>演示失败</td><td>Docker Compose 一键编排 + 三层自动降级启动模式</td></tr>
+<tr><td>两条计算路径口径不一致</td><td>前后端数据对不上</td><td>同一份《02-指标定义表》约束双方，做 MySQL vs Hive 一致性校验</td></tr>
+<tr><td>答辩现场网络或环境异常</td><td>无法演示</td><td>预录演示视频 + 预导出 ADS 静态数据作为兜底</td></tr>
+</tbody></table>
+
+<blockquote>结论：数据规模与迭代轮次共同决定了本系统采用 Hadoop 生态的必要性，<br>三个 MapReduce 作业与 Spark SQL 聚合均已在本地环境跑通，技术路线可行。</blockquote>
+
+<h3>3.3.2 经济可行性分析</h3>
+
+<p>本课题在软件授权、数据获取、硬件部署三个方面的成本均为零或接近零：</p>
+
+<p><b>表 3-2 经济成本构成</b></p>
+
+<table><thead><tr><th>成本项</th><th>具体内容</th><th>金额</th></tr></thead><tbody>
+<tr><td>软件授权</td><td>Hadoop / Hive / Spark / Flume / Sqoop / MySQL / Redis / Spring Boot / ECharts 全部为 Apache 2.0 或同类开源许可</td><td>0</td></tr>
+<tr><td>数据获取</td><td>UrbanEV 数据集采用 **CC0 1.0 Universal**（公共领域），GitHub 公开仓库直接下载</td><td>0</td></tr>
+<tr><td>硬件</td><td>复用个人笔记本（8GB 内存 / 20GB 磁盘），以 Docker Compose 容器化部署，不采购服务器、不租云服务</td><td>0</td></tr>
+<tr><td>人力</td><td>5 名成员的开发周期投入（无外部人力采购）</td><td>时间成本</td></tr>
+<tr><td>运维</td><td>课程作业原型，本地环境运行，无生产运维支出</td><td>0</td></tr>
+</tbody></table>
+
+<p>需要说明的是，本系统刻意<b>不引入任何商业组件</b>：</p>
+<p>不采购商业数据库、不调用付费大模型 API、不使用收费地图与 BI 工具。</p>
+<p>连可视化所需的深圳分区 GeoJSON 与 ECharts 库也全部本地化到 <code>frontend/assets/</code> 与 <code>frontend/js/</code>，</p>
+<p>保证答辩现场无外网也能正常渲染。</p>
+<p>唯一的成本项是团队成员的时间投入，属课程作业的固有成本，不构成经济性障碍。</p>
+
+<blockquote>结论：软件与数据零授权成本、无额外硬件采购，软件开发在经济上完全可行。</blockquote>
+
+<h3>3.3.3 操作可行性分析</h3>
+
+<p>系统采用 B/S 架构，用户通过浏览器访问，无需安装任何客户端。</p>
+<p>针对三类角色分别评估操作可行性：</p>
+
+<p><b>（1）系统管理员</b></p>
+
+<p>负责部署与运维。日常操作路径为：</p>
+<p><code>bash scripts/download_data.sh</code>（拉取 12 个 CSV）→ <code>bash scripts/start_all.sh</code>（自动选择</p>
+<p>full / app / native 三种启动模式）→ <code>bash scripts/smoke_test.sh</code>（端到端体检）→ 打开看板。</p>
+<p>启动脚本内置三层自动降级策略，Docker 环境异常时自动回退到应用层模式。</p>
+<p>《RUNBOOK》以"拿到文档的人 30 分钟内跑起系统"为编写目标，覆盖环境要求、部署流程、</p>
+<p>数仓构建、应用部署与排错五个部分，管理员无需依赖开发人员即可完成部署。</p>
+
+<p><b>（2）运营人员</b></p>
+
+<p>是系统的主要使用者，日常关注"哪里缺桩、什么时候缺、该补多少"。</p>
+<p>看板提供日期范围、时段、分区、电价类型四个维度的联动筛选，</p>
+<p>首页 KPI 卡、热力图、失衡 TOP10、预测曲线与布点建议表构成一条完整的决策动线；</p>
+<p>每一条扩容建议都附带完整中文句子（<code>reason</code> 字段），</p>
+<p>可直接复制进工单，不需要自行解读数值。</p>
+
+<p><b>（3）城市管理者</b></p>
+
+<p>关注全市空间格局与规划依据，而非单点运营细节。</p>
+<p>分区着色地图支持按聚类结果（紧张型 / 过剩型 / 稳定型 / 潜力型）整体着色，</p>
+<p>双口径电量偏差与 POI 关联分析为其提供供需错配的成因解释。</p>
+<p>系统提供 Excel / CSV 导出，结论可直接进入汇报材料。</p>
+
+<p><b>（4）共性的操作友好性约束</b></p>
+
+<ul><li>全部 16 个 REST 接口为只读查询，无写操作，无需担心误操作破坏数据；</li><li>参数非法时返回 400 与明确的错误信息，前端不白屏、给出友好提示；</li><li>ECharts 与 GeoJSON 已本地化，无外网依赖；</li><li>响应统一为 `{code, message, data, timestamp}`，前端只判断 `code === 200`，交互逻辑简单。</li></ul>
+
+<blockquote>结论：三类角色均有明确、无学习成本的操作路径，操作可行性成立。</blockquote>
+
+<hr>
+
+<h2>3.4 系统的功能需求分析</h2>
+
+<p>依据第二章梳理的角色需求与可行性结论，系统功能划分为<b>八个模块</b>。</p>
+<p>下表逐模块给出功能描述、输入、输出与处理逻辑。</p>
+
+<h3>3.4.1 数据接入与采集模块</h3>
+
+<p><b>功能描述</b>：把分散存放的 12 个原始 CSV 通过 Flume 增量采集入 HDFS，并完成采集结果的完整性校验。</p>
+
+<p><b>输入</b>：12 个 CSV（6 张时序宽表 + <code>inf</code> / <code>adj</code> / <code>distance</code> 3 张维表 + <code>poi</code> + 2 张气象表）。</p>
+
+<p><b>输出</b>：HDFS <code>/uev/raw/&lt;数据集名&gt;/</code> 下 12 个独立子目录，每个子目录内为按时间戳命名的分片文件。</p>
+
+<p><b>处理逻辑</b>：采用 Flume taildir source 监听本地目录，</p>
+<p><b>12 个 CSV 各配置一条独立的 source / channel / sink 通道</b>，避免多源写入同一目录；</p>
+<p>channel 启用 file channel 保证断点续传，sink 写 HDFS 时保留 checksum 以便校验；</p>
+<p>采集完成后用 <code>hdfs dfs -ls</code> 核对目录数与文件数，</p>
+<p>并用 <code>bash scripts/verify_data.sh</code> 完成 36 项 SHA256 与行数校验。</p>
+
+<h3>3.4.2 数据仓库构建模块</h3>
+
+<p><b>功能描述</b>：按 ODS–DWD–DWS–ADS 四层规范组织数据，是全系统的计算主干。</p>
+
+<p><b>输入</b>：HDFS 上的 12 个 CSV 原始文件。</p>
+
+<p><b>输出</b>：ODS 贴源宽表（每张 276 列）、DWD 长表与维表、DWS 汇总表、</p>
+<p>ADS 应用表（一张表对应前端一张图表）。</p>
+
+<p><b>处理逻辑</b>：</p>
+<p>① <b>ODS 贴源</b>：用 <code>hadoop/hive/gen_ddl.py</code> 从 CSV 表头自动生成 276 列的 DDL，</p>
+<p>避免手写列名出错，宽表保持原貌不做任何加工；</p>
+<p>② <b>DWD 宽转长</b>：运行 MapReduce 作业 <code>WideToLong</code>，</p>
+<p>Mapper 动态遍历 275 个分区列，输出 <code>zone_id / hour_ts / hour_of_day / day_of_week / metric / value / is_zero</code>，</p>
+<p>按 <code>dt</code>（<code>yyyy-MM-dd</code>）分区，约 717 万行；</p>
+<p>③ <b>DWS 轻汇总</b>：用 Spark SQL 生成 <code>zone_day_hour</code>（分区 × 日 × 小时，9 字段）、</p>
+<p><code>zone_day</code>（分区 × 日，11 字段）与 <code>zone_hour_profile</code>（分区 × 小时画像），</p>
+<p>并补充 <code>zone_cluster_features</code> 聚类特征宽表；</p>
+<p>④ <b>ADS 应用层</b>：用 Spark SQL 计算 7 张核心应用表，</p>
+<p>每张表严格对应前端的一张图表，字段与《02-指标定义表》一一对应；</p>
+<p>创新点④ 的分区聚类结果表 <code>zone_cluster</code> 由 <code>zone_clustering.sql</code> 与</p>
+<p><code>ZoneClustering.scala</code> 另行产出。</p>
+
+<h3>3.4.3 数据质量检查模块</h3>
+
+<p><b>功能描述</b>：在长表生成后对数据做系统化的质量体检，既产出清洗结果，也产出可复核的质量证据。</p>
+
+<p><b>输入</b>：<code>uev_dwd.zone_hour_metric</code> 长表、6 项指标的合法值域定义。</p>
+
+<p><b>输出</b>：<code>uev_dwd.dq_zone_stat</code> 质量画像表，字段含 <code>valid_cnt</code>（有效值个数）、</p>
+<p><code>zero_cnt</code>（零值个数）、<code>outlier_cnt</code>（越界值个数）、<code>total_cnt</code>（总单元格数）、</p>
+<p><code>valid_rate</code>（有效率）。</p>
+
+<p><b>处理逻辑</b>：执行 8 类质量规则，逐单元格判定：</p>
+<p>占用率限定在 [0,1]、时长与电量非负、电价与服务费非负、零值单独打 <code>is_zero</code> 标记而不直接丢弃、</p>
+<p>异常值按"先修复后丢弃、逐条记因"处理；</p>
+<p>每个指标的越界阈值通过作业参数传入（如 <code>-D uev.metric.min=0 -D uev.metric.max=1</code>）。</p>
+<p><b>关键验收口径</b>：DWD 长表行数必须小于 ODS 对应单元格数，</p>
+<p>二者比对是"清洗真实生效"的直接证据，也是第六章数据准确性测试的基准。</p>
+
+<h3>3.4.4 POI 空间连接与空间维表加工模块</h3>
+
+<p><b>功能描述</b>：把没有分区标识的 POI 落到 275 个交通分区上，并整合出分析所需的分区综合维度表。</p>
+
+<p><b>输入</b>：<code>poi.csv</code>（<b>712,135</b> 条，含 <code>primary_types</code> 三类与 WGS84 经纬度）、</p>
+<p><code>inf.csv</code>（275 行，含分区中心点经纬度、<code>charge_count</code>、<code>area</code>、<code>perimeter</code>）。</p>
+
+<p><b>输出</b>：<code>uev_dwd.zone_poi_count</code>（分区 × 三类 POI 计数）、</p>
+<p><code>uev_dwd.dim_zone_info</code>（15 字段分区综合维表）。</p>
+
+<p><b>处理逻辑</b>：</p>
+<p>① 空间连接由 MapReduce 作业 <code>PoiZoneJoin</code> 完成，</p>
+<p><b>Map 端加载并广播 275 个分区中心点坐标</b>，逐条 POI 计算球面距离并归入最近分区，</p>
+<p>避免 712,135 × 275 的笛卡尔积；</p>
+<p>② POI 按 <code>primary_types</code> 分为 lifestyle services、business and residential、</p>
+<p>food and beverage services 三类分别计数，合计写入 <code>poi_total</code>；</p>
+<p>③ 维表以 <code>TAZID = zone_id</code> <b>显式关联</b>（<code>inf.csv</code> 行序与时序表列序不一致，</p>
+<p>按行号对齐会导致全部空间分析失真且极难发现）；</p>
+<p>④ 同一张维表内用 <code>STDDEV_POP(e_price)</code> &gt; 0.05 判定是否分时电价区，</p>
+<p>写入 <code>is_tou_zone</code>、<code>price_std</code>、<code>price_peak</code>、<code>price_valley</code>、<code>price_gap</code>，</p>
+<p>供创新指标②直接消费。</p>
+
+<h3>3.4.5 分析指标计算模块</h3>
+
+<p><b>功能描述</b>：在 DWS 汇总表上计算 12 项基础指标与 4 个创新指标，是分析价值的核心载体。</p>
+
+<p><b>输入</b>：<code>uev_dws.zone_day_hour</code>、<code>uev_dws.zone_day</code>、<code>uev_dwd.dim_zone_info</code>、</p>
+<p><code>uev_dwd.zone_hour_metric</code>。</p>
+
+<p><b>输出</b>：12 项基础指标（M1–M12）与 4 个创新指标对应的 ADS 表。</p>
+
+<p><b>处理逻辑</b>：基础指标覆盖需求强度（M1）、全市同期基准（M2）、</p>
+<p>平均与峰值占用率（M3、M4）、累计电量与平均时长（M5、M6）、</p>
+<p>日内峰谷差与波动率（M7、M8）、POI 密度与桩密度（M9、M10）、</p>
+<p>双口径电量偏差（M11）、峰谷电价差（M12）。</p>
+<p>四个创新指标的计算逻辑如下：</p>
+
+<ul><li>**创新点① 供需失衡指数**（落地表 `uev_ads.imbalance_index`）：</li></ul>
+<p>需求份额 D(z,t) = demand(z,t) / Σdemand，运力份额 S(z,t) = charge_count(z) / Σcharge_count，</p>
+<p>失衡指数 I(z,t) = D(z,t) − S(z,t)。</p>
+<p>取值范围 [−1, 1]，实际约 [−0.02, 0.02]；I &gt; 0 表示该分区该时段的供不应求程度高于全市结构。</p>
+<p><b>设计意图</b>：消除分区规模差异（4 ~ 446 个桩），使不同规模的分区可横向比较。</p>
+<ul><li>**创新点② 分时电价弹性**（落地表 `uev_ads.price_elasticity`）：</li></ul>
+<p>先按电价时序标准差 σ 判定 TOU 区（σ &gt; 0.05）与 FLAT 区，</p>
+<p>再计算 PEAK_RATIO（17–19 时平均占用率）− VALLEY_RATIO（0–6 时平均占用率），</p>
+<p>判读规则是 <b>ELASTICITY 越小表示峰谷被压得越平，削峰填谷效果越好</b>。</p>
+<p>该分析基于观测性关联，不作因果推断。</p>
+<ul><li>**创新点③ 充电需求预测与布点扩容建议**（落地表 `uev_ads.demand_forecast`、`uev_ads.expansion_suggestion`）：</li></ul>
+<p>采用"同 <code>day_of_week</code> 同 <code>hour_of_day</code> 均值 × 趋势因子 γ"的统计预测方法，</p>
+<p>前 174 天训练、后 7 天回测验证并报告 MAPE / MAE / RMSE 并与朴素基线对比；</p>
+<p>布点规则为 <code>建议新增桩数 = ⌈I_max(z) × charge_count(z) × 0.3⌉</code>，</p>
+<p>其中 0.3 为保守规划系数（一次规划不宜过大，分期建设更稳妥），优先级按 I_max 降序。</p>
+<ul><li>**创新点④ 分区聚类画像**（落地表 `uev_ads.zone_cluster`）：</li></ul>
+<p>以 Spark MLlib KMeans 对 275 个分区做 7 维特征聚类（k = 4），</p>
+<p>三个必写技术点为特征标准化（否则结果被量级最大的桩密度独占）、</p>
+<p>固定随机种子 <code>setSeed(42)</code> 保证可复现、用肘部法给出 k = 2~6 的 WCSS 曲线说明选 k = 4 的依据。</p>
+<p><b>关键互证</b>：紧张型簇的平均失衡指数应显著高于其他簇，</p>
+<p>两种独立方法得到一致结论是本节最有说服力的部分。</p>
+
+<h3>3.4.6 在线服务与接口模块</h3>
+
+<p><b>功能描述</b>：以 Spring Boot 提供 16 个 REST 接口，只读 MySQL 视图层，为前端与外部调用方提供数据服务。</p>
+
+<p><b>输入</b>：MySQL <code>uev_charge</code> 库的 <code>v_*</code> 视图与 <code>ads_*</code> / <code>insight_*</code> 明细表。</p>
+
+<p><b>输出</b>：统一响应结构的 JSON（<code>code</code> / <code>message</code> / <code>data</code> / <code>timestamp</code>）。</p>
+
+<p><b>处理逻辑</b>：</p>
+<p>① 接口路径与出入参严格遵循《03-接口规范》，11 个核心接口（健康检查、KPI、</p>
+<p>分区占用率、7 个图表类接口、数据字典）已固化完整示例；</p>
+<p>② 支持 5 个公共查询参数：<code>startDate</code>、<code>endDate</code>、<code>hourRange</code>、<code>zoneId</code>、<code>priceType</code>；</p>
+<p>③ Redis 缓存按接口类型分层设置 TTL（KPI 300 秒 / 分区占用率 600 秒 / 图表类 120 秒），</p>
+<p><b>缓存 key 必须包含全部筛选参数的哈希</b>，否则切换筛选条件会读到旧数据；</p>
+<p>④ 全局异常处理器统一异常响应格式，避免堆栈信息泄露；</p>
+<p>⑤ <code>region-count</code> 等配置项外置为 <code>application.yml</code> 中的环境相关参数；</p>
+<p>⑥ 数据一致性保障：同一指标在 MySQL 的查询结果必须等于 Hive 直查结果。</p>
+
+<h3>3.4.7 可视化展示模块</h3>
+
+<p><b>功能描述</b>：以 ECharts 5 构建深色主题的决策看板，把接口数据渲染为 6 个页面共 10 张图表。</p>
+
+<p><b>输入</b>：16 个 REST 接口返回的 JSON。</p>
+
+<p><b>输出</b>：KPI 指标卡、分区热力图 / 地图、24 小时供需曲线、失衡 TOP10 柱状图、</p>
+<p>TOU/FLAT 双曲线、预测值与实际值对比折线图、布点建议表格、双口径电量对比图、</p>
+<p>POI 关联散点图、分区聚类地图。</p>
+
+<p><b>处理逻辑</b>：前端只调用后端接口、不直接访问数据库，保证口径唯一；</p>
+<p>四个筛选维度的变更触发所有图表联动刷新；</p>
+<p>ECharts 与深圳分区 GeoJSON 均本地化存放，无 CDN 依赖；</p>
+<p>接口失败时显示占位提示而非白屏；</p>
+<p>布点建议表与 KPI 概览支持 Excel / CSV 导出；</p>
+<p><code>reason</code> 字段为完整中文句子，直接展示不做二次拼装。</p>
+
+<h3>3.4.8 布点扩容决策建议模块</h3>
+
+<p><b>功能描述</b>：把失衡指数与预测误差结论，转换为运营方可直接执行的扩容清单。</p>
+
+<p><b>输入</b>：<code>uev_ads.imbalance_index</code>（取分区的 I_max 与对应 <code>hour_of_day</code>）、</p>
+<p><code>uev_ads.demand_forecast</code>（MAPE 与回测值）、<code>uev_dwd.dim_zone_info</code>（<code>charge_count</code>）。</p>
+
+<p><b>输出</b>：分区级建议清单，含 <code>zoneId</code>、<code>currentPiles</code>、<code>suggestedPiles</code>、</p>
+<p><code>priority</code>、<code>reason</code>（完整中文句子）、<code>avgOccupancy</code>、<code>peakGap</code>。</p>
+
+<p><b>处理逻辑</b>：按 I_max 降序生成优先级（1 = 最高）；</p>
+<p>建议新增桩数按 ⌈I_max × charge_count × 0.3⌉ 向上取整，</p>
+<p><code>suggestedPiles</code> 语义为"<b>新增</b>数量"而非总数，避免被误读；</p>
+<p><code>reason</code> 由模板生成完整中文句子并附上失衡指数与现有桩数，</p>
+<p>使运营人员无需理解公式即可转成工单；</p>
+<p>清单同时给出该分区的平均占用率与峰值缺口，供人工复核。</p>
+
+<hr>
+
+<h2>3.5 系统主要用例分析</h2>
+
+<p>系统识别出三类角色共 <b>14 个系统用例</b>，覆盖数据运维、分析决策与规划研判三类场景。</p>
+<p>表 3-3 给出用例描述表。</p>
+
+<p><b>表 3-3 系统用例描述表</b></p>
+<table><thead><tr><th>用例编号</th><th>用例名称</th><th>参与者</th><th>前置条件</th><th>基本流</th><th>后置条件</th><th>异常流</th></tr></thead><tbody>
+<tr><td>UC-01</td><td>数据采集与入库校验</td><td>系统管理员</td><td>12 个 CSV 已下载至本地目录</td><td>① 执行采集脚本<br>② Flume 按 12 条通道写入 HDFS<br>③ 校验目录数、文件数与行数<br>④ 登记校验结果</td><td>HDFS `/uev/raw/` 下 12 个子目录就绪</td><td>文件数或行数不符时中止后续步骤并提示重新下载</td></tr>
+<tr><td>UC-02</td><td>数仓全链路重建</td><td>系统管理员</td><td>采集已完成，脚本与镜像可用</td><td>① 生成 276 列 DDL 并建 ODS 表<br>② 运行三个 MR 作业<br>③ Spark SQL 计算 DWS / ADS<br>④ Sqoop 导出 MySQL<br>⑤ 体检脚本核验</td><td>四层表齐备且 DWD 行数小于 ODS</td><td>作业异常时按《RUNBOOK》排错表定位；必要时全量重建</td></tr>
+<tr><td>UC-03</td><td>查看全市运行概况</td><td>运营人员 / 城市管理者</td><td>ADS 层已产出并导入 MySQL</td><td>① 打开看板首页<br>② 系统加载 KPI 指标卡与 10 张图表<br>③ 用户查看全市整体运行状况</td><td>无</td><td>接口失败时显示占位提示与排查指引</td></tr>
+<tr><td>UC-04</td><td>多维筛选分析结果</td><td>全部角色</td><td>系统已部署</td><td>① 用户选择日期范围、时段、分区或电价类型<br>② 提交查询<br>③ 后端按参数哈希查缓存，未命中则读 MySQL<br>④ 全部图表联动刷新</td><td>查询结果写入查询日志</td><td>参数非法时返回 400 与明确错误信息</td></tr>
+<tr><td>UC-05</td><td>识别供需失衡分区</td><td>运营人员</td><td>`uev_ads.imbalance_index` 已生成</td><td>① 打开失衡指数 TOP10 图表<br>② 系统按失衡指数降序展示分区及需求份额、运力份额<br>③ 用户在地图上定位分区位置</td><td>无</td><td>缓存 TTL 内参数未变时返回既有结果并标注命中缓存</td></tr>
+<tr><td>UC-06</td><td>评估分时电价引导效果</td><td>运营人员 / 城市管理者</td><td>`uev_ads.price_elasticity` 已生成</td><td>① 打开 TOU / FLAT 双曲线图<br>② 系统展示两组逐小时占用率曲线与分组统计<br>③ 用户比较两组峰谷差</td><td>无</td><td>分组样本为空时提示该阈值下无匹配分区</td></tr>
+<tr><td>UC-07</td><td>获取需求预测与误差评估</td><td>运营人员 / 数据分析师</td><td>预测模型已训练并完成回测</td><td>① 用户请求预测数据<br>② 系统返回预测值、实际值与 MAPE<br>③ 用户对比曲线评估精度</td><td>无</td><td>MAPE 超过阈值时前端提示改用"近 7 天同小时均值"口径</td></tr>
+<tr><td>UC-08</td><td>查看分区聚类画像</td><td>城市管理者 / 数据分析师</td><td>`uev_ads.zone_cluster` 已生成</td><td>① 打开聚类地图<br>② 系统按簇着色 275 个分区<br>③ 用户查看各簇特征雷达与规模</td><td>无</td><td>簇规模出现极端分布时提示重新检查标准化与种子设置</td></tr>
+<tr><td>UC-09</td><td>生成布点扩容建议</td><td>运营人员 / 城市管理者</td><td>失衡指数与预测结果均已生成</td><td>① 打开布点扩容看板<br>② 系统展示按优先级排序的分区清单<br>③ 用户依据 `reason` 制定扩容计划</td><td>无</td><td>建议桩数计算所需的 `charge_count` 缺失时跳过该分区并记日志</td></tr>
+<tr><td>UC-10</td><td>导出决策清单</td><td>运营人员 / 城市管理者</td><td>看板数据已加载</td><td>① 用户点击导出<br>② 后端生成 Excel / CSV 文件<br>③ 浏览器下载</td><td>导出记录写入操作日志</td><td>文件生成失败时返回错误并保留当前筛选条件</td></tr>
+<tr><td>UC-11</td><td>查看数据字典与指标口径</td><td>数据分析师 / 系统管理员</td><td>契约文件已入库</td><td>① 用户打开"数据源说明"页<br>② 系统展示 12 个 CSV 的指标名、单位、行数、粒度</td><td>无</td><td>字典接口异常时提示以《01-数据字典》为准</td></tr>
+<tr><td>UC-12</td><td>双口径电量偏差分析</td><td>数据分析师</td><td>`uev_ads` 与 DWD 长表均可用</td><td>① 用户打开双口径对比图<br>② 系统返回各分区的两套电量与偏差率<br>③ 用户定位大功率桩占比高的分区</td><td>无</td><td>某分区 `volume` 为 0 时偏差率返回 NULL 而非除零异常</td></tr>
+<tr><td>UC-13</td><td>系统健康检查与故障排查</td><td>系统管理员</td><td>服务已启动</td><td>① 请求 `/api/health`<br>② 系统返回各组件状态与分区总数<br>③ 管理员据此判断故障位置</td><td>无</td><td>MySQL 或 Redis 状态异常时在 `components` 中标记 DOWN</td></tr>
+<tr><td>UC-14</td><td>账号与角色权限管理</td><td>系统管理员</td><td>`sys_user` / `sys_role` 表已建</td><td>① 管理员新增或调整用户角色<br>② 系统记录操作日志<br>③ 管理员按角色分配数据访问范围</td><td>操作日志新增一条记录</td><td>权限冲突时拒绝写入并返回明确原因</td></tr>
+</tbody></table>
+
+<p><b>用例图说明</b>：</p>
+
+<p>用例图以 UML 用例图形式绘制，建议包含以下要素：</p>
+
+<ul><li>**参与者（Actor）**：系统管理员、运营人员、城市管理者三个外部参与者，</li></ul>
+<p>另可补充"定时任务"作为非人工参与者，对应 UC-01 采集与 UC-02 重建两个自动化用例；</p>
+<ul><li>**系统用例边界**：以矩形框界定 14 个系统用例，</li></ul>
+<p>排布为三行——上行为数据运维类（UC-01、UC-02、UC-13、UC-14），</p>
+<p>中行为分析浏览类（UC-03、UC-04、UC-05、UC-06、UC-11、UC-12），</p>
+<p>下行为决策输出类（UC-07、UC-08、UC-09、UC-10）；</p>
+<ul><li>**关联关系**：三个参与者分别与相关用例画无向关联线——</li></ul>
+<p>系统管理员关联 UC-01、UC-02、UC-11、UC-13、UC-14；</p>
+<p>运营人员关联 UC-03、UC-04、UC-05、UC-06、UC-07、UC-09、UC-10；</p>
+<p>城市管理者关联 UC-03、UC-04、UC-06、UC-08、UC-09、UC-10；</p>
+<ul><li>**包含关系（«include»）**：UC-03（查看全市概况）与 UC-04（多维筛选）</li></ul>
+<p>均 «include» UC-04 的查询能力；UC-09（布点建议）«include» UC-05（识别失衡分区）</p>
+<p>与 UC-07（预测与误差），因为建议清单的生成同时依赖失衡指数与分区桩数；</p>
+<ul><li>**扩展关系（«extend»）**：UC-04 的筛选能力 «extend» UC-03 / UC-05 / UC-06 / UC-08，</li></ul>
+<p>表示"可选地按条件筛选"；UC-10（导出）«extend» UC-09 与 UC-03。</p>
+
+<blockquote>结论：14 个用例覆盖三类角色的全部核心场景，<br>用例之间通过 include / extend 复用查询与决策能力，边界清晰无冗余。</blockquote>
+
+<hr>
+
+<h2>3.6 整体数据流分析</h2>
+
+<p>系统的整体数据流按四层组织，逐层收敛、逐层增值。</p>
+<p>图 3-1 以文字分层图给出该结构的完整描述。</p>
+
+<p><b>图 3-1 系统整体数据流分层结构图</b></p>
+
+<pre class="code"><code class="lang-text">┌───────────────────────────── 数据源层（外部实体）─────────────────────────────┐
+│  UrbanEV 数据集（CC0 1.0）· 12 个 CSV                                         │
+│    ├ 6 张时序宽表：occupancy / duration / volume / volume_11kw / e_price / s_price│
+│    ├ 3 张分区维表：inf（275 行）/ adj（275×275）/ distance（275×275）           │
+│    ├ 1 张兴趣点表：poi（712,135 条 · 3 类 primary_types）                      │
+│    └ 2 张气象表：weather_airport / weather_central（各 4,344 行）              │
+│  GitHub 公开仓库 ──下载──▶ 本地目录 data/raw/                                   │
+└──────────────────────────────────┬─────────────────────────────────────────────┘
+                                   │  数据流 D1：CSV 文件（129 MB 级）
+                                   ▼
+┌───────────────────────────── 接入层（采集与落地）──────────────────────────────┐
+│  Flume 1.11 taildir 增量采集                                                    │
+│    · 12 条独立通道（source / channel / sink 一一对应）                          │
+│    · file channel 断点续传 + HDFS sink checksum                                 │
+│  数据存储：HDFS /uev/raw/&lt;数据集名>/  12 个独立子目录                            │
+└──────────────────────────────────┬─────────────────────────────────────────────┘
+                                   │  数据流 D2：分片文件（gz）
+                                   ▼
+┌───────────────────────────── 处理层（治理与建模）────────────────────────────────┐
+│  ① MapReduce 清洗                                                                │
+│     WideToLong（宽 276 列 → 长表 717 万行）· DataQualityCheck（8 类规则）        │
+│     PoiZoneJoin（712,135 POI 空间连接，Map 端广播 275 分区中心点）               │
+│  ② Hive 四层数仓                                                                 │
+│     ODS 贴源宽表 ──▶ DWD 长表 + 分区维表 + 质量画像表                            │
+│                    ──▶ DWS 分区×日×小时 / 分区×日 / 分区×小时 画像               │
+│                    ──▶ ADS 8 张应用表（7 张核心 + 1 张聚类）                       │
+│  ③ Spark SQL 计算 12 项基础指标 + 4 个创新指标                                  │
+│  数据存储：HDFS + Hive Metastore（uev_ods / uev_dwd / uev_dws / uev_ads）        │
+└──────────────────────────────────┬─────────────────────────────────────────────┘
+                                   │  数据流 D3：Sqoop export
+                                   ▼
+┌───────────────────────────── 应用层（服务与决策）──────────────────────────────┐
+│  MySQL 8.0 业务库 uev_charge（共 19 张）                                        │
+│     ads_* 7 张（B · Sqoop 落地）   insight_* 5 张（E · 直插）                    │
+│     sys_* 3 张（D · 用户/角色/日志）  v_* 4 张视图（B 建 · D 只读）              │
+│         │                                                                        │
+│         ▼                                                                        │
+│  Spring Boot 3.2.5 · 16 个 REST 接口  ──▶ Redis 7 缓存（TTL 120~600 秒）        │
+│         │                                                                        │
+│         ▼                                                                        │
+│  ECharts 5 决策看板（6 页 10 图）──▶ 布点扩容建议 / 预测曲线 / 聚类画像           │
+│         │                                                                        │
+│         ▼                                                                        │
+│  决策输出：Excel 导出 · 报告与答辩材料                                           │
+└──────────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+
+<blockquote>结论：数据从 12 个 CSV 出发，经采集、治理、建模、聚合、服务五个环节，<br>最终在 MySQL `uev_charge` 库汇合并以 16 个 REST 接口对外供给，链路唯一出口明确。</blockquote>
+
+<p><b>DFD 各级应画的内容说明</b>：</p>
+
+<p><b>（1）顶层图（Context Diagram）</b></p>
+
+<p>只画三个外部实体与系统整体边界：</p>
+<p>外部实体为 <b>运营人员</b>、<b>城市管理者</b>、<b>系统管理员</b>（以及作为数据源的 <b>UrbanEV 数据集</b>）。</p>
+<p>系统内部只画一个加工过程"城市充电桩数据分析系统"，</p>
+<p>画出四条主数据流：数据集 → 系统的原始数据输入流、系统的分析结果输出流（分别指向两类业务角色）、</p>
+<p>系统 → 管理员的运维指令流。顶层图不出现任何内部细节，不出现文件格式与表名。</p>
+
+<p><b>（2）0 层图（Level 0 DFD）</b></p>
+
+<p>把系统内部展开为四个加工过程，对应本节图 3-1 的四层：</p>
+
+<table><thead><tr><th>加工过程编号</th><th>名称</th><th>输入流</th><th>输出流</th><th>内部数据存储</th></tr></thead><tbody>
+<tr><td>P1</td><td>数据采集与落地</td><td>原始 CSV</td><td>分片文件</td><td>D1：HDFS `/uev/raw/`</td></tr>
+<tr><td>P2</td><td>数据清洗与空间连接</td><td>分片文件</td><td>清洗后长表、分区维表、质量画像</td><td>D2：Hive ODS / DWD</td></tr>
+<tr><td>P3</td><td>分层建模与指标计算</td><td>清洗后长表、分区维表</td><td>汇总表、应用指标表</td><td>D3：Hive DWS / ADS</td></tr>
+<tr><td>P4</td><td>在线服务与决策输出</td><td>应用指标表</td><td>图表数据、建议清单、导出文件</td><td>D4：MySQL `uev_charge`、Redis</td></tr>
+</tbody></table>
+
+<p>0 层图上要画出 P2 → P3 → P4 的串行主干，以及 P3 → P4 的第二条并行支线</p>
+<p>（E 组直接由原始 CSV 计算创新指标并直插 <code>insight_*</code>），并注明"两条路径在 MySQL 视图层汇合"。</p>
+
+<p><b>（3）1 层图（Level 1 DFD）</b></p>
+
+<p>把上表四个加工过程各展开一层：</p>
+<p>P1 展开为"通道配置 → taildir 监听 → 落盘 → 校验"；</p>
+<p>P2 展开为"宽转长 → 规则判定 → 空间连接 → 维表整合"；</p>
+<p>P3 展开为"DWS 汇总 → 基础指标计算 → 创新指标计算 → ADS 落表"；</p>
+<p>P4 展开为"视图查询 → 缓存判定 → 响应组装 → 图表渲染 → 导出"。</p>
+<p>1 层图上应出现分区日期 <code>dt</code> 与分区编号 <code>zone_id</code> 两个关键数据字典项。</p>
+
+<p><b>（4）2 层图</b></p>
+
+<p>仅对 P2（数据清洗与空间连接）与 P4（在线服务与决策输出）细化，</p>
+<p>因为这两处是本系统的技术难点与业务价值核心；</p>
+<p>其余加工过程在 1 层图上表示即可，避免图形过载。</p>
+
+<p><b>外部实体与数据字典说明</b>：</p>
+<p>外部实体共 4 个——运营人员、城市管理者、系统管理员、UrbanEV 数据集；</p>
+<p>核心数据字典项 5 个——<code>zone_id</code>（分区编号）、<code>hour_ts</code>（小时时间戳）、</p>
+<p><code>dt</code>（日期分区键）、<code>metric</code>（指标名）、<code>value</code>（指标值）。</p>
+<p>这 5 项在 P2 与 P3 之间流转，是长表结构的核心承载，也是后续联查的唯一凭据。</p>
+
+<hr>
+
+<h2>3.7 系统的非功能性需求分析</h2>
+
+<h3>3.7.1 性能需求</h3>
+
+<p><b>表 3-4 性能需求与实现方式</b></p>
+
+<table><thead><tr><th>编号</th><th>需求项</th><th>指标要求</th><th>实现方式</th></tr></thead><tbody>
+<tr><td>NF-P-01</td><td>首页聚合查询响应时间</td><td>≤ 500 ms</td><td>Redis 缓存首页 KPI 聚合结果，TTL 300 秒</td></tr>
+<tr><td>NF-P-02</td><td>明细指标查询响应时间</td><td>≤ 1 s</td><td>MySQL 索引优化（`zone_id`、`hour_of_day`、`rank_no`）</td></tr>
+<tr><td>NF-P-03</td><td>复杂图表查询响应时间</td><td>≤ 2 s</td><td>ADS 层预聚合 + 图表类接口缓存，TTL 120 秒</td></tr>
+<tr><td>NF-P-04</td><td>Hive 四层全链路计算耗时</td><td>≤ 30 min</td><td>Spark on `local[*]` + 按 `dt` 分区裁剪</td></tr>
+<tr><td>NF-P-05</td><td>缓存命中率</td><td>≥ 80%</td><td>缓存 key 含全部筛选参数哈希，热门查询条件重复度高</td></tr>
+<tr><td>NF-P-06</td><td>并发查询能力</td><td>支持 50 个并发请求</td><td>无状态服务 + 连接池 + Redis 缓存分流</td></tr>
+</tbody></table>
+
+<blockquote>结论：六项性能指标均给出了明确的量化门槛与对应的实现手段，<br>实测值由 B / E / D 岗产出后回填。</blockquote>
+
+<h3>3.7.2 可靠性需求</h3>
+
+<ul><li>**NF-R-01 数据完整性**：采集环节提供校验脚本，验证 12 个文件的存在性与行数</li></ul>
+<p>（时序表 4,344 行、<code>inf</code> 275 行、<code>poi</code> 712,135 行）；</p>
+<ul><li>**NF-R-02 清洗可验证**：四层表逐层 `COUNT(*)` 对比，</li></ul>
+<p>要求 <b>DWD 行数小于 ODS 对应单元格数</b>，以证明清洗真实生效；</p>
+<ul><li>**NF-R-03 服务健壮性**：全局异常处理器统一异常响应格式，避免异常堆栈泄露；</li></ul>
+<p>MySQL 与 Redis 连接均配置超时与重连；</p>
+<ul><li>**NF-R-04 断点可续**：Flume 使用 file channel 保存消费位点，</li></ul>
+<p>作业中断后从上次位点继续，不重复写入也不丢数据；</p>
+<ul><li>**NF-R-05 口径可复核**：任一指标在 MySQL 的查询结果必须等于 Hive 直查结果，</li></ul>
+<p>不一致时先改契约再改实现，并在 <code>CHANGELOG.md</code> 登记；</p>
+<ul><li>**NF-R-06 降级可兜底**：Docker 不可用时可只启动应用层直连已导入的 MySQL 静态数据。</li></ul>
+
+<h3>3.7.3 可维护性与可扩展性需求</h3>
+
+<ul><li>**NF-M-01 分层解耦**：数据接入、数仓计算、分析建模、服务呈现四层职责清晰，</li></ul>
+<p>层间通过《04-数仓表结构规范》约定的表结构衔接；</p>
+<ul><li>**NF-M-02 契约驱动**：四份契约文件作为唯一事实源，</li></ul>
+<p>任何口径变更必须先改契约、登记 CHANGELOG，再由下游拉取生效，</p>
+<p><code>scripts/check-contracts.sh</code> 自动校验契约与实现的一致性；</p>
+<ul><li>**NF-M-03 配置外置**：数据库地址、缓存配置、分区总数等全部通过</li></ul>
+<p><code>application.yml</code> 与环境变量注入，切换环境无需修改代码；</p>
+<ul><li>**NF-M-04 指标可扩展**：ADS 层新增指标只需新增 SQL 与表，</li></ul>
+<p>不影响已有模块与已有接口；</p>
+<ul><li>**NF-M-05 宽表可扩展**：宽表转长由 MapReduce 动态遍历列实现，</li></ul>
+<p>新增指标文件不需要改动 Java 代码；</p>
+<ul><li>**NF-M-06 文档完备**：提供数据字典、指标定义表、接口规范、数仓表结构规范四份契约</li></ul>
+<p>与完整运行手册，第三方可在独立环境中复现系统。</p>
+
+<h3>3.7.4 安全性需求</h3>
+
+<ul><li>**NF-S-01 注入防护**：所有数据库访问使用参数化查询，杜绝 SQL 注入；</li><li>**NF-S-02 凭证管理**：数据库口令、缓存口令通过配置文件与环境变量注入，</li></ul>
+<p><b>不硬编码在源码中</b>，且不随数据文件进入交付包；</p>
+<ul><li>**NF-S-03 信息泄露防护**：全局异常处理器只返回业务级错误码与提示文案，</li></ul>
+<p>不向前端返回异常堆栈与 SQL 片段；</p>
+<ul><li>**NF-S-04 权限控制**：系统提供 `sys_user` / `sys_role` 两张表承载账号与角色，</li></ul>
+<p>区分管理员、分析人员两类角色，按角色限定数据访问范围；</p>
+<ul><li>**NF-S-05 传输安全**：当前为本地 HTTP 部署，</li></ul>
+<p>生产化部署须引入 HTTPS 传输加密与操作审计；</p>
+<ul><li>**NF-S-06 只读优先**：16 个对外接口全部为查询接口，无写操作，</li></ul>
+<p>从接口层面缩小攻击面。</p>
+
+<blockquote>结论：四类非功能需求共 22 条（性能 6 / 可靠性 6 / 可维护性 6 / 安全性 6），<br>均为可测量或可验证的具体条目，构成第六章测试方案的直接依据。</blockquote>
+
+<hr>
+
+<h2>3.8 本章小结</h2>
+
+<p>本章从需求分析目的出发，明确了系统的总体目标——把充电设施的供需错配从经验判断</p>
+<p>转化为可量化、可追溯、可复现的结论，并分解为数据可达、口径统一、结构可用、质量可控、</p>
+<p>空间可解释、结论可比、决策可用、系统可复现八项子目标。</p>
+
+<p>在可行性论证上，技术可行性方面以 276 列宽表、4,344 个逐小时时点、717 万行长表化规模</p>
+<p>与 712,135 条 POI 空间连接为依据，论证了采用 Hadoop 生态而非 MySQL 单机的必要性，</p>
+<p>并逐项映射了 Flume、HDFS、MapReduce、Hive、Spark SQL、Sqoop 的对应职责；</p>
+<p>经济可行性方面确认软件与数据零授权成本、无额外硬件投入；</p>
+<p>操作可行性方面针对系统管理员、运营人员、城市管理者三类角色分别给出了操作路径。</p>
+
+<p>功能需求按八个模块展开，覆盖采集接入、数仓构建、质量检查、POI 空间连接与维表加工、</p>
+<p>指标计算、在线服务、可视化展示与布点决策建议，并明确 4 个创新指标的计算逻辑与业务价值。</p>
+<p>用例分析给出 14 个系统用例的完整描述与用例图绘制方案；</p>
+<p>数据流分析给出四层数据流结构与 DFD 四级绘制的具体内容；</p>
+<p>非功能性需求提出性能、可靠性、可维护性、安全性四类共 22 条可测条目。</p>
+
+<p>本章形成的需求规格，将直接指导第四章的系统概要设计与第五章的详细实现。</p>
+
+<blockquote>**本章由 彭忠燕 / 杨珊珊 负责**</blockquote>
+
+<hr>
+
+<h1>第四章 系统概要设计</h1>
+
+
+<hr>
+
+<h2>4.1 概要设计的目的</h2>
+
+<p>概要设计是需求分析通向详细设计之间的桥梁，承担三项任务。</p>
+<p>第一，<b>划定系统边界</b>：确定系统由哪些功能模块构成、每个模块的职责边界在哪里、</p>
+<p>模块之间的调用方向是什么，从而避免职责重叠与推诿。</p>
+<p>第二，<b>确定数据骨架</b>：设计数据库的层次结构、实体之间的关联关系与视图组织方式，</p>
+<p>使数据结构能够支撑第三章提出的全部功能需求与查询场景。</p>
+<p>第三，<b>约定对外契约</b>：确定各模块的输入输出格式与接口形式，</p>
+<p>使第五章的详细实现可以并行推进而互不阻塞——</p>
+<p>这也是本组五名成员能在同一套契约下分工编码的前提。</p>
+
+<p>本章的设计遵循三条原则：</p>
+<p><b>层间职责单一</b>（ODS 只贴源、DWD 只清洗与补维、DWS 只汇总、ADS 只出应用指标）、</p>
+<p><b>表与图表一一对应</b>（ADS 层一张表只服务前端一张图）、</p>
+<p><b>读接口与写表解耦</b>（后端接口只读视图，不直接触碰明细表），</p>
+<p>这三条原则在下文的模块设计与视图设计中会反复体现。</p>
+
+<hr>
+
+<h2>4.2 系统总体功能设计</h2>
+
+<h3>4.2.1 总体功能结构</h3>
+
+<p>依据第三章的八个功能模块与可行性结论，系统总体功能划分为<b>五个一级模块</b>，</p>
+<p>每个一级模块下设若干二级模块。</p>
+
+<p><b>图 4-1 系统总体功能结构图</b></p>
+
+<pre class="code"><code class="lang-text">城市充电桩使用行为分析与充电需求预测系统
+│
+├── MOD-1 数据接入模块（数据从哪来）
+│   ├── M1.1 原始数据完整性校验（12 个 CSV · 36 项 SHA256 与行数校验）
+│   ├── M1.2 Flume 增量采集配置（12 条独立 source / channel / sink 通道）
+│   └── M1.3 采集结果验证（HDFS 目录数 · 分片数 · checksum 核对）
+│
+├── MOD-2 数据仓库模块（数据怎么存）
+│   ├── M2.1 ODS 贴源层建表与数据加载（脚本自动生成 DDL · 时序宽表 276 列）
+│   ├── M2.2 DWD 宽表转长与质量清洗（MapReduce：WideToLong / DataQualityCheck）
+│   ├── M2.3 POI 空间连接与维表加工（MapReduce：PoiZoneJoin → dim_zone_info）
+│   ├── M2.4 DWS 多粒度汇总（Spark SQL：分区×日×小时 / 分区×日 / 分区×小时）
+│   └── M2.5 ADS 应用指标层（Spark SQL：7 张应用表，一表一图表）
+│
+├── MOD-3 指标分析模块（算出什么结论）
+│   ├── M3.1 12 项基础指标计算（M1–M12）
+│   ├── M3.2 创新点① 供需失衡指数（份额差 I = D − S）
+│   ├── M3.3 创新点② 分时电价弹性（TOU / FLAT 峰谷差对比）
+│   ├── M3.4 创新点③ 需求预测与布点扩容建议（MAPE 回测 + 优先级规则）
+│   └── M3.5 创新点④ 分区聚类画像（Spark MLlib KMeans · k = 4 · 种子 42）
+│
+├── MOD-4 服务与可视化模块（怎么给人看）
+│   ├── M4.1 Spring Boot RESTful API（16 个接口 · 统一响应结构）
+│   ├── M4.2 MySQL 数据持久化（uev_charge 库 19 张表与视图）
+│   ├── M4.3 Redis 热点缓存（KPI 300s / 分区占用率 600s / 图表 120s）
+│   └── M4.4 ECharts 交互式分析看板（6 页 10 图 + Excel 导出）
+│
+└── MOD-5 运维保障模块（怎么保证跑得起来）
+    ├── M5.1 Docker Compose 一键编排（full / app / native 三层降级）
+    ├── M5.2 端到端冒烟测试（6 组检查 · 契约一致性扫描）
+    ├── M5.3 RUNBOOK 运行手册（30 分钟可复现）
+    └── M5.4 契约版本管理与变更登记（CHANGELOG）
+</code></pre>
+
+<blockquote>结论：系统由 5 个一级模块、19 个二级模块构成，<br>覆盖"采集—建模—分析—服务—保障"完整链路，二级模块与第三章的八个功能模块一一对应、无遗漏。</blockquote>
+
+<h3>4.2.2 模块职责对照</h3>
+
+<p><b>表 4-1 一级模块职责对照表</b></p>
+
+<table><thead><tr><th>模块</th><th>核心职责</th><th>主要输入</th><th>主要输出</th><th>负责岗位</th></tr></thead><tbody>
+<tr><td>MOD-1 数据接入模块</td><td>把 12 个 CSV 从本地目录自动、可断点地采集进 HDFS</td><td>12 个原始 CSV</td><td>HDFS `/uev/raw/` 下 12 个子目录</td><td>B（苏静）</td></tr>
+<tr><td>MOD-2 数据仓库模块</td><td>建成 ODS–DWD–DWS–ADS 四层数仓，完成宽转长、清洗、空间连接与汇总</td><td>HDFS 原始分片</td><td>16 张 Hive 建模表</td><td>B（苏静）</td></tr>
+<tr><td>MOD-3 指标分析模块</td><td>计算 12 项基础指标与 4 个创新指标，产出分析结论</td><td>DWS 汇总表、DWD 长表与维表</td><td>ADS 应用表、`insight_*` 洞察表</td><td>E（姬婷婷）</td></tr>
+<tr><td>MOD-4 服务与可视化模块</td><td>把结论通过 16 个 REST 接口与看板呈现给三类角色</td><td>MySQL `uev_charge`</td><td>JSON 响应、图表、导出文件</td><td>D（杨珊珊）/ C（贺欢欢）</td></tr>
+<tr><td>MOD-5 运维保障模块</td><td>保证系统可部署、可体检、可复现、口径不漂移</td><td>脚本、契约、镜像</td><td>部署编排、体检报告、CHANGELOG</td><td>A（彭忠燕）</td></tr>
+</tbody></table>
+
+<blockquote>结论：五个模块的输入输出形成闭环，M2 的输出是 M3 的输入、M3 的输出是 M4 的输入，<br>无模块既是上游又是下游的旁路依赖，模块边界清晰可并行开发。</blockquote>
+
+<hr>
+
+<h2>4.3 各功能模块的概要设计</h2>
+
+<h3>4.3.1 数据接入模块的概要设计</h3>
+
+<p><b>模块描述</b>：负责把散落在本地目录的 12 个原始 CSV，完整、可校验、可重放地搬进 HDFS，</p>
+<p>是整个系统的入口。</p>
+
+<p><b>输入输出</b>：</p>
+
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>
+<tr><td>输入</td><td>`data/raw/` 下 12 个 CSV（6 张时序宽表 + `inf` / `adj` / `distance` / `poi` + 2 张气象表）</td></tr>
+<tr><td>输出</td><td>HDFS `/uev/raw/<数据集名>/` 下 12 个独立子目录内的分片文件；`verify_data.sh` 的校验报告</td></tr>
+<tr><td>中间态</td><td>Flume file channel 的消费位点文件（断点续传用）</td></tr>
+</tbody></table>
+
+<p><b>处理流程</b>：</p>
+
+<pre class="code"><code class="lang-text">① 环境探测：find_data.sh 按 UEV_DATA_DIR → data/raw/ → ../数据/UrbanEV/ 顺序自动定位数据目录
+       ↓
+② 完整性校验：verify_data.sh 执行 36 项 SHA256 与行数校验
+       ├── 全部通过 → 进入 ③
+       └── 任一失败 → 报告缺失文件并提示重下，终止流程
+       ↓
+③ 增量采集：Flume taildir source 监听目录变化
+       ├── 12 个 CSV 各一条独立通道（source / channel / sink 三段一一对应）
+       ├── file channel 保存消费位点 → 支持断点续传
+       └── HDFS sink 写入 /uev/raw/&lt;数据集名>/，保留 checksum
+       ↓
+④ 采集校验：hdfs dfs -ls 核对 12 个子目录与分片数，
+   hdfs dfs -cat 抽查首行表头是否为 time + 275 个分区列
+       ↓
+⑤ 输出采集结论（目录数 / 分片数 / 校验状态），供 M2 消费
+</code></pre>
+
+<p><b>与其他模块的接口</b>：</p>
+<p>向上（对 M2）以 <b>HDFS 路径约定</b> 为接口——</p>
+<p><code>/uev/raw/&lt;数据集名&gt;/</code> 下 12 个子目录与 Hive 的 ODS 贴源表一一对应，</p>
+<p>Hive 建表脚本直接指向这些路径，不做路径转换；</p>
+<p>向下（对 M5）以 <b>采集日志与位点文件</b> 为接口，</p>
+<p>位点文件同时充当 M5 冒烟测试判断"是否需要重新采集"的依据。</p>
+
+<h3>4.3.2 数据仓库模块的概要设计</h3>
+
+<p><b>模块描述</b>：本模块是系统的计算主干，承担从原始宽表到可用分析结果的全部加工工作。</p>
+
+<p><b>输入输出</b>：</p>
+
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>
+<tr><td>输入</td><td>M1 产出的 HDFS 分片文件（12 个子目录）</td></tr>
+<tr><td>输出</td><td>ODS 贴源表（脚本自动生成 DDL）+ DWD 4 张 + DWS 4 张 + ADS 8 张加工层表</td></tr>
+<tr><td>关键约束</td><td>分区键统一为 `dt`（`yyyy-MM-dd`）；长表化后行数约 275 × 4,344 × 6 ≈ 717 万行</td></tr>
+</tbody></table>
+
+<p><b>处理流程</b>：</p>
+
+<pre class="code"><code class="lang-text">① ODS 贴源：python3 hadoop/hive/gen_ddl.py 从 CSV 表头自动生成 276 列 DDL
+   → hdfs dfs -put → beeline -f 建表 → LOAD DATA INPATH 装载
+   ⚠️ LOAD DATA INPATH 是移动不是复制，须先 put 到临时目录再装载
+       ↓
+② DWD 宽转长：hadoop jar uev-mr.jar com.uev.mr.WideToLong
+   /uev/raw/occupancy/ → /uev/dwd/long/occupancy
+   -D uev.metric.name=occupancy
+   → Mapper 动态遍历 275 列 → (zone_id, hour_ts, hour_of_day, day_of_week, metric, value, is_zero)
+   ⚠️ 6 个指标各执行一次，输入目录与 uev.metric.name 同时改
+       ↓
+③ DWD 质量检查：hadoop jar uev-mr.jar com.uev.mr.DataQualityCheck
+   -D uev.metric.min=0 -D uev.metric.max=1
+   → 产出 dq_zone_stat（valid_cnt / zero_cnt / outlier_cnt / total_cnt / valid_rate）
+   ⚠️ 验收口径：DWD 行数 &lt; ODS 单元格数，证明清洗真实生效
+       ↓
+④ 空间连接与维表：hadoop jar uev-mr.jar com.uev.mr.PoiZoneJoin
+   /uev/raw/poi/ → /uev/dwd/zone_poi_count -D uev.zone.info.path=/uev/raw/inf/
+   → Map 端广播 275 个分区中心点，Haversine 距离归入最近分区
+   → Spark SQL 整合出 dim_zone_info（15 字段，含 is_tou_zone / price_std / price_gap）
+       ↓
+⑤ DWS 汇总：spark-sql --master local[*] -f ads_metrics.sql
+   → zone_day_hour（分区×日×小时）/ zone_day（分区×日）/ zone_hour_profile（分区×小时）
+   → zone_cluster_features（7 维聚类特征宽表）
+       ↓
+⑥ ADS 产出：同一份 SQL 继续计算 7 张 ADS 表（dashboard_kpi / zone_occupancy /
+   hourly_supply_demand / imbalance_index / price_elasticity / demand_forecast /
+   expansion_suggestion），并由 zone_clustering.sql + ZoneClustering.scala 产出 zone_cluster
+       ↓
+⑦ 导出 MySQL：sqoop export --hcatalog-table uev_ads.xxx --hcatalog-database uev_ads -m 1
+   ⚠️ Hive TIMESTAMP → MySQL 用 VARCHAR(30) 接收；connector 需 8.x 否则连 MySQL 8 报 query_cache_size
+</code></pre>
+
+<p><b>与其他模块的接口</b>：</p>
+<p>向上（对 M1）以 <b>HDFS 路径 + Flume 通道命名</b> 为接口；</p>
+<p>向下（对 M3）以 <b>《04-数仓表结构规范》中的表名与字段名</b> 为接口——</p>
+<p>M3 的所有 SQL 直接引用 <code>uev_dws.zone_day_hour</code>、<code>uev_dwd.dim_zone_info</code> 等表，</p>
+<p>不复制粘贴数据，避免口径漂移；</p>
+<p>横向（对 M5）以 <b>建表 9 步检查清单</b> 为接口，每一步都有明确的验收命令与期望输出。</p>
+
+<h3>4.3.3 指标分析模块的概要设计</h3>
+
+<p><b>模块描述</b>：把数仓中的明细与汇总，转化为可解读、可比较、可决策的指标与结论。</p>
+
+<p><b>输入输出</b>：</p>
+
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>
+<tr><td>输入</td><td>`uev_dws.zone_day_hour`、`uev_dws.zone_day`、`uev_dwd.dim_zone_info`、`uev_dwd.zone_hour_metric`</td></tr>
+<tr><td>输出</td><td>12 项基础指标 + 4 个创新指标；ADS 层 8 张表；`insight_*` 5 张洞察表</td></tr>
+<tr><td>关键约束</td><td>两条路径并行——E 组用 pandas 直接从 CSV 复算并以 pymysql 直插 `insight_*`，不被 M2 的 Sqoop 排期卡住</td></tr>
+</tbody></table>
+
+<p><b>处理流程</b>：</p>
+
+<pre class="code"><code class="lang-text">① 基础指标层（M1–M12）
+   需求强度 M1 = duration_h / charge_count      全市同期基准 M2 = Σduration / Σcharge_count
+   平均占用率 M3 / 峰值占用率 M4                 累计电量 M5 / 平均时长 M6
+   日内峰谷差 M7 = MAX(occ) − MIN(occ)           占用率波动率 M8 = STDDEV_POP(occ)
+   POI 密度 M9 / 桩密度 M10                      双口径电量偏差 M11 / 峰谷电价差 M12
+       ↓
+② 创新点① 供需失衡指数
+   D(z,t) = demand(z,t) / Σ demand    S(z,t) = charge_count(z) / Σ charge_count
+   I(z,t) = D(z,t) − S(z,t)   → uev_ads.imbalance_index（正负值均须出现）
+       ↓
+③ 创新点② 分时电价弹性
+   σ_price(z) = STDDEV_POP(e_price) > 0.05 → TOU 区，否则 FLAT 区
+   ELASTICITY = AVG(occ | 17≤h≤19) − AVG(occ | 0≤h≤6)   → 值越小，削峰效果越好
+   ⚠️ 结论只写观测性关联，不作因果推断
+       ↓
+④ 创新点③ 需求预测与布点建议
+   基础值 = AVG(volume | 同 day_of_week 同 hour_of_day)   γ = AVG(近7天) / AVG(全期)
+   predict = 基础值 × γ
+   回测：前 174 天训练（2022-09-01~2023-02-21），后 7 天验证（02-22~02-28），报告 MAPE/MAE/RMSE
+   建议新增桩数 = ⌈I_max(z) × charge_count(z) × 0.3⌉，优先级按 I_max 降序（1 = 最高）
+       ↓
+⑤ 创新点④ 分区聚类画像
+   特征向量 X(z) = [avg_occupancy, peak_valley_gap, occupancy_std, avg_duration,
+                    poi_density, pile_density, price_std]   （7 维）
+   标准化 → setSeed(42) → 肘部法在 k=2~6 中选出 k=4 → KMeans → uev_ads.zone_cluster
+   互证：紧张型簇的平均失衡指数应显著高于其他簇
+       ↓
+⑥ 结论落表：Hive ADS（供 B 走 Sqoop）+ MySQL insight_*（E 直插），两路口径按同一份
+   《02-指标定义表》对齐，并在报告 6.3 节做 MySQL vs Hive 一致性校验
+</code></pre>
+
+<p><b>与其他模块的接口</b>：</p>
+<p>向上（对 M2）以 <b>表名与字段名</b> 为接口，只读不写数仓；</p>
+<p>向下（对 M4）以 <b>ADS 表 + <code>insight_*</code> 表</b> 为接口，</p>
+<p>其中 ADS 表供 <code>ads_*</code> 落地、<code>insight_*</code> 供视图联查，两者在视图层汇合；</p>
+<p>横向（对 M5）以 <b>验收标准</b> 为接口——</p>
+<p>《02-指标定义表》为每个创新指标写明验收口径（如"TOP10 应包含 CBD 类分区"），</p>
+<p>冒烟测试按此逐条核对。</p>
+
+<h3>4.3.4 服务与可视化模块的概要设计</h3>
+
+<p><b>模块描述</b>：把 M3 的结论以标准化接口与可视化看板的形式交付给三类使用者。</p>
+
+<p><b>输入输出</b>：</p>
+
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>
+<tr><td>输入</td><td>MySQL `uev_charge` 的 4 张视图 `v_zone_daily` / `v_zone_imbalance` / `v_forecast` / `v_advice`</td></tr>
+<tr><td>输出</td><td>16 个 REST 接口的 JSON 响应；看板 6 页 10 图；Excel / CSV 导出文件</td></tr>
+<tr><td>关键约束</td><td>接口只读视图，不直接访问明细表；`avgOccupancy` 返回原始比例，由前端 ×100 转百分比</td></tr>
+</tbody></table>
+
+<p><b>处理流程</b>：</p>
+
+<pre class="code"><code class="lang-text">① 请求进入：Spring Boot Controller 接收 GET 请求，统一前缀 /api
+   → GlobalExceptionHandler 兜底，异常统一转为 {code, message, data, timestamp}
+       ↓
+② 参数校验：5 个公共可选参数 startDate / endDate / hourRange / zoneId / priceType
+   → 非法参数返回 400 与明确提示，不吞异常
+       ↓
+③ 缓存判定：以全部筛选参数的哈希构造 key
+   key = uev:{类型}:{name}:{hash}
+   ├── 命中 → 直接返回缓存结果（TTL：KPI 300s / 分区占用率 600s / 图表 120s）
+   └── 未命中 → 查 MySQL 视图 → 回填缓存 → 返回
+   ⚠️ hash 必须覆盖全部筛选参数，否则改条件会拿到旧数据
+       ↓
+④ 视图联查：ads_*（B 的离线管道）与 insight_*（E 的探索性分析）在 v_* 视图层 JOIN
+       ↓
+⑤ 响应组装：字段名与《03-接口规范》完全一致（大小写敏感）
+       ↓
+⑥ 前端渲染：ECharts 5 本地化渲染，四个筛选维度联动刷新全部图表
+   → 布点建议表与 KPI 概览支持 Excel / CSV 导出
+</code></pre>
+
+<p><b>与其他模块的接口</b>：</p>
+<p>向上（对 M3）以 <b>《03-接口规范》的路径与出入参</b> 为接口，11 个核心接口的示例已在契约中固化；</p>
+<p>向下（对 M5）以 <b>Actuator 健康检查与查询日志</b> 为接口，</p>
+<p><code>/api/health</code> 返回 mysql / redis 组件状态与分区总数（<code>uev.data.region-count</code> 配置为 275）。</p>
+
+<h3>4.3.5 运维保障模块的概要设计</h3>
+
+<p><b>模块描述</b>：保证系统"装得上、跑得起、查得出、别人也复现得了"。</p>
+
+<p><b>输入输出</b>：</p>
+
+<table><thead><tr><th>项</th><th>内容</th></tr></thead><tbody>
+<tr><td>输入</td><td>仓库源码、契约文件、Docker 镜像、本地 12 个 CSV</td></tr>
+<tr><td>输出</td><td>可用的运行实例、体检报告、变更记录、交付包</td></tr>
+<tr><td>关键约束</td><td>数据不进 Git（129MB），以脚本可再生；交付包不含明文密码与原始 CSV</td></tr>
+</tbody></table>
+
+<p><b>处理流程</b>：</p>
+
+<pre class="code"><code class="lang-text">① 部署编排：docker compose --profile full up -d
+   → start_all.sh 自动探测环境并选择 full / app / native 三种模式
+   → 三层降级：集群起不来 → 只起应用层；应用层起不来 → 导出演示视频兜底
+       ↓
+② 初始化数仓：gen_ddl.py → 建库建表 → Flume 采集 → 三个 MR 作业 → Spark SQL → Sqoop export
+       ↓
+③ 启动应用：backend（8080）与 frontend（Nginx 反代到 /api）就绪
+       ↓
+④ 端到端体检：smoke_test.sh 分 6 组检查
+   ① 数据文件 12 个 CSV   ② Hive 四层表有数据且 DWD &lt; ODS
+   ③ MySQL 业务表有数据   ④ 后端接口全部 200
+   ⑤ Redis 连接正常       ⑥ 契约一致性 0 处冲突
+       ↓
+⑤ 契约治理：check-contracts.sh 扫描"契约定义 ↔ 建表脚本 ↔ Controller ↔ 计算脚本"四处一致性；
+   口径变更走"改契约 → 登记 CHANGELOG → 下游 pull"的流程
+       ↓
+⑥ 交付打包：DDL 全集 + 每张 MySQL 表前 100 行样例 CSV + export / restore / rebuild 三个脚本
+   → 第三方无需 129MB 原始数据即可重建 ADS 层
+</code></pre>
+
+<p><b>与其他模块的接口</b>：</p>
+<p>M5 不产出业务数据，但通过<b>检查清单</b>约束全部四个模块：</p>
+<p>数据文件数量校验 M1、Hive 四层表与行数校验 M2、指标验收标准校验 M3、</p>
+<p>接口与组件状态校验 M4，形成一条贯穿全链路的自动化质量闸门。</p>
+
+<hr>
+
+<h2>4.4 数据库设计</h2>
+
+<h3>4.4.1 E-R 图设计说明</h3>
+
+<p>本系统的数据分为<b>三类实体</b>：</p>
+
+<p><b>（1）分区维表实体（Zone Dimension）</b></p>
+
+<p>对应 <code>uev_dwd.dim_zone_info</code>，是全系统的核心维度实体，</p>
+<p>一条记录代表深圳 275 个交通分区之一。</p>
+<p>主键为 <code>zone_id</code>（= <code>inf.csv</code> 的 <code>TAZID</code>）。</p>
+<p>该实体承载两类属性：</p>
+<p>静态属性（<code>longitude</code>、<code>latitude</code>、<code>charge_count</code>、<code>area</code>、<code>perimeter</code>）</p>
+<p>与派生的空间属性（<code>poi_lifestyle</code>、<code>poi_business</code>、<code>poi_food</code>、<code>poi_total</code>）</p>
+<p>以及价格属性（<code>is_tou_zone</code>、<code>price_std</code>、<code>price_peak</code>、<code>price_valley</code>、<code>price_gap</code>）。</p>
+
+<p><b>（2）指标事实表实体（Metric Fact）</b></p>
+
+<p>对应 <code>uev_dwd.zone_hour_metric</code>（最细粒度）与其上游的</p>
+<p><code>uev_dws.zone_day_hour</code>、<code>uev_dws.zone_day</code>、<code>uev_ads.*</code> 系列。</p>
+<p>一条记录代表"某个分区在某个时间点的某个指标取值"。</p>
+<p>该实体的度量属性为 <code>value</code>（DOUBLE），维度属性为</p>
+<p><code>zone_id</code>、<code>hour_ts</code>、<code>hour_of_day</code>、<code>day_of_week</code>、<code>metric</code>，</p>
+<p>另有 <code>is_zero</code> 标记原值是否为零（疑似缺失）。</p>
+
+<p><b>（3）系统实体（System Entity）</b></p>
+
+<p>对应 MySQL 侧的 <code>sys_user</code>（用户）、<code>sys_role</code>（角色）、<code>sys_operation_log</code>（操作日志）</p>
+<p>与 <code>sys_data_dictionary</code>（数据字典），</p>
+<p>用于承载应用自身的账号、权限与审计信息，与分析数据分离存放。</p>
+
+<p><b>主要关系</b>：</p>
+
+<p><b>表 4-2 E-R 实体间主要关系与基数</b></p>
+
+<table><thead><tr><th>关系</th><th>基数</th><th>说明</th></tr></thead><tbody>
+<tr><td>分区维表 → 指标事实表</td><td>**1 : N**</td><td>一个分区对应其在 4,344 个时点上的海量事实记录；事实表以 `zone_id` 外键关联维表，关联方式为 `zone_id = TAZID` 显式 JOIN</td></tr>
+<tr><td>指标事实表 → 日汇总事实表</td><td>**1 : N**</td><td>分区 × 小时事实聚合为分区 × 日事实，`zone_day_hour` 是 `zone_day` 的上游</td></tr>
+<tr><td>日汇总事实表 → ADS 应用表</td><td>**1 : N**</td><td>日汇总按不同口径聚合出各 ADS 表（如失衡指数表按分区 × 时段展开）</td></tr>
+<tr><td>分区维表 ↔ ADS 应用表</td><td>**1 : 1**</td><td>每张 ADS 表中的每个 `zone_id` 在维表中恰好有一条对应记录，用于补充经纬度与 POI 数</td></tr>
+<tr><td>ADS 应用表 ↔ insight 洞察表</td><td>**1 : 1**（视图表内）</td><td>同一指标在两条计算路径上各有一份结果，在 `v_*` 视图中 JOIN 比对</td></tr>
+<tr><td>用户 → 角色</td><td>**N : M**</td><td>用户通过 `sys_user_role` 关联角色，角色决定可访问的接口范围</td></tr>
+<tr><td>用户 → 操作日志</td><td>**1 : N**</td><td>一次操作（查询 / 导出 / 权限变更）产生一条日志记录</td></tr>
+</tbody></table>
+
+<p><b>文字版 E-R 关系清单</b>：</p>
+
+<pre class="code"><code class="lang-text">[分区维表 ZONE]  zone_id(PK) ──1:N──> [指标事实表 FACT]
+   │                                    zone_id(FK), hour_ts, metric, value
+   │                                    └──1:N──> [日汇总事实 DAY_FACT]
+   │                                                 └──1:N──> [ADS 应用表 ADS]
+   │                                                              │
+   │  ┌───────────────────────────────────────────────────────────┘
+   │  │ (同为 zone_id 的 1:1 引用)
+   ▼  ▼
+[ADS 应用表 ADS] ──1:1(视图内 JOIN)──> [INSIGHT 洞察表 INSIGHT]
+        │                                    │
+        └────────────┬───────────────────────┘
+                     ▼ (在 v_* 视图中汇合)
+              [视图层 VIEW] ──被读──> [后端接口 API] ──> [前端看板 CHART]
+
+[用户 USER] ──N:M──> [角色 ROLE]
+     └──1:N──> [操作日志 OP_LOG]
+</code></pre>
+
+<p><b>图 4-2 系统 E-R 图</b></p>
+
+<blockquote>图 4-2 的画法说明：以矩形表示实体（ZONE、DAY_FACT、ADS、INSIGHT、VIEW、USER、ROLE、OP_LOG），<br>以菱形表示关系（"拥有"、"聚合"、"归属"、"产生"、"访问"），<br>以椭圆表示属性（仅对 ZONE 实体展开其 15 个属性，<br>其余实体只标注主键与 2–3 个关键字段，避免图形过载）；<br>1:N 关系在线上标注"1"与"N"，ADS 与 INSIGHT 之间的双路径关系用虚线框标注"一致性互证"。</blockquote>
+
+<blockquote>结论：核心关系为"一分区对多事实"的 1:N 结构，<br>ADS 与 insight 之间是 1:1 的双路径冗余（用于一致性互证），<br>用户与角色是标准的 N:M，整体 E-R 关系可在一个页面内完整绘制。</blockquote>
+
+<h3>4.4.2 数据字典</h3>
+
+<p>按《04-数仓表结构规范》的建模口径，本系统 Hive 侧共 <b>16 张建模表</b></p>
+<p>（DWD 4 张 + DWS 4 张 + ADS 8 张）；ODS 层的贴源表由 <code>gen_ddl.py</code> 依 CSV 表头自动生成，</p>
+<p>字段结构与《01-数据字典》v1.0 一致，其中 6 张时序宽表均为 <code>time</code> + 275 个分区列共 276 列。</p>
+
+<p><b>表 4-3 Hive 数仓建模表数据字典（16 张）</b></p>
+
+<table><thead><tr><th>层</th><th>表名</th><th>中文名</th><th>主要字段</th><th>字段数</th><th>存储格式</th><th>分区键</th><th>更新频率</th></tr></thead><tbody>
+<tr><td>DWD</td><td>`uev_dwd.zone_hour_metric`</td><td>指标标准化长表</td><td>zone_id, hour_ts, hour_of_day, day_of_week, metric, value, is_zero</td><td>7（+1 分区键）</td><td>ORC / SNAPPY</td><td>`dt`</td><td>日批（每日全量重算）</td></tr>
+<tr><td>DWD</td><td>`uev_dwd.dq_zone_stat`</td><td>分区质量画像表</td><td>zone_id, valid_cnt, zero_cnt, outlier_cnt, total_cnt, valid_rate</td><td>6</td><td>ORC</td><td>无</td><td>日批（随长表同步重算）</td></tr>
+<tr><td>DWD</td><td>`uev_dwd.dim_zone_info`</td><td>分区综合维度表</td><td>zone_id, longitude, latitude, charge_count, area, perimeter, poi_*, is_tou_zone, price_*</td><td>15</td><td>ORC</td><td>无</td><td>日批（POI 与电价统计变更时重算）</td></tr>
+<tr><td>DWD</td><td>`uev_dwd.zone_poi_count`</td><td>分区 POI 计数表</td><td>zone_id, poi_lifestyle, poi_business, poi_food, poi_total</td><td>5</td><td>ORC</td><td>无</td><td>日批（随 POI 空间连接结果重算）</td></tr>
+<tr><td>DWS</td><td>`uev_dws.zone_day_hour`</td><td>分区×日×小时事实表</td><td>zone_id, dt, hour_of_day, occupancy, duration_h, volume_kwh, e_price, s_price, charge_count</td><td>9</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>DWS</td><td>`uev_dws.zone_day`</td><td>分区日粒度汇总表</td><td>zone_id, dt, avg_occupancy, max_occupancy, avg_duration, total_volume, avg_e_price, peak_hour, valley_hour, peak_valley_gap, occupancy_std</td><td>11</td><td>ORC</td><td>`dt`</td><td>日批</td></tr>
+<tr><td>DWS</td><td>`uev_dws.zone_hour_profile`</td><td>分区×小时画像表</td><td>zone_id, hour_of_day, avg_occupancy, avg_duration, avg_volume, sample_days</td><td>6</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>DWS</td><td>`uev_dws.zone_cluster_features`</td><td>分区聚类特征宽表</td><td>zone_id, avg_occupancy, peak_valley_gap, occupancy_std, avg_duration, poi_density, pile_density, price_std</td><td>8</td><td>ORC</td><td>无</td><td>日批（随 zone_day 同步）</td></tr>
+<tr><td>ADS</td><td>`uev_ads.dashboard_kpi`</td><td>首页 KPI 概览表</td><td>dt, station_count, pile_count, avg_occupancy, total_volume, avg_duration, imbalance_zones, compute_time</td><td>8</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>ADS</td><td>`uev_ads.zone_occupancy`</td><td>分区占用率表</td><td>zone_id, longitude, latitude, avg_occupancy, max_occupancy, charge_count, poi_total</td><td>7</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>ADS</td><td>`uev_ads.hourly_supply_demand`</td><td>24 小时供需曲线表</td><td>hour_of_day, avg_occupancy, avg_demand, avg_supply, gap, imbalance</td><td>6</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>ADS</td><td>`uev_ads.imbalance_index`</td><td>供需失衡指数表 ★创新点①</td><td>zone_id, longitude, latitude, dt, hour_of_day, demand, supply, imbalance, rank_no</td><td>9</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>ADS</td><td>`uev_ads.price_elasticity`</td><td>分时电价弹性表 ★创新点②</td><td>price_type, hour_of_day, avg_occupancy, zone_count, avg_price_gap</td><td>5</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>ADS</td><td>`uev_ads.demand_forecast`</td><td>充电需求预测表 ★创新点③</td><td>zone_id, forecast_date, hour_of_day, predict_volume, actual_volume, mape</td><td>6</td><td>ORC</td><td>无</td><td>日批（回测期每日更新）</td></tr>
+<tr><td>ADS</td><td>`uev_ads.expansion_suggestion`</td><td>布点扩容建议表 ★创新点③</td><td>zone_id, longitude, latitude, current_piles, suggested_piles, priority, reason, avg_occupancy, peak_gap</td><td>9</td><td>ORC</td><td>无</td><td>日批</td></tr>
+<tr><td>ADS</td><td>`uev_ads.zone_cluster`</td><td>分区聚类结果表 ★创新点④</td><td>zone_id, cluster_id, cluster_name, avg_occupancy, peak_valley_gap, occupancy_std, avg_duration, poi_density, pile_density, price_std, longitude, latitude</td><td>12</td><td>ORC</td><td>无</td><td>日批（模型结果持久化）</td></tr>
+</tbody></table>
+
+<blockquote>★ 表中字段数已由 A 岗 Python 路径实测核定（`scripts/python_etl.py`），与 `hadoop/hive/01_ods.sql` 的实际生成结果一致。<br>ODS 层的贴源表由 `gen_ddl.py` 从 CSV 表头自动生成，<br>其中 `occupancy` / `duration` / `volume` / `volume_11kw` / `e_price` / `s_price`<br>六张时序宽表均为 `time` + 275 个分区列共 276 列，<br>`inf` / `adj_matrix` / `distance_matrix` 为分区维表与矩阵表，<br>其余为 `poi` 与两张气象表，具体字段见《01-数据字典》v1.0。<br>ADS 层共 8 张：7 张核心应用表（对应前端 7 张图表）+ 创新点④的 `zone_cluster`。</blockquote>
+
+<p>MySQL 侧共 19 张表与视图，明细见 4.4.3 与 4.4.4 两节。</p>
+
+<h3>4.4.3 MySQL 应用库设计</h3>
+
+<p>MySQL 业务库名为 <code>uev_charge</code>，字符集 <code>utf8mb4</code>，引擎 InnoDB。</p>
+<p>共 19 张表与视图，按<b>前缀</b>分为四类，四类的归属、写入方与读取方互不重叠：</p>
+
+<p><b>表 4-4 MySQL 应用库表分类</b></p>
+
+<table><thead><tr><th>前缀</th><th>张数</th><th>归属</th><th>写入方</th><th>读取方</th><th>用途</th></tr></thead><tbody>
+<tr><td>`ads_*`</td><td>7</td><td>B（苏静）</td><td>Sqoop export（由 Hive ADS 落地）</td><td>D（经视图）</td><td>面向图表的应用指标，与 `uev_ads.*` 一一对应</td></tr>
+<tr><td>`insight_*`</td><td>5</td><td>E（姬婷婷）</td><td>pandas 计算后由 pymysql 直插</td><td>D（经视图）</td><td>探索性分析结果，与创新指标一一对应</td></tr>
+<tr><td>`sys_*`</td><td>3</td><td>D（杨珊珊）</td><td>应用运行时写入</td><td>D</td><td>用户、角色与操作日志</td></tr>
+<tr><td>`v_*`</td><td>4</td><td>B 建 / D 读</td><td>视图定义（无物理存储）</td><td>D</td><td>联查 `ads_*` 与 `insight_*`，是接口唯一读取入口</td></tr>
+</tbody></table>
+
+<p><b>（1）<code>ads_*</code> 七张表</b>（由 Hive ADS 经 Sqoop 导出，字段名用驼峰）：</p>
+
+<p><code>ads_dashboard_kpi</code>（首页 KPI）、<code>ads_zone_occupancy</code>（分区占用率，地图 + 热力图）、</p>
+<p><code>ads_hourly_supply_demand</code>（24 小时供需曲线）、<code>ads_imbalance_index</code>（失衡指数 TOP N ★创新点①）、</p>
+<p><code>ads_price_elasticity</code>（电价弹性 TOU/FLAT ★创新点②）、</p>
+<p><code>ads_demand_forecast</code>（预测结果 ★创新点③）、<code>ads_expansion_suggestion</code>（布点建议 ★创新点③）。</p>
+
+<p><b>（2）<code>insight_*</code> 五张表</b>（E 组用 pandas 从原始 CSV 直接计算后直插）：</p>
+
+<p><code>insight_imbalance</code>（创新点① 分区 × 时段 × 失衡指数）、</p>
+<p><code>insight_price_elasticity</code>（创新点② 分区 × 类型 × 峰谷差）、</p>
+<p><code>insight_demand_forecast</code>（创新点③ 预测值 + 实际值）、</p>
+<p><code>insight_forecast_error</code>（创新点③ 误差评估：MAPE / MAE / RMSE 与基线对比）、</p>
+<p><code>insight_zone_cluster</code>（创新点④ 分区 → cluster_id）。</p>
+
+<p><b>（3）<code>sys_*</code> 三张表</b>：<code>sys_user</code>（登录与角色）、<code>sys_role</code>（角色）、</p>
+<p><code>sys_operation_log</code>（操作日志）；另有 <code>sys_data_dictionary</code> 承载前端"数据源说明"页，</p>
+<p>其内容对应《01-数据字典》中的 12 个 CSV 条目。</p>
+
+<p><b>（4）并行写入与视图汇合的设计说明</b>：</p>
+
+<p>这是本系统在数据架构上最关键的一个决定，理由有三：</p>
+
+<ul><li>**解耦时间依赖**——E 组的交付节点早于 B 组的 Sqoop 导出节点，</li></ul>
+<p>若强制 E 走 Hive → Sqoop 链路会产生时间倒挂；改为直插后两条路径完全并行。</p>
+<ul><li>**不牺牲核心创新点的可控性**——创新点④的聚类本就要写自己的 Spark MLlib 代码，</li></ul>
+<p>塞进 B 的 Spark 脚本等于把核心工作交给他人执行。</p>
+<ul><li>**口径一致性仍可保障**——两条路径都以《02-指标定义表》为唯一公式来源，</li></ul>
+<p>并在报告 6.3 节做"同一指标 MySQL 查询值 = Hive 直查值"的逐项校验，</p>
+<p>不一致时先改契约再改实现并登记 CHANGELOG。</p>
+
+<p>汇合点被刻意放在<b>视图层</b>：</p>
+<p><code>v_*</code> 把 <code>ads_*</code> 与 <code>insight_*</code> 联结起来，</p>
+<p>后端接口只读视图、不碰明细表。</p>
+<p>这样 ADS 层字段调整时，只要视图定义不变，16 个 REST 接口就无需改动——</p>
+<p>视图因此成为数仓与服务之间的<b>契约层</b>。</p>
+
+<h3>4.4.4 视图设计</h3>
+
+<p><b>表 4-5 视图清单与联查关系</b></p>
+
+<table><thead><tr><th>视图名</th><th>联查来源</th><th>业务含义</th><th>消费接口</th></tr></thead><tbody>
+<tr><td>`v_zone_daily`</td><td>`ads_zone_occupancy` + `ads_dashboard_kpi`</td><td>分区日汇总：分区基础属性 + 当日占用率/电量/时长</td><td>`GET /api/zones/occupancy`、`GET /api/dashboard/kpi`</td></tr>
+<tr><td>`v_zone_imbalance`</td><td>`ads_imbalance_index` + `insight_imbalance`（+ `ads_zone_occupancy` 补经纬度）</td><td>分区失衡指数：离线管道与探索性分析两路结果并列，用于一致性互证</td><td>`GET /api/charts/imbalance`</td></tr>
+<tr><td>`v_forecast`</td><td>`ads_demand_forecast` + `insight_forecast_error`</td><td>预测结果与误差评估：预测值、实际值、MAPE / MAE / RMSE</td><td>`GET /api/charts/forecast`</td></tr>
+<tr><td>`v_advice`</td><td>`ads_expansion_suggestion` + `insight_imbalance`</td><td>布点建议：建议新增桩数、优先级、中文理由 + 失衡指数佐证</td><td>`GET /api/charts/suggestions`</td></tr>
+</tbody></table>
+
+<p>四张视图的设计意图各有侧重：</p>
+<p><code>v_zone_daily</code> 承担<b>属性补全</b>——把分区坐标、桩数、POI 数与日粒度指标拼在一起，</p>
+<p>供地图与热力图一次取数；</p>
+<p><code>v_zone_imbalance</code> 承担<b>双路径并列</b>——同一分区的失衡指数同时来自 B 的 Hive 管道与</p>
+<p>E 的 pandas 复算，接口一次返回即可在页面上做一致性核对；</p>
+<p><code>v_forecast</code> 承担<b>精度透明</b>——把预测值与实际值并列返回，</p>
+<p>并附 MAPE / MAE / RMSE 三项误差指标与基线对比，避免只展示预测不看精度；</p>
+<p><code>v_advice</code> 承担<b>决策闭环</b>——建议清单不是孤立结果，</p>
+<p>而是由失衡指数与预测误差共同支撑，视图把这些佐证字段一并带出。</p>
+
+<blockquote>结论：4 张视图把 `ads_*` 与 `insight_*` 两条并行路径在数据库层汇合，<br>既避免了接口层写 JOIN 逻辑，又让"同一指标两路结果一致性"成为可被接口直接观察的事实。</blockquote>
+
+<hr>
+
+<h2>4.5 本章小结</h2>
+
+<p>本章首先说明了概要设计在需求分析与详细实现之间承担的三项任务，</p>
+<p>并确立了"层间职责单一、表与图表一一对应、读写解耦"三条贯穿全章的设计原则。</p>
+
+<p>在总体功能设计部分，给出了包含 5 个一级模块、19 个二级模块的功能结构图，</p>
+<p>以及明确每个模块职责、输入、输出与负责岗位的对照表，</p>
+<p>确定了"采集—建模—分析—服务—保障"的模块切分与数据流向。</p>
+
+<p>在各功能模块概要设计中，对 MOD-1 数据接入、MOD-2 数据仓库、MOD-3 指标分析、MOD-4 服务与可视化、</p>
+<p>MOD-5 运维保障五个模块逐一给出模块描述、输入输出、处理流程与对外接口，</p>
+<p>其中 M2 的九步建表流程与 M3 的四级指标计算流程是本章的核心内容。</p>
+
+<p>在数据库设计部分，先通过分区维表实体、指标事实表实体、系统实体三类实体，</p>
+<p>以及一分区对多事实的 1:N 主关系与双路径 1:1 互证关系，说明了 E-R 图的设计方案；</p>
+<p>随后给出 16 张 Hive 建模表与 19 张 MySQL 表与视图的完整数据字典；</p>
+<p>最后重点说明了 <code>ads_*</code> 与 <code>insight_*</code> 两条并行写入路径的设计理由，</p>
+<p>以及以 4 张视图作为汇合点与数仓—服务契约层的架构决策。</p>
+
+<p>本章确定的模块划分、表结构与视图定义，将直接作为第五章详细设计与实现的输入，</p>
+<p>并作为第六章数据准确性测试的比对基准。</p>
+
+<blockquote>**本章由 苏静 负责**</blockquote>
+
+<hr>
+
+<hr>
+
+<h2>附：实测数据附表（详见独立文件）</h2>
+
+<p>本章节涉及的<b>全部实测数字</b>（分区数、桩数、占用率、充电量、电价弹性分组、</p>
+<p>模型竞优误差、数据质量统计、POI 匹配结果）已在独立文件中逐项列出：</p>
+
+<blockquote>📄 **`docs/report/实测数据附表.md`**<br>数据来源：`scripts/python_etl.py` 全量实跑（181 天 / 4,344 小时，耗时 66.2 秒）<br>汇总快照：`data/etl_out/etl_summary.json`　|　复现命令见附表第九节</blockquote>
+
+<p><b>本章引用的关键实测值速查</b>：</p>
+
+<table><thead><tr><th>项</th><th>实测值</th></tr></thead><tbody>
+<tr><td>分区数 / 充电桩数</td><td>275 / 23,441</td></tr>
+<tr><td>平均占用率（M3）</td><td>0.2710</td></tr>
+<tr><td>累计充电量（M5）</td><td>311,652,820 kWh（约 3.12 亿）</td></tr>
+<tr><td>每桩小时均充电时长（M6′）</td><td>0.1574 小时</td></tr>
+<tr><td>数据质量：越界值 / 重复时间戳</td><td>**均为 0**（六项指标各 1,194,600 行）</td></tr>
+<tr><td>POI 空间连接（1km 半径）</td><td>712,135 条 POI，命中 274/275 个分区</td></tr>
+<tr><td>★ 电价弹性分组轮廓系数</td><td>**0.8132**（TOU 31 区 / FLAT 244 区，σ 均值相差 13.5 倍）</td></tr>
+<tr><td>★ 预测模型竞优最优</td><td>朴素基线 MAPE **20.720%**（线性回归 24.628%，随机森林 24.853%）</td></tr>
+</tbody></table>
+<h1>报告第七章 · 总结与展望（初稿）</h1>
+
+
+<hr>
+
+<h1>第七章 总结与展望</h1>
+
+
+<hr>
+
+<h2>7.1 总结</h2>
+
+<p>本课题以 UrbanEV 开源数据集（CC0 1.0）为对象，完成了一套"从原始数据到布点决策"的</p>
+<p>完整城市充电桩数据分析系统。从数据接入、数仓建模、指标计算、后端服务到可视化呈现，</p>
+<p>系统打通了全链路，并在四个分析维度上给出了具有业务解释力的量化结论。</p>
+<p>以下从六个层面归纳本课题的成果。</p>
+
+<h3>7.1.1 数据接入与治理</h3>
+
+<p>本课题完成了 12 个 CSV（129MB 级）的自动化接入与规范化治理。</p>
+<p>接入环节基于 Flume taildir 增量采集，**为 12 个 CSV 各自配置了一条独立的</p>
+<p>source / channel / sink 通道**，落到 HDFS 的 12 个独立子目录，与 Hive 建表脚本一一对应；</p>
+<p>这一修正避免了多源写入同一目录导致的建表错配。</p>
+<p>数据治理环节在 MapReduce 层实现了三类作业：</p>
+<p><code>WideToLong</code> 将 <code>time</code> + 275 个分区列的<b>宽表（276 列）转为标准长表</b></p>
+<p>（<code>zone_id</code> / <code>hour_ts</code> / <code>hour_of_day</code> / <code>day_of_week</code> / <code>metric</code> / <code>value</code> / <code>is_zero</code>），</p>
+<p>长表化后约 717 万行；<code>DataQualityCheck</code> 以 8 类规则逐单元格判定，</p>
+<p>产出 <code>dq_zone_stat</code> 质量画像表（有效数、零值数、越界数、有效率），</p>
+<p>实现"先修复后丢弃、逐条记因"；<code>PoiZoneJoin</code> 把 <b>712,135 条</b> POI</p>
+<p>按 Map 端广播的 275 个分区中心点完成最近邻空间连接。</p>
+<p>数据完整性的验证形成了可复核的证据链：</p>
+<p>采集后执行 36 项 SHA256 与行数校验，计算后以 <b>DWD 行数小于 ODS 对应单元格数</b></p>
+<p>作为"清洗真实生效"的硬性判据。此外，针对实测发现的 9 个坑</p>
+<p>（数据是宽表而非长表、<code>inf.csv</code> 行序与时序表列序不一致、<code>TAZID</code> 为字符串、</p>
+<p>三套时间格式并存、无分时电价标识字段等），</p>
+<p>逐条在《01-数据字典》v1.0 中登记了现象、原因与处理方式，</p>
+<p>使后续开发不再重复踩坑。</p>
+
+<h3>7.1.2 数仓建模</h3>
+
+<p>本课题建成 ODS–DWD–DWS–ADS 四层数仓，<b>16 张 Hive 建模表</b>各司其职：</p>
+<p>ODS 贴源层保持 CSV 原貌不作任何加工，275 列宽表由 <code>gen_ddl.py</code> 从 CSV 表头自动生成 DDL，</p>
+<p>杜绝手写 275 个字段名的出错风险；</p>
+<p>DWD 层完成宽转长、清洗与维度补齐，</p>
+<p>其中 <code>dim_zone_info</code> 一张表就把分区静态属性（经纬度、桩数、面积、周长）、</p>
+<p>空间属性（三类 POI 计数与总数）与价格属性（是否分时电价、电价标准差、峰谷价差）</p>
+<p>整合在一起，成为创新点②的直接入口；</p>
+<p>DWS 层提供分区 × 日 × 小时、分区 × 日、分区 × 小时画像三类汇总粒度，</p>
+<p>以及 7 维聚类特征宽表；</p>
+<p>ADS 层 8 张表严格遵循"<b>一张表 = 前端一张图表</b>"的原则，字段与《02-指标定义表》一一对应。</p>
+<p>建模过程中最具工程价值的一点是宽表转长的方案选型：</p>
+<p>Hive <code>stack()</code> 需硬编码 275 个列名、新增指标必须改 SQL 并重新编译，</p>
+<p>而 MapReduce 动态遍历列可实现"新增指标零代码改动"，</p>
+<p>最终确定并实现了后者。该决策不仅解决了可维护性问题，</p>
+<p>也使"熟练掌握 Hadoop"从口号变成了可验证的代码证据。</p>
+<p>分层规范通过《04-数仓表结构规范》固化，并配套"建表 9 步检查清单"，</p>
+<p>每一步都有明确的验收命令与期望输出。</p>
+
+<h3>7.1.3 分析方法与创新指标</h3>
+
+<p>本课题的核心贡献在于 4 个创新指标的设计与实现。</p>
+<p><b>创新点① 供需失衡指数</b>（I(z,t) = D(z,t) − S(z,t)）直面"分区规模差异导致绝对量不可比"这一根本问题：</p>
+<p>福田桩多、坪山桩少，直接比占用率或电量必然误判，</p>
+<p>而把需求与运力同时归一化为"占全市同期的份额"再取差值，</p>
+<p>使 4 个桩的分区与 446 个桩的分区可以放在同一把尺子上比较，</p>
+<p>取值范围 [−1, 1]，正值即供不应求。</p>
+<p><b>创新点② 分时电价弹性</b>利用数据集同时提供"分区级价格时序"与"分区级占用率时序"这一独有优势，</p>
+<p>先用电价时序标准差 σ 反推哪些区实行分时电价（TOU 区）、</p>
+<p>哪些区执行固定电价（FLAT 区），再比较两组在 17–19 时与 0–6 时的占用率差，</p>
+<p>把"分时电价到底有没有真的削峰填谷"这一长期停留在概念层面的问题，</p>
+<p>变成了可测量的数字（判读规则为 ELASTICITY 越小、峰谷压得越平、削峰效果越好）。</p>
+<p><b>创新点③ 需求预测与布点扩容建议</b>采用"同 <code>day_of_week</code> 同 <code>hour_of_day</code> 均值 × 趋势因子"</p>
+<p>的统计预测方法，</p>
+<p>以前 174 天训练、后 7 天回测并报告 MAPE / MAE / RMSE 并与朴素基线对比，</p>
+<p>再由分区峰值失衡指数按 <code>⌈I_max × charge_count × 0.3⌉</code> 生成带优先级的扩容建议，</p>
+<p>并输出可直接进工单的完整中文句子。</p>
+<p><b>创新点④ 分区聚类画像</b>用 Spark MLlib KMeans 对 275 个分区做 7 维特征聚类（k = 4），</p>
+<p>刻意处理了三个技术要点：特征标准化（否则结果被量级最大的桩密度独占）、</p>
+<p>固定随机种子 <code>setSeed(42)</code>（保证可复现）、肘部法给出 k = 2~6 的 WCSS 曲线说明选 k = 4 的依据；</p>
+<p>更关键的是用"紧张型簇的平均失衡指数应显著高于其他簇"完成了两条独立方法的交叉互证。</p>
+<p>四个指标共同把"哪里缺桩"推进到"哪个分区、哪个时段、缺多少、按什么优先级补"；</p>
+<p>其中分时电价弹性以峰谷差这一可测量量，把"电价引导削峰"从概念变成数字。</p>
+
+<h3>7.1.4 后端服务与接口</h3>
+
+<p>本课题实现了基于 Spring Boot 3.2.5 的后端服务，<b>对外提供 16 个 REST 接口</b>，</p>
+<p>统一采用 <code>{code, message, data, timestamp}</code> 响应结构，</p>
+<p>11 个核心接口（健康检查、KPI 概览、分区占用率、7 个图表类接口、数据字典）</p>
+<p>的完整出入参已在《03-接口规范》中固化，前端可直接按规范开发。</p>
+<p>接口层的三个设计决策体现了工程判断：</p>
+<p>其一，<b>缓存 key 必须包含全部筛选参数的哈希</b>，</p>
+<p>这是最容易被忽略却最常引发"改了筛选条件却拿到旧数据"的坑，</p>
+<p>本系统按接口类型分层设置 TTL（KPI 300 秒 / 分区占用率 600 秒 / 图表类 120 秒）；</p>
+<p>其二，<b>接口只读视图、不直接访问明细表</b>，</p>
+<p><code>ads_*</code> 与 <code>insight_*</code> 两条并行写入路径在 <code>v_*</code> 视图层汇合，</p>
+<p>视图因此成为数仓与服务之间的契约层，ADS 字段调整时接口无需改动；</p>
+<p>其三，<b>两条计算路径的口径一致性由机器校验保证</b>——</p>
+<p>同一指标在 MySQL 的查询结果必须等于 Hive 直查结果，</p>
+<p>不一致时先改契约再改实现并登记 CHANGELOG，把"口径一致性"从人工约定变成了可执行的检查项。</p>
+<p>服务层同时提供了全局异常处理、参数校验、JWT 角色鉴权与操作日志，</p>
+<p>并通过 <code>/api/health</code> 暴露 mysql / redis 组件状态与分区总数（配置为 275），</p>
+<p>使系统状态可被外部观测。</p>
+
+<h3>7.1.5 可视化呈现</h3>
+
+<p>本课题以 ECharts 5 构建了深色主题的决策看板，<b>6 个页面共 10 张图表</b>，</p>
+<p>覆盖 KPI 指标卡、分区热力图与深圳分区地图、24 小时供需曲线、</p>
+<p>失衡指数 TOP10 横向柱状图、TOU / FLAT 双曲线对比图、</p>
+<p>预测值与实际值对比折线图、布点扩容建议表格、双口径电量偏差对比图、</p>
+<p>POI 关联分析与分区聚类地图。</p>
+<p>展示层的关键在于"可解释"而非"好看"：</p>
+<p>失衡 TOP10 的 tooltip 同时给出需求份额与运力份额两个分量，</p>
+<p>使读者能自行验证 I = D − S 的计算过程；</p>
+<p>电价弹性图在标题旁并列展示 TOU 与 FLAT 两组的 ELASTICITY，</p>
+<p>答辩时可直接读出结论；</p>
+<p>预测曲线把预测值与实际值画在一起并附 MAPE，不做"只展示预测不看精度"的选择；</p>
+<p>布点建议表的 <code>reason</code> 字段是完整中文句子，含失衡指数与现有桩数，</p>
+<p>运营人员无需理解公式即可转为工单；</p>
+<p><code>suggestedPiles</code> 严格定义为"新增数量"而非总数，避免被误读。</p>
+<p>系统还支持 Excel / CSV 导出，结论可直接进入汇报材料。</p>
+<p>ECharts 与深圳分区 GeoJSON 均已本地化存放，不依赖 CDN，答辩现场无外网也能正常渲染。</p>
+
+<h3>7.1.6 工程化与可复现性</h3>
+
+<p>本课题在工程化方面着力甚多，这既是课程要求，也是本系统区别于一般作业的关键特征。</p>
+<p><b>契约驱动的协作机制</b>是其中最具特色的一项：</p>
+<p>四份契约文件（数据字典、指标定义表、接口规范、数仓表结构规范）被确立为全组唯一事实源，</p>
+<p>任何口径变更必须先改契约、登记 CHANGELOG、再由下游拉取生效，</p>
+<p><code>scripts/check-contracts.sh</code> 自动扫描"契约定义 ↔ 建表脚本 ↔ Controller ↔ 计算脚本"四处一致性，</p>
+<p>检查不过不能合并——这把"指标定义"从口头约定变成了可校验的工程产物。</p>
+<p><b>端到端可复现</b>是另一项硬指标：</p>
+<p>Docker Compose 提供一键编排，<code>start_all.sh</code> 自动探测环境并在</p>
+<p>full / app / native 三种模式间降级选择；</p>
+<p><code>smoke_test.sh</code> 分 6 组完成数据文件、Hive 四层表、MySQL 业务表、后端接口、</p>
+<p>Redis 缓存与契约一致性的端到端体检；</p>
+<p>《RUNBOOK》以"拿到文档的人 30 分钟内跑起系统"为编写目标；</p>
+<p>交付包包含全部建表 DDL、每张 MySQL 表的前 100 行样例 CSV</p>
+<p>以及 <code>export_to_mysql.sh</code> / <code>restore_from_mysql.sh</code> / <code>rebuild_ads.sh</code> 三个脚本，</p>
+<p>使第三方无需下载 129MB 原始数据即可重建 ADS 层并启动服务。</p>
+<p>129MB 的原始数据不进 Git（避免仓库膨胀与 clone 不可用），</p>
+<p>而由 <code>download_data.sh</code> 可再生，这一取舍使"可复现"与"可分发"同时成立。</p>
+
+<hr>
+
+<h2>7.2 不足与改进方向</h2>
+
+<p>本系统在方法与工程上取得了上述成果，但受数据范围、模型能力与工程形态的客观限制，</p>
+<p>仍存在若干明确的不足。本节逐条给出"现象 → 原因 → 改进设想"。</p>
+
+<h3>7.2.1 数据覆盖范围单一</h3>
+
+<p><b>现象</b>：全部分析建立在深圳单一城市、2022-09-01 至 2023-02-28 共 181 天的数据上，</p>
+<p>时间跨度不足半年且不含完整的季节周期；结论无法直接外推到其他城市或其他季节。</p>
+
+<p><b>原因</b>：UrbanEV 数据集本身只提供深圳一个城市、6 个月时长的数据，</p>
+<p>公开的高粒度充电桩运行数据稀缺，可选数据源有限；</p>
+<p>同时系统未引入任何模拟或合成数据，以保证结论完全来自真实运营记录。</p>
+
+<p><b>改进设想</b>：一方面可在现有框架上接入第二个城市的数据集做横向对照，</p>
+<p>验证失衡指数与聚类画像在不同城市的适用性；</p>
+<p>另一方面可把气象数据（数据集已含宝安机场与福田两个气象站的逐小时气温、气压、湿度、降水）</p>
+<p>真正接入预测模型，检验季节与天气因素对需求的解释力；</p>
+<p>若需扩展时间跨度，可通过 Flume 增量采集机制持续接入后续月份的同源数据，</p>
+<p>本系统的采集链路无需改造。</p>
+
+<h3>7.2.2 未考虑充电桩故障率与设备异质性</h3>
+
+<p><b>现象</b>：全部供给侧指标以 <code>charge_count</code>（分区充电桩总数）表示，</p>
+<p>隐含假设是"所有充电桩在同一时刻均可服务"；</p>
+<p>不同功率等级、不同服务能力的充电桩被视为同质。</p>
+
+<p><b>原因</b>：UrbanEV 数据集提供的是分区级聚合指标，没有桩级的在线状态与设备档案，</p>
+<p>无法识别故障、离线或被占用但不可用的桩；</p>
+<p>且数据本身以"分区级"而非"桩级"为粒度（这一点在《01-数据字典》中已明确警示）。</p>
+
+<p><b>改进设想</b>：若能获得桩级状态数据，应把供给侧口径从"名义桩数"改为"有效可服务桩数"，</p>
+<p>即 <code>charge_count × (1 − 故障率)</code>，并对失效桩按 <code>is_zero</code> 等信号识别；</p>
+<p>更完整的方向是引入桩级画像，把分区级供给拆解为"快充桩数 / 慢充桩数 / 故障桩数"，</p>
+<p>使失衡指数能进一步区分"总量不足"与"结构错配"两种截然不同的成因。</p>
+
+<h3>7.2.3 未考虑用户行为异质性</h3>
+
+<p><b>现象</b>：需求侧建模以分区聚合量为单位，</p>
+<p>把同一分区内所有用户的到离时间、车型、充电偏好视为同质。</p>
+
+<p><b>原因</b>：数据集只提供分区级的占用率、时长与电量时序，</p>
+<p>不含任何用户标识、订单明细、车辆类型或停留时间分布；</p>
+<p>在现有口径下，个体行为差异在聚合过程中被完全抹平。</p>
+
+<p><b>改进设想</b>：可从"分布特征"而非"个体"入手——</p>
+<p>例如比较不同分区内充电时长的分布形态（而不只是均值 M6），</p>
+<p>用时长分布的长尾程度区分"少数长时占用"与"大量短时周转"两类完全不同的供给问题，</p>
+<p>前者对应大功率桩不足、后者对应周转效率低下，两者的扩容策略截然不同；</p>
+<p>若后续能获得订单级数据，则应引入用户聚类与出行链建模，</p>
+<p>把"分区需求"细化为"通勤型 / 目的地型 / 过路型"三类，并据此给出差异化建议。</p>
+
+<h3>7.2.4 预测模型未纳入天气与节假日等因素</h3>
+
+<p><b>现象</b>：创新点③的预测公式为"同周期均值 × 趋势因子"，</p>
+<p>仅利用了 <code>day_of_week</code> 与 <code>hour_of_day</code> 两个周期性维度，</p>
+<p>未纳入气温、降水与法定节假日等已知会显著影响充电行为的因素。</p>
+
+<p><b>原因</b>：一是气象数据只覆盖两个站点、需要做"分区到最近气象站"的映射，</p>
+<p>在课题时间窗内优先级低于核心指标；</p>
+<p>二是节假日需要额外接入权威节假日日历数据源，</p>
+<p>而本课题为控制数据来源的合规性与可复现性，坚持只使用 CC0 协议的数据集；</p>
+<p>三是统计预测方法在分区级周同环比上已达可用精度，</p>
+<p>在时间有限的情况下优先保证了主线的完整与可演示性。</p>
+
+<p><b>改进设想</b>：引入气象与节假日因子后，可将预测模型从"同周期均值"</p>
+<p>升级为带外生变量的回归形式 <code>predict = f(基础值, γ, 气温, 降水, 节假日哑变量)</code>，</p>
+<p>并通过回测比较引入前后的 MAPE 改善幅度；</p>
+<p>同时应保留朴素基线作为对照，防止引入变量后模型反而过拟合。</p>
+
+<h3>7.2.5 聚类结果未做稳定性检验</h3>
+
+<p><b>现象</b>：创新点④的 KMeans 结果通过"固定种子 + 肘部法"保证了可复现，</p>
+<p>但未对聚类结果本身的稳定性做检验，即没有回答"换一个随机种子，簇的划分会不会明显改变"。</p>
+
+<p><b>原因</b>：KMeans 属于局部最优算法，不同初始中心可能导致不同的簇划分；</p>
+<p>本课题以"可复现"为主要目标，通过 <code>setSeed(42)</code> 消除了随机性，</p>
+<p>但稳定性（对初始化的不敏感度）是另一个维度的性质，两者不能互相替代；</p>
+<p>同时该创新点在契约中被标注为"可选增量"，实现时间被压缩。</p>
+
+<p><b>改进设想</b>：应补充两项检验——</p>
+<p>其一，<b>多次随机初始化的一致性检验</b>（如 20 次不同种子下的簇分配，</p>
+<p>用调整兰德指数 ARI 衡量两次划分的相似度，ARI 稳定在高位才说明簇结构稳健）；</p>
+<p>其二，<b>自助法稳定性检验</b>（对 275 个分区做有放回重采样，</p>
+<p>统计每个分区的簇归属在重采样中的一致率）。</p>
+<p>此外应报告各簇的规模分布，若出现"某簇仅含 1~2 个分区"的极端情况，</p>
+<p>说明 k = 4 的选择需要重新论证。</p>
+
+<h3>7.2.6 实时性依赖离线批处理</h3>
+
+<p><b>现象</b>：系统当前为纯离线批处理架构，数据从采集到看板更新存在一个完整的批处理周期，</p>
+<p>无法支撑"刚刚发生的拥堵"这类实时调度需求。</p>
+
+<p><b>原因</b>：本课题的核心价值在于分区级的结构分析，</p>
+<p>小时级批处理已能满足分析需求；</p>
+<p>且实时化会引入流处理组件（Kafka / Flink）的额外运维成本，</p>
+<p>与"30 分钟可复现"的交付目标存在张力；</p>
+<p>此外数据集本身是历史静态数据，实时化在当前数据条件下没有实际意义。</p>
+
+<p><b>改进设想</b>：若数据源替换为实时充电站心跳数据，</p>
+<p>可复用现有的 Flume 采集通道，将 <code>WideToLong</code> 与 <code>DataQualityCheck</code> 改造为流式作业，</p>
+<p>在 ADS 之上增加一层实时中间表，用毫秒级更新替代批处理；</p>
+<p>Kafka + Flink 是自然的技术选型，本课题已实现的 Flume 通道化设计恰好为其预留了接入点。</p>
+
+<h3>7.2.7 缺少用户画像与支付链路数据</h3>
+
+<p><b>现象</b>：系统的输出止于"分区层面的建议"，无法回答</p>
+<p>"这个分区的充电用户是谁、他们为什么在这里充电、一次充电实际花了多少钱"这类问题，</p>
+<p>也无法评估分时电价对用户侧支出的实际影响。</p>
+
+<p><b>原因</b>：UrbanEV 数据集只提供分区级的运行指标，</p>
+<p>不含用户身份、订单、支付与结算数据；</p>
+<p>《01-数据字典》已明确 <code>e_price.csv</code> 与 <code>s_price.csv</code> 只是分区级的价格时序，</p>
+<p>不含实际成交价与优惠信息。</p>
+
+<p><b>改进设想</b>：若能接入订单级数据，可做两件事：</p>
+<p>其一，构建充电用户画像（通勤 / 居住 / 目的地 / 过路四类），</p>
+<p>使扩容建议从"分区缺桩"细化到"为哪类用户、在什么时段、缺什么样的桩"；</p>
+<p>其二，把分时电价引导效果从"占用率曲线的观测性关联"</p>
+<p>推进到"用户侧实际支出的变化"，实现从运营侧视角到用户侧视角的跨越，</p>
+<p>这也能实质性缓解本系统当前"不做因果推断"的学术严谨性限制。</p>
+
+<h3>7.2.8 双路径一致性依赖人工校验</h3>
+
+<p><b>现象</b>：B 的离线数仓通道与 E 的探索性分析通道并行计算同一批指标，</p>
+<p>二者的一致性目前依靠报告 6.3 节的人工对照测试保证，</p>
+<p>尚未实现自动化的持续校验。</p>
+
+<p><b>原因</b>：两条路径的定位不同——B 承担生产化的 ETL 管道，</p>
+<p>E 承担快速验证与创新点探索，二者的运行环境与触发时机本就不同；</p>
+<p>设计一条自动化的一致性校验流水线需要额外的调度与告警设施，</p>
+<p>在课程作业的时间窗内优先级靠后。</p>
+
+<p><b>改进设想</b>：应把"同一指标双路比对"做成常态化检查项——</p>
+<p>在 CI 或定时任务中执行一组固定的比对 SQL，</p>
+<p>逐指标比较两路结果的差值是否落在容差内，</p>
+<p>超出阈值即告警并生成差异明细；</p>
+<p>该检查可直接复用《03-接口规范》与《04-数仓表结构规范》已固化的表名与字段名，</p>
+<p>实现成本不高而收益明确。</p>
+
+<h3>7.2.9 布点建议中的 0.3 系数缺乏实证支撑</h3>
+
+<p><b>现象</b>：布点建议规则中的保守规划系数 0.3 是基于工程经验的业务判断，</p>
+<p>未经数据验证，不同分区也未做差异化处理。</p>
+
+<p><b>原因</b>：该系数反映的是"一次规划不宜过大、分期建设更稳妥"的运营常识，</p>
+<p>而非从数据中推导出的最优值；</p>
+<p>在缺少桩级建成成本、场租成本与实际收益数据的条件下，</p>
+<p>任何系数都无法被实证优化。</p>
+
+<p><b>改进设想</b>：至少应做<b>敏感性分析</b>——</p>
+<p>把系数在 0.1 ~ 0.5 区间内取值，</p>
+<p>观察建议清单的排序稳定性与总建议桩数的变化，</p>
+<p>若 TOP10 分区排序在区间内保持不变，说明结论对系数不敏感、建议稳健；</p>
+<p>若排序剧烈变动，则说明当前建议过度依赖于一个人为参数，必须在报告中明确提示。</p>
+<p>更深一步的做法是引入投资回报视角，</p>
+<p>用"每新增一桩的边际收益"作为排序依据，使优先级从经验规则升级为量化规则。</p>
+
+<hr>
+
+<h2>7.3 展望</h2>
+
+<p>基于上述不足与改进设想，本课题的后续工作可从以下五个方向推进。</p>
+
+<p><b>方向一：扩展数据源，向多城市与长周期演进。</b></p>
+<p>当前的深圳单城市、181 天数据限制了结论的外推能力。</p>
+<p>后续可引入第二个城市的数据集做横向对照，</p>
+<p>验证失衡指数、聚类画像在不同城市结构下的稳定性，</p>
+<p>并通过 Flume 增量采集持续接入同源的增量数据，</p>
+<p>把时间跨度扩展到覆盖完整季节周期，</p>
+<p>使"季节性供需错配"成为可分析的主题。</p>
+
+<p><b>方向二：引入外生变量与更丰富的模型族。</b></p>
+<p>把已有的两个气象站通过"分区到最近气象站"的映射接入分区维度，</p>
+<p>叠加官方节假日日历，</p>
+<p>将预测模型从"同周期均值 × 趋势因子"升级为含外生变量的回归或梯度提升模型，</p>
+<p>并引入 LSTM / Transformer 等序列模型做对照实验；</p>
+<p>选型标准应从"能否跑起来"转为"回测精度 + 现场可复现性"的综合权衡。</p>
+
+<p><b>方向三：从供给总量分析走向供需结构分析。</b></p>
+<p>在引入桩级档案与故障率数据后，</p>
+<p>把供给侧口径从名义桩数改为有效可服务桩数，</p>
+<p>把快充、慢充、故障桩分离统计；</p>
+<p>同时引入用户聚类画像，区分通勤型、目的地型与过路型充电需求，</p>
+<p>使建议从"这个分区缺 N 个桩"细化为"这个分区在晚高峰需要 N 个快充桩，</p>
+<p>主要服务通勤用户"。</p>
+
+<p><b>方向四：增强结论的因果性与决策闭环。</b></p>
+<p>当前的电价弹性结论基于观测性关联，本质上无法排除"分区功能类型差异"这一混杂因素。</p>
+<p>后续可尝试双重差分或倾向得分匹配等准实验方法，</p>
+<p>在存在政策实施前后对照样本时，尝试给出更接近因果的估计；</p>
+<p>同时把建议清单接入实际建设与运营反馈，形成"建议—实施—复盘"的闭环，</p>
+<p>用真实反馈校准 0.3 这一经验系数。</p>
+
+<p><b>方向五：推进实时化与工程产品化。</b></p>
+<p>在数据源具备实时条件的前提下，</p>
+<p>将 Flume + MapReduce 链路改造为 Kafka + Flink 的流式管道，</p>
+<p>在 ADS 之上增加实时中间表，把看板从批处理更新改为准实时更新；</p>
+<p>同时引入自动化的一致性校验流水线与持续集成，</p>
+<p>把当前依赖人工执行的契约一致性检查与双路指标比对全部自动化，</p>
+<p>使系统在规模扩大后仍能保持质量不衰减。</p>
+
+<hr>
+
+<h2>7.4 本章小结</h2>
+
+<p>本章从六个层面归纳了全文成果：</p>
+<p>数据接入与治理方面，建成 12 条 Flume 独立采集通道与三个 MapReduce 作业，</p>
+<p>把 276 列宽表治理为约 717 万行标准长表，</p>
+<p>并以 8 类质量规则与"DWD 行数小于 ODS"的硬性判据留下可复核的清洗证据；</p>
+<p>数仓建模方面，建成 ODS–DWD–DWS–ADS 四层数仓与 16 张 Hive 建模表，</p>
+<p>解决了宽表转长这一核心技术难点并给出方案选型依据；</p>
+<p>分析方法方面，设计的 4 个创新指标——</p>
+<p>供需失衡指数、分时电价弹性、需求预测与布点建议、分区聚类画像——</p>
+<p>把"哪里缺桩"推进到"哪个分区、哪个时段、缺多少、按什么优先级补"；</p>
+<p>后端服务方面，16 个 REST 接口配合分层缓存与只读视图的解耦设计，</p>
+<p>把两条并行计算路径在视图层汇合并以机器校验保证口径一致；</p>
+<p>可视化方面，以 6 页 10 图把结论渲染为可直接决策的看板；</p>
+<p>工程化方面，契约驱动机制与一键复现交付使第三方无需原始数据即可重建系统。</p>
+
+<p>同时本章坦率指出了 9 条不足，</p>
+<p>覆盖数据覆盖范围单一、充电桩故障率与用户行为异质性缺失、</p>
+<p>预测模型未纳入天气与节假日、聚类结果未做稳定性检验、</p>
+<p>实时性依赖离线批处理、缺少用户画像与支付链路数据、</p>
+<p>双路径一致性依赖人工校验、经验系数缺乏实证支撑等方面，</p>
+<p>并逐条给出了可执行的改进设想。</p>
+
+<p>展望部分提出五个方向：数据源向多城市与长周期演进、</p>
+<p>模型引入外生变量与更丰富的模型族、</p>
+<p>分析从供给总量走向供需结构、</p>
+<p>结论从观测性关联走向准因果推断、</p>
+<p>系统从批处理走向实时化与工程产品化。</p>
+<p>这些方向既是对本课题现有成果的自然延伸，</p>
+<p>也为后续学习与研究提供了清晰的问题清单。</p>
+
+<blockquote>**本章由 彭忠燕 负责**</blockquote>
+
+<hr>
+
+<hr>
+
+<h2>附：实测数据附表（详见独立文件）</h2>
+
+<p>本章节涉及的<b>全部实测数字</b>（分区数、桩数、占用率、充电量、电价弹性分组、</p>
+<p>模型竞优误差、数据质量统计、POI 匹配结果）已在独立文件中逐项列出：</p>
+
+<blockquote>📄 **`docs/report/实测数据附表.md`**<br>数据来源：`scripts/python_etl.py` 全量实跑（181 天 / 4,344 小时，耗时 66.2 秒）<br>汇总快照：`data/etl_out/etl_summary.json`　|　复现命令见附表第九节</blockquote>
+
+<p><b>本章引用的关键实测值速查</b>：</p>
+
+<table><thead><tr><th>项</th><th>实测值</th></tr></thead><tbody>
+<tr><td>分区数 / 充电桩数</td><td>275 / 23,441</td></tr>
+<tr><td>平均占用率（M3）</td><td>0.2710</td></tr>
+<tr><td>累计充电量（M5）</td><td>311,652,820 kWh（约 3.12 亿）</td></tr>
+<tr><td>每桩小时均充电时长（M6′）</td><td>0.1574 小时</td></tr>
+<tr><td>数据质量：越界值 / 重复时间戳</td><td>**均为 0**（六项指标各 1,194,600 行）</td></tr>
+<tr><td>POI 空间连接（1km 半径）</td><td>712,135 条 POI，命中 274/275 个分区</td></tr>
+<tr><td>★ 电价弹性分组轮廓系数</td><td>**0.8132**（TOU 31 区 / FLAT 244 区，σ 均值相差 13.5 倍）</td></tr>
+<tr><td>★ 预测模型竞优最优</td><td>朴素基线 MAPE **20.720%**（线性回归 24.628%，随机森林 24.853%）</td></tr>
+</tbody></table>
+</body></html>

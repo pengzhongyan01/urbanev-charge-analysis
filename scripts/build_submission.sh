@@ -64,7 +64,12 @@ fi
 REPORT_SRC="docs/report"
 if [ -d "$REPORT_SRC" ]; then
   cp -r "$REPORT_SRC"/*.md "$OUT_DIR/02.大作业报告/" 2>/dev/null || true
-  echo -e "  ${GREEN}✓${NC} 02.大作业报告（Markdown 初稿，Word 版由 A 统一转换）"
+  echo -e "  ${GREEN}✓${NC} 02.大作业报告（Markdown 源稿）"
+fi
+# Word 版（每人一份，5 份）—— 老师要求「每人一份，同组可以一样」
+if [ -d "$REPORT_SRC/docx" ]; then
+  cp "$REPORT_SRC"/docx/*.docx "$OUT_DIR/02.大作业报告/" 2>/dev/null || true
+  echo -e "  ${GREEN}✓${NC} 02.大作业报告/Word 版（$(ls -1 "$OUT_DIR/02.大作业报告"/*.docx 2>/dev/null | wc -l) 份 docx）"
 fi
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -129,10 +134,20 @@ done
 [ -d docs/架构图 ] && cp docs/架构图/*.png "$OUT_DIR/07.数据流向架构图/" 2>/dev/null
 echo -e "  ${GREEN}✓${NC} 07.数据流向架构图"
 
-if [ -d data/etl_out ]; then
-  cp data/etl_out/*.csv "$OUT_DIR/06.可视化看板/" 2>/dev/null || true
-  echo -e "  ${GREEN}✓${NC} 06.可视化看板（ADS 数据表；PNG 大屏由 C 岗补）"
+# 大屏 PNG（首页大屏 / 分区地图 / 供需失衡 / 布点建议）
+if [ -d docs/screenshots ]; then
+  cp docs/screenshots/*.png "$OUT_DIR/06.可视化看板/" 2>/dev/null || true
 fi
+# 10 张核心图表
+if [ -d docs/charts ]; then
+  mkdir -p "$OUT_DIR/06.可视化看板/核心图表"
+  cp docs/charts/*.png "$OUT_DIR/06.可视化看板/核心图表/" 2>/dev/null || true
+fi
+if [ -d data/etl_out ]; then
+  mkdir -p "$OUT_DIR/06.可视化看板/ADS数据表"
+  cp data/etl_out/*.csv "$OUT_DIR/06.可视化看板/ADS数据表/" 2>/dev/null || true
+fi
+echo -e "  ${GREEN}✓${NC} 06.可视化看板（大屏 $(ls -1 "$OUT_DIR/06.可视化看板"/*.png 2>/dev/null | wc -l) 张 + 核心图表 $(ls -1 "$OUT_DIR/06.可视化看板/核心图表" 2>/dev/null | wc -l) 张 + ADS 表 $(ls -1 "$OUT_DIR/06.可视化看板/ADS数据表" 2>/dev/null | wc -l) 张）"
 
 # ────────────────────────────────────────────────────────────────────────────
 # MANIFEST
