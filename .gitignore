@@ -1,73 +1,38 @@
-# ===== 数据与大文件（绝不进 Git）=====
-# 全局规则：任何位置的 CSV/ZIP/JAR 都排除，防止误提交把仓库撑爆
-*.csv
-*.zip
-*.tar
-*.gz
-*.parquet
-*.orc
-*.avro
-*.h5
-*.npy
+# ---- 数据 ----
+data/raw/
+data/UrbanEV/
+data/export_samples/
+*.csv.gz
 
-# 数据目录
-data/
-!data/.gitkeep
+# ---- ETL 产出（可由脚本重新生成，不进仓库）----
+data/etl_out/
 
-# 例外：以下路径下的文本数据字典可以进 Git
-!docs/**/*.md
-
-# ===== 密钥与凭证（绝对不能提交）=====
-*.pem
-*.key
-**/application-prod.*
-**/secrets/
-.env
-.env.*
-
-# ===== Java / Maven =====
-**/target/
+# ---- 编译产物 ----
+target/
+node_modules/
+__pycache__/
+*.pyc
 *.class
 *.jar
 *.war
-!.mvn/wrapper/maven-wrapper.jar
 
-# ===== Python =====
-**/__pycache__/
-*.py[cod]
-.venv/
-venv/
-env/
-.ipynb_checkpoints/
-*.ipynb_checkpoints
+# ---- 密钥与本地配置 ----
+.env
+*.pem
+*.key
 
-# ===== 前端 =====
-node_modules/
-dist/
-*.log
-
-# ===== IDE =====
+# ---- 编辑器与系统 ----
 .idea/
 .vscode/
-*.iml
-*.swp
 .DS_Store
-
-# ===== 系统文件 =====
 Thumbs.db
-desktop.ini
-$RECYCLE.BIN/
+*.swp
 
-# ===== 临时 =====
-*.tmp
-*.temp
-*.bak
-scratch/
-tmp/
+# ---- 报告临时产物 ----
+作业内容/
+docs/ppt/_preview/
+docs/ppt/*.pdf
 
-# ===== 备注 =====
-# 大数据文件一律走 HDFS / MySQL，不进 Git。
-# 数据字典、指标定义、接口规范、表结构 DDL 全部是文本，必须进 Git。
-
-# 前端第三方库（本地化，避免答辩现场依赖 CDN）
-!frontend/js/echarts.min.js
+# ---- 运行日志 ----
+backend/logs/
+*.log

@@ -1,0 +1,98 @@
+[
+  {
+    "channel": "occupancy",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/occupancy/",
+    "csv": "occupancy.csv",
+    "data_rows": 4344,
+    "size_bytes": 20052327,
+    "ods_table": "uev_ods.occupancy"
+  },
+  {
+    "channel": "duration",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/duration/",
+    "csv": "duration.csv",
+    "data_rows": 4344,
+    "size_bytes": 17802378,
+    "ods_table": "uev_ods.duration"
+  },
+  {
+    "channel": "volume",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/volume/",
+    "csv": "volume.csv",
+    "data_rows": 4344,
+    "size_bytes": 16503910,
+    "ods_table": "uev_ods.volume"
+  },
+  {
+    "channel": "volume_11kW",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/volume-11kW/",
+    "csv": "volume-11kW.csv",
+    "data_rows": 4344,
+    "size_bytes": 19719503,
+    "ods_table": "uev_ods.volume_11kw"
+  },
+  {
+    "channel": "e_price",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/e_price/",
+    "csv": "e_price.csv",
+    "data_rows": 4344,
+    "size_bytes": 12046239,
+    "ods_table": "uev_ods.e_price"
+  },
+  {
+    "channel": "s_price",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/s_price/",
+    "csv": "s_price.csv",
+    "data_rows": 4344,
+    "size_bytes": 14966150,
+    "ods_table": "uev_ods.s_price"
+  },
+  {
+    "channel": "inf",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/inf/",
+    "csv": "inf.csv",
+    "data_rows": 275,
+    "size_bytes": 14390,
+    "ods_table": "uev_ods.inf"
+  },
+  {
+    "channel": "poi",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/poi/",
+    "csv": "poi.csv",
+    "data_rows": 712135,
+    "size_bytes": 32646500,
+    "ods_table": "uev_ods.poi"
+  },
+  {
+    "channel": "adj",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/adj/",
+    "csv": "adj.csv",
+    "data_rows": 275,
+    "size_bytes": 152420,
+    "ods_table": "uev_ods.adj"
+  },
+  {
+    "channel": "distance",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/distance/",
+    "csv": "distance.csv",
+    "data_rows": 275,
+    "size_bytes": 897582,
+    "ods_table": "uev_ods.distance"
+  },
+  {
+    "channel": "weather_airport",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/weather_airport/",
+    "csv": "weather_airport.csv",
+    "data_rows": 4344,
+    "size_bytes": 165880,
+    "ods_table": "uev_ods.weather_airport"
+  },
+  {
+    "channel": "weather_central",
+    "hdfs_dir": "hdfs://namenode:8020/uev/raw/weather_central/",
+    "csv": "weather_central.csv",
+    "data_rows": 4344,
+    "size_bytes": 181328,
+    "ods_table": "uev_ods.weather_central"
+  }
+]

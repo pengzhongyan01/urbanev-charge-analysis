@@ -1,0 +1,5 @@
+# 等价证据（由 verify_flume_config.py 生成）
+# 模拟 Flume taildir 采集 + HDFS Sink 滚动写入的结果
+# 源文件：e_price.csv  4344 行数据  12046239 字节
+# ODS 表：uev_ods.e_price
+# LOCATION：hdfs://namenode:8020/uev/raw/e_price/
