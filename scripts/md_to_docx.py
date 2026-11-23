@@ -49,16 +49,40 @@ MAJOR = "软件工程"
 COLLEGE = "（你的学院）"
 DATE = "2026 年 11 月 29 日"
 
-# 章节顺序与文件
+# 章节顺序：(文件名, 起止标记)
+# ★ 用「起止标记」按一级标题切分，因为早期初稿把「需求分析」编成了第二章，
+#   而按老师给的目录模板，需求分析是第三章、系统开发相关技术是第二章。
+#   第 1-2 章初稿里的旧第二章（可行性/功能需求/非功能需求/用例分析）整段剔除，
+#   用第 3-4 章初稿里的第三章替代 —— 那版更全（含 14 个用例的完整用例描述表）。
+#   标记为 None 表示整篇都要。
 CHAPTERS = [
-    ("第 1-2 章_初稿.md", None),
-    ("第3-4章_初稿.md", None),
-    ("第2章_初稿.md", None),
-    ("第5章_初稿.md", None),
-    ("第6章_初稿.md", None),
-    ("第7章_初稿.md", None),
-    ("参考文献与附录.md", None),
+    ("第1-2章_初稿.md", "# 第一章 绪论", "# 第二章 需求分析"),
+    ("第2章_初稿.md",   None, None),
+    ("第3-4章_初稿.md", None, None),
+    ("第5章_初稿.md",   None, None),
+    ("第6章_初稿.md",   None, None),
+    ("第7章_初稿.md",   None, None),
+    ("参考文献与附录.md", None, None),
 ]
+
+
+def slice_by_heading(text: str, start: str | None, end: str | None) -> str:
+    """按一级标题切分内容
+
+    ★ 切分后还要去掉文件头那一行（「# 报告第X章 · xxx（初稿）」）——
+      它也是一级标题，留着会污染自动目录（每个文件多出一条无意义条目）。
+    """
+    if start:
+        i = text.find(start)
+        if i < 0:
+            text = re.sub(r"^#\s*(报告第.*|参考文献与附录.*)$", "", text, count=1, flags=re.M)
+        else:
+            j = text.find(end, i + len(start)) if end else -1
+            text = text[i:j] if j > 0 else text[i:]
+    else:
+        # 整篇都要时，也去掉文件头
+        text = re.sub(r"^#\s*(报告第.*|参考文献与附录.*)$", "", text, count=1, flags=re.M)
+    return text
 
 # 章节文件里的一级标题 → 目录里的章名（用于替换）
 TITLE_MAP = {
@@ -128,6 +152,7 @@ def md_to_html(text: str, img_map: dict) -> str:
     lines = text.splitlines()
     html, i = [], 0
     used_figs = set()
+    fig_markers = {}
     in_code = False
     code_lang, code_buf = "", []
 
@@ -161,8 +186,14 @@ def md_to_html(text: str, img_map: dict) -> str:
             alt, path = m.group(1), m.group(2)
             real = img_map.get(path) or (REPO / path if (REPO / path).exists() else None)
             if real and Path(real).exists():
-                html.append(f'<p class="fig"><img src="{Path(real).as_posix()}" '
-                            f'alt="{alt}"><span class="cap">{alt}</span></p>')
+                # ★ 只放占位标记，不放 <img>。
+                #   Word 从 HTML 导入本地图片时，路径含非 ASCII 字符会静默丢图
+                #   （实测：docx 里没有 word/media 目录，提交给别人就是白板）。
+                #   改为「HTML 转换完后再用 COM 按占位符插图」，100% 可控。
+                marker = f"@@FIG:{code}@@"
+                html.append(f'<p class="figmark">{marker}</p>'
+                            f'<p class="fig"><span class="cap">{alt}</span></p>')
+                fig_markers[marker] = str(real)
             i += 1
             continue
 
@@ -182,8 +213,12 @@ def md_to_html(text: str, img_map: dict) -> str:
             fp = find_fig(code)
             if fp is not None:
                 cap = re.sub(r"[*`]", "", l.strip())
-                html.append(f'<p class="fig"><img src="{fp.as_posix()}">'
-                            f'<span class="cap">{cap}</span></p>')
+                # ★ 放占位标记而非 <img>：Word 从 HTML 导入本地图片会静默丢图，
+                #   改为 HTML 转完后再用 COM 按标记插入，100% 可控。
+                marker = f"@@FIG:{code}@@"
+                html.append(f'<p class="figmark">{marker}</p>'
+                            f'<p class="fig"><span class="cap">{cap}</span></p>')
+                fig_markers[marker] = str(fp)
                 used_figs.add(code)
 
         # 水平线
@@ -247,6 +282,7 @@ def md_to_html(text: str, img_map: dict) -> str:
 
     flush_code()
     md_to_html.last_used = used_figs
+    md_to_html.last_markers = fig_markers
     return "\n".join(html)
 
 
@@ -325,7 +361,7 @@ hr {{ border: none; border-top: 1px solid #CCC; margin: 1.2em 0; }}
 # Word COM 处理
 # ══════════════════════════════════════════════════════════════════
 PS_SCRIPT = r'''
-param([string]$HtmlPath, [string]$DocxPath, [string]$ImgBase)
+param([string]$HtmlPath, [string]$DocxPath, [string]$FigMapPath)
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $word = New-Object -ComObject Word.Application
@@ -380,6 +416,41 @@ try {
     $ftr2.ParagraphFormat.Alignment = 1
     $ftr2.Font.Size = 9
     $ftr2.Font.Name = "宋体"
+    # ★ 按占位符插入图片
+    #   HTML 里的 <img> 会被 Word 静默丢弃（路径含中文时尤其明显，
+    #   结果 docx 里根本没有 word/media 目录，提交给别人就是白板）。
+    #   改为在 HTML 转成 docx 之后，用 InlineShapes.AddPicture 逐张插入。
+    if (Test-Path $FigMapPath) {
+        $map = Get-Content $FigMapPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $n = 0
+        foreach ($prop in $map.PSObject.Properties) {
+            $marker = $prop.Name
+            $imgPath = $prop.Value
+            if (-not (Test-Path $imgPath)) { continue }
+            $rng = $doc.Content
+            # ★ 同一图题在正文里可能出现多次，必须循环替换直到找不到
+            while ($true) {
+                $rng = $doc.Content
+                $find = $rng.Find
+                $find.Text = $marker
+                $find.Forward = $true
+                $find.Wrap = 0
+                if (-not $find.Execute()) { break }
+                $rng.Text = ""
+                try {
+                    $pic = $rng.InlineShapes.AddPicture($imgPath, $false, $true)
+                    $pic.Width = 430
+                    $pic.Height = [int](430 * $pic.Height / $pic.Width)
+                    $pic.Range.ParagraphFormat.Alignment = 1
+                    $n++
+                } catch {
+                    Write-Output "IMGFAIL $marker"
+                    break
+                }
+            }
+        }
+        Write-Output "IMGS=$n"
+    }
     # 目录更新
     foreach ($toc in $doc.TablesOfContents) { $toc.Update() }
     $doc.Fields.Update() | Out-Null
@@ -396,12 +467,15 @@ try {
 '''
 
 
-def word_convert(html_path: Path, docx_path: Path) -> dict:
+def word_convert(html_path: Path, docx_path: Path, markers: dict | None = None) -> dict:
     ps_path = html_path.with_suffix(".ps1")
     ps_path.write_text(PS_SCRIPT, encoding="utf-8-sig")
+    # 占位符 → 图片路径 的映射（JSON，供脚本读取）
+    map_path = html_path.with_suffix(".figs.json")
+    map_path.write_text(json.dumps(markers or {}, ensure_ascii=False), encoding="utf-8")
     r = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
                         "-File", str(ps_path), "-HtmlPath", str(html_path),
-                        "-DocxPath", str(docx_path)],
+                        "-DocxPath", str(docx_path), "-FigMapPath", str(map_path)],
                        capture_output=True, text=True, encoding="utf-8", errors="replace")
     info = {"ok": False, "stdout": r.stdout.strip(), "stderr": r.stderr.strip()[:600]}
     for line in r.stdout.splitlines():
@@ -409,11 +483,14 @@ def word_convert(html_path: Path, docx_path: Path) -> dict:
             info["pages"] = int(line.split("=")[1])
         if line.startswith("WORDS="):
             info["words"] = int(line.split("=")[1])
+        if line.startswith("IMGS="):
+            info["images"] = int(line.split("=")[1])
     info["ok"] = docx_path.exists() and docx_path.stat().st_size > 5000
-    try:
-        ps_path.unlink()
-    except Exception:
-        pass
+    for f in (ps_path, map_path):
+        try:
+            f.unlink()
+        except Exception:
+            pass
     return info
 
 
@@ -432,30 +509,53 @@ def main():
     tmpdir.mkdir(parents=True, exist_ok=True)
 
     # ── 收集章节 ──
-    chapter_files = []
-    for fname, _ in CHAPTERS:
+    chapter_srcs = []
+    for fname, st, en in CHAPTERS:
         p = REPORT / fname
         if p.exists():
-            chapter_files.append(p)
+            chapter_srcs.append((p, st, en))
         else:
             print(f"  ! 缺章节文件：{fname}（跳过）")
-    if not chapter_files:
+    if not chapter_srcs:
         print("[错误] 没有可用章节")
         return 1
 
-    # ── 图片映射（Markdown 里的相对路径 → 绝对路径）──
+    # ── 图片映射 ──
+    # ★ 关键：Word 从 HTML 导入图片时，本地路径含非 ASCII 字符（中文目录名）
+    #   会导致图片**静默丢失**（docx 里没有 word/media，提交给别人就是白板）。
+    #   实测踩过这个坑 —— 所以先把图片复制到一个纯 ASCII 的临时目录，
+    #   HTML 里引用短 ASCII 路径，Word 才能正确嵌入。
+    import tempfile, shutil as _sh
+    figdir = Path(tempfile.gettempdir()) / "uev_figs"
+    if figdir.exists():
+        _sh.rmtree(figdir, ignore_errors=True)
+    figdir.mkdir(parents=True, exist_ok=True)
     img_map = {}
-    for p in list(CHARTS.glob("*.png")) + list((REPO / "docs" / "screenshots").glob("*.png")) \
-            + list((REPO / "docs" / "架构图").glob("*.png")):
-        img_map[p.name] = p
-        img_map[p.as_posix()] = p
+    src_dirs = [CHARTS, REPO / "docs" / "screenshots", REPO / "docs" / "架构图"]
+    for sd in src_dirs:
+        for f in sd.glob("*.png"):
+            safe = re.sub(r"[^A-Za-z0-9_.-]", "_", f.name)
+            dst = figdir / safe
+            _sh.copy2(f, dst)
+            img_map[f.name] = dst
+            img_map[f.as_posix()] = dst
+    print(f"  · 图片已复制到 ASCII 临时目录：{figdir}（{len(img_map)//2} 张）")
 
     print("=" * 74)
     print(" Markdown → Word 转换（每人一份）")
-    print(f" 章节：{len(chapter_files)} 个　输出：{outdir}")
+    print(f" 章节：{len(chapter_srcs)} 个　输出：{outdir}")
     print("=" * 74)
 
-    chapters_html = [md_to_html(p.read_text(encoding="utf-8"), img_map) for p in chapter_files]
+    chapters_html = []
+    all_markers = {}
+    for p, st, en in chapter_srcs:
+        raw = p.read_text(encoding="utf-8")
+        cut = slice_by_heading(raw, st, en)
+        if st:
+            print(f"  · {p.name}：按标记切分（{st} → {en}），{len(raw)} → {len(cut)} 字符")
+        chapters_html.append(md_to_html(cut, img_map))
+        all_markers.update(getattr(md_to_html, "last_markers", {}))
+    print(f"  · 待插入图片占位符：{len(all_markers)} 个")
 
     members = [m for m in MEMBERS]
     if args.single:
@@ -474,7 +574,7 @@ def main():
             print(f"  {member}: HTML 已生成 {html_path}")
             results.append((member, {"ok": True, "html": str(html_path)}))
             continue
-        info = word_convert(html_path, docx_path)
+        info = word_convert(html_path, docx_path, all_markers)
         try:
             html_path.unlink()
         except Exception:

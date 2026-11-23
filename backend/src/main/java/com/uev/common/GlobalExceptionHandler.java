@@ -35,6 +35,28 @@ public class GlobalExceptionHandler {
         return Result.notFound(e.getMessage());
     }
 
+    /**
+     * 静态资源 / 未映射的请求路径不存在。
+     *
+     * <p>★ 必须单独处理，不能交给下面的兜底 {@code Exception}：
+     * Spring MVC 3.2+ 对未匹配到任何 {@code @RequestMapping} 的请求抛的是
+     * {@code NoResourceFoundException}（Spring 6.1+）或
+     * {@code NoHandlerFoundException}（Spring 6.0）。
+     * 若不单独捕获，会被兜底分支吞成 <b>500 Internal Server Error</b>，
+     * 于是「接口尚未实现」本该返回的 404 变成了 500 ——
+     * 这会让 {@code scripts/smoke_test.sh} 里「未实现的接口报 warn 而非 fail」
+     * 的设计完全失效（404/501 报 warn，500 报 fail）。
+     */
+    @ExceptionHandler({
+        org.springframework.web.servlet.resource.NoResourceFoundException.class,
+        org.springframework.web.servlet.NoHandlerFoundException.class
+    })
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result<Void> handleNoHandler(Exception e) {
+        log.warn("请求路径未匹配到任何接口: {}", e.getMessage());
+        return Result.notFound("接口不存在或尚未实现");
+    }
+
     /** 兜底异常 */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
