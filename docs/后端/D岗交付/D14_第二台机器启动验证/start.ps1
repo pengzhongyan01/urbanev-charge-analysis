@@ -1,4 +1,4 @@
-<#
+﻿<#
 ====================================================================
  start.ps1 —— UrbanEV 后端一键启动 / 停止（D14 交付物）
 ====================================================================
@@ -77,7 +77,7 @@ if (-not $javaExe) {
 }
 
 # 解析版本号（java -version 输出到 stderr）
-$verOut = & $javaExe -version 2>&1 | Out-String
+$verOut = (& "$env:SystemRoot\System32\cmd.exe" /c "`"$javaExe`" -version 2>&1" | Out-String)  # 走 cmd 重定向，避免 PowerShell 5.1 把 stderr 当异常
 if ($verOut -match '"(\d+)') {
     $major = [int]$Matches[1]
     if ($major -lt 17) {
