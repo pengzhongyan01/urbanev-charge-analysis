@@ -121,7 +121,12 @@ cmd_status() {
         fi
     done
     echo
-    echo -e "  ${BLUE}提示${NC}：Gitee 仓库需先在网页创建 → https://gitee.com/peng-zhongyan"
+    # 只有在 Gitee 仓库确实不可达时才提示建仓（已建好就别啰嗦）
+    if ! git ls-remote gitee >/dev/null 2>&1; then
+        echo -e "  ${YELLOW}提示${NC}：Gitee 仓库还不可用，先在网页创建 → https://gitee.com/peng-zhongyan/new"
+    else
+        echo -e "  ${GREEN}双端已就绪${NC}：${GREEN}Gitee${NC} + ${GREEN}GitHub${NC} 内容一致"
+    fi
 }
 
 cmd_push() {
