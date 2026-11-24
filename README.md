@@ -167,6 +167,35 @@ contract/metric-v2          指标定义表升版
 - 提交必须能跑通，不提交编译不过的代码
 - 截图、SQL、图表产出物**都要提交**
 
+### ★ 双端同步（GitHub + Gitee）
+
+本仓库同时推送到两个远端：
+
+| 远端 | 地址 | 作用 |
+|---|---|---|
+| `origin` | `git@github.com:pengzhongyan01/urbanev-charge-analysis.git` | 主仓库，国际访问 |
+| `gitee` | `git@gitee.com:peng-zhongyan/urbanev-charge-analysis.git` | 镜像，国内访问快、不易超时 |
+
+**日常用法**（组长）：
+
+```bash
+bash scripts/sync_dual.sh push      # 本地 → 两端同时推（先 Gitee 后 GitHub）
+bash scripts/sync_dual.sh status    # 看两端各自领先/落后几个提交
+bash scripts/sync_dual.sh pull      # 从 GitHub 拉
+bash scripts/sync_dual.sh pull-gitee  # 只从 Gitee 拉
+```
+
+**组员只需要认一个远端**，推荐 Gitee（国内快）：
+
+```bash
+git remote set-url origin git@gitee.com:peng-zhongyan/urbanev-charge-analysis.git
+git clone git@gitee.com:peng-zhongyan/urbanev-charge-analysis.git
+```
+
+> ★ **脚本的两个安全设计**：
+> 1. 推送前自动 fetch 检查分叉，有分叉直接中止并提示，**绝不自动 --force**
+> 2. 先推 Gitee 再推 GitHub —— GitHub 超时/被墙时，至少 Gitee 这一端是新的
+
 ---
 
 ## 六、契约变更流程（唯一硬规矩）
@@ -240,6 +269,8 @@ git push origin feat/<你的分支>
 ```bash
 # 1. 代码
 git clone git@github.com:pengzhongyan01/urbanev-charge-analysis.git
+# 国内访问推荐用 Gitee 镜像（速度更快）：
+git clone git@gitee.com:peng-zhongyan/urbanev-charge-analysis.git
 cd urbanev-charge-analysis
 
 # 2. 数据（不进 Git，体积大）—— 一条命令搞定
@@ -364,7 +395,7 @@ A：说明你的实现和契约对不上。**以契约为准改代码**，或者
 
 ## 十三、数据来源与引用
 
-> 本系统选用 UrbanEV 开放数据集作为研究数据源。该数据集由中山大学 Li Han 与香港理工大学 Qu Haohao 等人构建并公开发布（https://github.com/whewhewhenew/UrbanEV），原始数据取自深圳市 1,682 个公共充电站、24,798 个充电桩在 2022 年 9 月至 2023 年 2 月的逐小时运行记录，并经异常值检测与零值校验后清洗为 275 个交通分区的分区级数据集（分区充电桩数合计 23,441 个），采用 CC0 1.0 Universal 协议开放授权，相关研究成果发表于 arXiv:2309.05259。
+> 本系统选用 UrbanEV 开放数据集作为研究数据源。该数据集由中山大学 Li Han 与香港理工大学 Qu Haohao 等人构建并公开发布（https://github.com/whewhewhenew/UrbanEV），原始数据取自深圳市 1,682 个公共充电站、24,798 个充电桩在 2022 年 9 月至 2023 年 2 月的逐小时运行记录，并经异常值检测与零值校验后清洗为 275 个交通分区的分区级数据集（分区充电桩数合计 23,441 个），采用 CC0 1.0 Universal 协议开放授权，相关研究成果发表于 Scientific Data, 2025, 12:523（DOI: 10.1038/s41597-025-04874-4）。
 >
 > 经本组实测校验，该数据集各时序表共 4,344 个逐小时时点（2022-09-01 00:00 ~ 2023-02-28 23:00，181 天），单表结构为"时间戳列 + 275 个分区列"的**宽表**形式，并包含 71 万条兴趣点记录、三类充电指标（占用率、充电时长、充电电量两种口径）、电价与服务费时序。
 >
