@@ -31,13 +31,13 @@ REPO = Path(__file__).resolve().parent.parent
 REPORT = REPO / "docs" / "report"
 CHARTS = REPO / "docs" / "charts"
 
-# 五名成员：姓名 → 学号占位（★ 学号需本人核对后填）
+# 五名成员：姓名 → 学号（★ 2026-11-24 组长核实确认，已填真实值）
 MEMBERS = [
-    ("彭忠燕", "2300770041"),
-    ("苏静", "2300770042"),
-    ("贺欢欢", "2300770043"),
-    ("杨珊珊", "2300770044"),
-    ("姬婷婷", "2300770045"),
+    ("彭忠燕", "2400770245"),
+    ("苏静", "2400770287"),
+    ("贺欢欢", "2400770251"),
+    ("杨珊珊", "2400770293"),
+    ("姬婷婷", "2400770305"),
 ]
 
 TITLE = "基于 Hadoop 与 Spring Boot 的城市充电桩使用行为分析与充电需求预测系统的设计与实现"
@@ -46,7 +46,7 @@ CLASS = "2405"
 GROUP = "第 02 组"
 TEACHER = "赵　晨"
 MAJOR = "软件工程"
-COLLEGE = "（你的学院）"
+COLLEGE = "示范性软件学院"
 DATE = "2026 年 11 月 29 日"
 
 # 章节顺序：(文件名, 起止标记)
@@ -289,6 +289,11 @@ def md_to_html(text: str, img_map: dict) -> str:
 def build_html(chapter_htmls: list[str], member: str, sid: str) -> str:
     """组装完整 HTML（封面 + 目录 + 各章）"""
     names = "　".join(m for m, _ in MEMBERS)
+    # ★ 五人学号对照（真实学号，2026-11-24 组长核实）
+    sid_rows = "".join(
+        f'<tr><td style="border:none;padding:2px 8px 2px 0">{m}</td>'
+        f'<td style="border:none;padding:2px 0">{s_}</td></tr>'
+        for m, s_ in MEMBERS)
     cover = f"""
 <div class="cover">
   <div class="c-school">贵州大学</div>
@@ -303,6 +308,10 @@ def build_html(chapter_htmls: list[str], member: str, sid: str) -> str:
     <tr><td>本报告作者：</td><td>{member}（学号 {sid}）</td></tr>
     <tr><td>指导教师：</td><td>{TEACHER}</td></tr>
   </table>
+  <div class="c-sids">
+    <div class="c-sids-title">小组成员学号</div>
+    <div class="c-sids-grid">{sid_rows}</div>
+  </div>
   <div class="c-date">{DATE}</div>
 </div>
 """
@@ -326,7 +335,11 @@ body {{ font-family: "宋体", "SimSun", serif; font-size: 12pt; line-height: 1.
 .c-info {{ margin: 0 auto; border-collapse: collapse; font-size: 14pt; }}
 .c-info td {{ padding: 7px 10px; text-align: left; }}
 .c-info td:first-child {{ text-align: right; white-space: nowrap; }}
-.c-date {{ margin-top: 3cm; font-size: 14pt; }}
+.c-date {{ margin-top: 1.4cm; font-size: 14pt; }}
+.c-sids {{ margin: 0.9cm auto 0 auto; font-size: 12pt; }}
+.c-sids-title {{ font-size: 12pt; color: #444; margin-bottom: 4px; }}
+.c-sids-grid {{ display: inline-block; text-align: left; }}
+.c-sids-grid tr {{ border: none !important; }}
 .toc-page {{ page-break-after: always; }}
 .toc-title {{ font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 0.6cm; }}
 .toc-tip {{ font-size: 9pt; color: #888; text-align: center; margin-bottom: 0.5cm; }}
@@ -559,7 +572,7 @@ def main():
 
     members = [m for m in MEMBERS]
     if args.single:
-        members = [(args.single, dict(MEMBERS).get(args.single, "2300770000"))]
+        members = [(args.single, dict(MEMBERS).get(args.single, "2400770000"))]
 
     results = []
     for mi, (member, sid) in enumerate(members, 1):
@@ -567,7 +580,7 @@ def main():
         # ★ 临时文件名用 ASCII 序号 —— 中文路径经命令行/编码转换会乱码
         html_path = tmpdir / f"member{mi}.html"
         html_path.write_text(html, encoding="utf-8")
-        docx_path = outdir / f"2300770041_软工2405班_第02组_{member}_城市充电桩数据分析系统.docx"
+        docx_path = outdir / f"{sid}_软工2405班_第02组_{member}_城市充电桩数据分析系统.docx"
         if args.single:
             docx_path = outdir / f"_test_{member}.docx"
         if args.html_only:

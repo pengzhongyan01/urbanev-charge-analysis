@@ -95,9 +95,13 @@ for d in hadoop backend frontend db scripts docker docs; do
     done
     cp -r docs/contracts "$OUT_DIR/05.源码/docs/" 2>/dev/null || true
     cp -r docs/架构图 "$OUT_DIR/05.源码/docs/" 2>/dev/null || true
-    cp -r docs/report "$OUT_DIR/05.源码/docs/" 2>/dev/null || true
+    # ★ 只拷 Markdown 源稿，不拷 docx（正本已在 02.大作业报告，重复一份白占 8.5MB）
+    mkdir -p "$OUT_DIR/05.源码/docs/report"
+    cp docs/report/*.md "$OUT_DIR/05.源码/docs/report/" 2>/dev/null || true
     [ -d docs/交付 ] && cp -r docs/交付 "$OUT_DIR/05.源码/docs/" 2>/dev/null || true
-    [ -d docs/ppt ] && cp -r docs/ppt "$OUT_DIR/05.源码/docs/" 2>/dev/null || true
+    # ★ PPT 正本已在 01.PPT，源码目录只留生成脚本，不重复放 pptx 与预览图
+    mkdir -p "$OUT_DIR/05.源码/docs/ppt"
+    cp docs/ppt/PPT逐页脚本.md docs/ppt/README.md "$OUT_DIR/05.源码/docs/ppt/" 2>/dev/null || true
   else
     cp -r "$d" "$OUT_DIR/05.源码/" 2>/dev/null || true
   fi
@@ -148,6 +152,24 @@ if [ -d data/etl_out ]; then
   cp data/etl_out/*.csv "$OUT_DIR/06.可视化看板/ADS数据表/" 2>/dev/null || true
 fi
 echo -e "  ${GREEN}✓${NC} 06.可视化看板（大屏 $(ls -1 "$OUT_DIR/06.可视化看板"/*.png 2>/dev/null | wc -l) 张 + 核心图表 $(ls -1 "$OUT_DIR/06.可视化看板/核心图表" 2>/dev/null | wc -l) 张 + ADS 表 $(ls -1 "$OUT_DIR/06.可视化看板/ADS数据表" 2>/dev/null | wc -l) 张）"
+
+# ────────────────────────────────────────────────────────────────────────────
+# 剔除临时产物
+# ────────────────────────────────────────────────────────────────────────────
+# ★ Word 转换会留下 _tmp_*.html 和 *.files 目录（含内嵌图 base64，体积巨大），
+#   不剔除会让提交包白白多占十几 MB，评委解压时也会莫名其妙。
+find "$OUT_DIR" -name "_tmp_*" -delete 2>/dev/null || true
+find "$OUT_DIR" -name "*.files" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$OUT_DIR" -name "*.html" -path "*report*" -delete 2>/dev/null || true
+
+# ────────────────────────────────────────────────────────────────────────────
+# 剔除临时产物
+# ────────────────────────────────────────────────────────────────────────────
+# ★ Word 转换会留下 _tmp_*.html 和 *.files 目录（含内嵌图 base64，体积巨大），
+#   不剔除会让提交包白白多占十几 MB，评委解压时也会莫名其妙。
+find "$OUT_DIR" -name "_tmp_*" -delete 2>/dev/null || true
+find "$OUT_DIR" -name "*.files" -type d -exec rm -rf {} + 2>/dev/null || true
+find "$OUT_DIR" -name "*.html" -path "*report*" -delete 2>/dev/null || true
 
 # ────────────────────────────────────────────────────────────────────────────
 # MANIFEST
