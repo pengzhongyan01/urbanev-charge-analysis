@@ -58,7 +58,7 @@ if [ -f "$KEY" ]; then
   echo "[2/3] SSH 密钥已存在：$KEY"
 else
   mkdir -p "$HOME/.ssh"
-  ssh-keygen -t ed25519 -C "$EMAIL" -f "$KEY" -N "" >/dev/null 2>&1
+  ssh-keygen -t ed25519 -C "$CURRENT_EMAIL" -f "$KEY" -N "" >/dev/null 2>&1
   echo "[2/3] 已生成 SSH 密钥：$KEY"
 fi
 
@@ -76,7 +76,7 @@ echo " 还差最后一步：把公钥加到 GitHub"
 echo "=============================================="
 echo ""
 echo "  1. 打开 https://github.com/settings/ssh/new"
-echo "  2. Title 随便填，比如「彭忠燕的笔记本」"
+echo "  2. Title 随便填，比如「我的笔记本」"
 echo "  3. Key 里粘贴下面这一整行："
 echo "  --------------------------------------------"
 cat "$KEY.pub"
@@ -89,3 +89,28 @@ echo ""
 echo "  配好后你就能："
 echo "    git push origin feat/你的分支"
 echo ""
+
+# 4. 写权限自检 —— 光配好钥匙还不够，仓库得给你 write 权限
+if [ -d ".git" ] && git remote get-url origin >/dev/null 2>&1; then
+  echo "=============================================="
+  echo " 写权限自检"
+  echo "=============================================="
+  DRY=$(git push --dry-run origin HEAD 2>&1)
+  if echo "$DRY" | grep -qi "everything up-to-date\|new branch\|up to date"; then
+    echo "  ✓ 你有写权限，推送能通。"
+  else
+    DENIED=$(echo "$DRY" | sed -n 's/.*denied to \([^ .]*\).*/\1/p')
+    if [ -n "$DENIED" ]; then
+      echo "  ✗ 账号 $DENIED 对这个仓库只有读权限，不能推。"
+      echo ""
+      echo "    找组长把你加为仓库协作者（Write 权限），"
+      echo "    然后在 https://github.com/pengzhongyan01/urbanev-charge-analysis/invitations"
+      echo "    点接受，就通了。"
+    else
+      echo "  · 推送试跑结果："
+      echo "$DRY" | sed 's/^/      /' | head -5
+      echo "    详细诊断跑：bash scripts/doctor_push.sh"
+    fi
+  fi
+  echo ""
+fi
