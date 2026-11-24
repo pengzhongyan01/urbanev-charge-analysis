@@ -1,209 +1,88 @@
-/* ==============================================================================
- * style.css —— 前端样式（骨架模板）
- *
- * 维护人：C（贺欢欢）　|　骨架由 A（彭忠燕）提供，2026-11-19
- *
- * 配色说明：
- *   整体深色科技风，答辩现场投影效果好（深色背景投影不刺眼，图表线条更亮）
- *   主色 #00d4ff（青），强调 #ff6b35（橙），数据上涨用红、下跌用绿
- * ============================================================================== */
+/* 城市充电桩数据分析系统 · 深色大屏主题 */
+:root{
+  --bg:#0b1a2f; --panel:#12253f; --panel2:#0e2440; --line:#1e3a5f;
+  --txt:#e6f1ff; --muted:#8fa8c8; --cyan:#00d4ff; --orange:#ff6b35;
+  --green:#22c55e; --yellow:#ffc107; --purple:#8b5cf6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","Segoe UI",sans-serif;
+     font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
 
-:root {
-    --bg-primary: #0a1628;
-    --bg-secondary: #112240;
-    --bg-card: #16294a;
-    --border: #1e3a5f;
-    --text-primary: #e8f1ff;
-    --text-secondary: #8fa8c8;
-    --accent-cyan: #00d4ff;
-    --accent-orange: #ff6b35;
-    --accent-green: #22c55e;
-    --accent-red: #ef4444;
-    --accent-purple: #a78bfa;
-}
+/* 顶栏 */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+        padding:14px 24px;background:linear-gradient(90deg,#0b1a2f,#0f2740);
+        border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9}
+.brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.brand h1{font-size:17px;font-weight:700;letter-spacing:.5px}
+.tag{font-size:11px;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--line);color:var(--muted);
+     padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;transition:.15s}
+.tab:hover{color:var(--txt);border-color:#2f5b86}
+.tab.active{background:rgba(0,212,255,.12);border-color:var(--cyan);color:var(--cyan);font-weight:700}
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* 筛选条 */
+.filterbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+           padding:10px 24px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.filterbar label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.filterbar input,.filterbar select{background:#0b1a2f;border:1px solid var(--line);color:var(--txt);
+           border-radius:5px;padding:4px 8px;font-size:12px;font-family:inherit}
+.filterbar input[type=date]{width:132px}
+.sep{color:var(--muted)}
+.btns{display:flex;gap:8px;margin-left:auto}
+.btn{border:1px solid var(--line);background:#0b1a2f;color:var(--muted);padding:5px 14px;
+     border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit}
+.btn:hover{color:var(--txt)}
+.btn.primary{border-color:var(--cyan);color:var(--cyan)}
+.btn.warn{border-color:var(--orange);color:var(--orange)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.src{font-size:11px;color:var(--muted)}
 
-body {
-    font-family: "Microsoft YaHei", "PingFang SC", -apple-system, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-}
+/* 页面与卡片 */
+main{padding:18px 24px 30px}
+.page{display:none}
+.page.active{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+     position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan)}
+.kpi.orange::after{background:var(--orange)}
+.kpi.green::after{background:var(--green)}
+.kpi .k-name{font-size:11px;color:var(--muted)}
+.kpi .k-val{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:.5px}
+.kpi .k-unit{font-size:11px;color:var(--cyan);margin-top:2px}
+.kpi.orange .k-unit{color:var(--orange)}
+.kpi.green .k-unit{color:var(--green)}
 
-/* ---------------- 顶部导航 ---------------- */
-.topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 24px;
-    background: linear-gradient(90deg, var(--bg-secondary), var(--bg-primary));
-    border-bottom: 1px solid var(--border);
-}
-.topbar-left { display: flex; align-items: center; gap: 14px; }
-.logo { font-size: 26px; }
-.topbar h1 { font-size: 19px; font-weight: 600; letter-spacing: .5px; }
-.subtitle { font-size: 12px; color: var(--text-secondary); margin-left: 6px; }
-.topbar-right { display: flex; align-items: center; gap: 18px; }
-.status { font-size: 13px; color: var(--accent-green); }
-.status.down { color: var(--accent-red); }
-.clock { font-size: 14px; color: var(--accent-cyan); font-family: Consolas, monospace; }
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-map{display:grid;grid-template-columns:1.55fr 1fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px 8px}
+.card h3{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.card h3::before{content:"";display:inline-block;width:3px;height:11px;background:var(--cyan);
+                 margin-right:7px;vertical-align:-1px;border-radius:2px}
+.chart{width:100%;height:300px}
+.chart.map{height:470px}
+.chart.tall{height:470px}
+.chart.tall2{height:360px}
+.note{font-size:11px;color:var(--muted);margin:4px 0 6px}
 
-/* ---------------- 全局筛选栏 ---------------- */
-.filter-bar {
-    display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;
-    padding: 14px 24px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-}
-.filter-item { display: flex; align-items: center; gap: 8px; }
-.filter-item label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
-.filter-item input, .filter-item select {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 7px 11px;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
-    font-family: inherit;
-}
-.filter-item input:focus, .filter-item select:focus { border-color: var(--accent-cyan); }
-.tilde { color: var(--text-secondary); }
-.filter-actions { margin-left: auto; display: flex; gap: 10px; }
+.table-wrap{max-height:330px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{position:sticky;top:0;background:#0f3f5e;color:var(--txt);font-weight:700;
+         padding:7px 8px;text-align:left;white-space:nowrap}
+tbody td{padding:6px 8px;color:var(--muted);border-bottom:1px solid rgba(30,58,95,.6)}
+tbody tr:hover td{background:rgba(0,212,255,.06);color:var(--txt)}
 
-.btn {
-    padding: 8px 22px; border: 1px solid var(--border);
-    background: var(--bg-card); color: var(--text-primary);
-    border-radius: 6px; cursor: pointer; font-size: 13px;
-    font-family: inherit; transition: all .2s;
-}
-.btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-.btn-primary {
-    background: var(--accent-cyan); color: #04202e;
-    border-color: var(--accent-cyan); font-weight: 600;
-}
-.btn-primary:hover { background: #33ddff; color: #04202e; }
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+      padding:10px 24px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
 
-/* ---------------- KPI 指标卡 ---------------- */
-.kpi-row {
-    display: grid; grid-template-columns: repeat(5, 1fr);
-    gap: 16px; padding: 18px 24px;
+@media (max-width:1440px){
+  .grid2,.grid-map{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .chart.map{height:420px}
 }
-.kpi-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--accent-cyan);
-    border-radius: 8px; padding: 16px 18px;
-    position: relative; overflow: hidden;
-}
-.kpi-card::after {
-    content: ''; position: absolute; right: -20px; top: -20px;
-    width: 70px; height: 70px; border-radius: 50%;
-    background: rgba(0, 212, 255, .05);
-}
-.kpi-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
-.kpi-value {
-    font-size: 27px; font-weight: 700; color: var(--accent-cyan);
-    font-family: Consolas, "Microsoft YaHei", monospace; line-height: 1.15;
-}
-.kpi-sub { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
-
-/* ---------------- 图表区 ---------------- */
-.chart-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 16px; padding: 0 24px 24px;
-}
-.chart-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px; overflow: hidden;
-    display: flex; flex-direction: column;
-}
-.chart-lg { grid-column: span 2; }
-.chart-header {
-    padding: 13px 18px;
-    border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: baseline;
-    flex-wrap: wrap; gap: 8px;
-}
-.chart-header h3 { font-size: 14px; font-weight: 600; }
-.chart-tip { font-size: 11px; color: var(--text-secondary); }
-.chart-body { height: 300px; padding: 8px; }
-.chart-lg .chart-body { height: 380px; }
-.chart-scroll { overflow-y: auto; }
-
-/* ---------------- 页脚 ---------------- */
-.footer {
-    padding: 16px 24px 22px;
-    border-top: 1px solid var(--border);
-    color: var(--text-secondary); font-size: 12px; line-height: 1.9;
-}
-.footer-team { color: var(--accent-cyan); }
-
-/* ---------------- 滚动条 ---------------- */
-::-webkit-scrollbar { width: 7px; height: 7px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
-
-/* ---------------- 响应式（笔记本小屏答辩用） ---------------- */
-@media (max-width: 1400px) {
-    .kpi-row { grid-template-columns: repeat(3, 1fr); }
-    .chart-grid { grid-template-columns: 1fr; }
-    .chart-lg { grid-column: span 1; }
-}
-@media (max-width: 900px) {
-    .kpi-row { grid-template-columns: repeat(2, 1fr); }
-    .topbar h1 { font-size: 15px; }
-}
-
-/* ==================== 多页面框架（A 岗 11/24 补充，供 C 岗接续） ==================== */
-
-/* 顶部导航 */
-.page-nav {
-    display: flex;
-    gap: 2px;
-    margin-right: 18px;
-}
-.page-nav a {
-    color: #94a3b8;
-    text-decoration: none;
-    font-size: 13px;
-    padding: 6px 12px;
-    border-radius: 6px;
-    transition: all .18s;
-    white-space: nowrap;
-}
-.page-nav a:hover {
-    color: #e2e8f0;
-    background: rgba(148, 163, 184, .12);
-}
-.page-nav a.active {
-    color: #93c5fd;
-    background: rgba(37, 99, 235, .18);
-    font-weight: 600;
-}
-
-/* 页面主容器 */
-.page-main {
-    padding: 18px 24px 8px;
-}
-
-/* 说明块：C 岗接手提示 */
-.dev-note {
-    margin: 0 0 16px;
-    padding: 12px 16px;
-    background: rgba(37, 99, 235, .10);
-    border: 1px solid rgba(59, 130, 246, .30);
-    border-radius: 8px;
-    color: #bfdbfe;
-    font-size: 13px;
-    line-height: 1.7;
-}
-.dev-note strong { color: #e2e8f0; }
-.dev-note code {
-    background: rgba(15, 23, 42, .55);
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-family: Consolas, "Courier New", monospace;
-    font-size: 12px;
+@media (max-width:900px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .tabs .tab{padding:5px 10px}
 }
