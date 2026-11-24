@@ -596,7 +596,7 @@ bash scripts/stop_all.sh --clean && bash scripts/start_all.sh
 |---|---|---|
 | `docs/contracts/01-数据字典.md` | 贺欢欢 | 字段含义、join 键、已知坑 |
 | `docs/contracts/02-指标定义表.md` | 姬婷婷 | 12 项指标公式与口径 |
-| `docs/contracts/03-接口规范.md` | 杨珊珊 | API 路径、出入参 |
+| `docs/contracts/03-接口规范.md` | 杨姗姗 | API 路径、出入参 |
 | `docs/contracts/04-数仓表结构规范.md` | 苏静 | 四层数仓 DDL |
 
 **协作命令**：

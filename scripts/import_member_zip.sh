@@ -24,7 +24,7 @@ MEMBER="${2:-}"
 
 if [ -z "$ZIP" ] || [ -z "$MEMBER" ]; then
     echo "用法: bash scripts/import_member_zip.sh <zip路径> <组员姓名>"
-    echo "可用组员: 彭忠燕 苏静 贺欢欢 杨珊珊 姬婷婷"
+    echo "可用组员: 彭忠燕 苏静 贺欢欢 杨姗姗 姬婷婷"
     exit 1
 fi
 
