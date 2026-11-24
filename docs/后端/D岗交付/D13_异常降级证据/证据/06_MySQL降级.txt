@@ -1,0 +1,11 @@
+== MySQL 停机后的降级表现（实测） ==
+
+1) GET /api/health —— HTTP 仍 200，组件里 mysql=DOWN，前端状态灯显示「部分组件异常」：
+   
+{"code":200,"message":"success","data":{"status":"DEGRADED","timestamp":"2026-11-20T15:35:36","application":"uev-charge-analysis","version":"1.0.0","regionCount":275,"components":{"mysql":"DOWN","redis":"DOWN"}},"timestamp":1795160136373}
+
+2) GET /api/charts/imbalance?limit=9 —— 缓存未命中、查库失败，返回 503 + 中文提示，不是 502 也不是白屏：
+   
+{"code":503,"message":"数据库暂时不可用，已降级返回","timestamp":1795160141491}
+
+3) 已缓存的数据仍可正常返回，看板不会整体瘫掉。

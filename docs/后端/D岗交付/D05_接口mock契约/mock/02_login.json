@@ -1,0 +1,13 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "token": "******<脱敏：运行 smoke_test.ps1 可获取真实令牌>******",
+    "tokenType": "Bearer",
+    "expiresIn": 28800,
+    "username": "admin",
+    "realName": "系统管理员",
+    "roleCode": "ADMIN"
+  },
+  "timestamp": 1795160027103
+}

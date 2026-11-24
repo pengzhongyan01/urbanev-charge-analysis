@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- DictionaryMapper.xml —— 数据字典 -->
+<mapper namespace="com.uev.mapper.DictionaryMapper">
+
+    <select id="selectAll" resultType="com.uev.entity.DataDictionary">
+        SELECT file_name,
+               metric_name,
+               unit,
+               row_count,
+               grain,
+               description
+        FROM data_dictionary
+        ORDER BY id
+    </select>
+
+</mapper>

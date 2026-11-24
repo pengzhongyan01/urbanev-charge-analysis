@@ -1,0 +1,49 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "zones": [
+      {
+        "zoneId": "322",
+        "volume": 8882.5,
+        "volume11kw": 6409.72,
+        "deviation": 0.2784
+      },
+      {
+        "zoneId": "171",
+        "volume": 13175.0,
+        "volume11kw": 9514.46,
+        "deviation": 0.2778
+      },
+      {
+        "zoneId": "138",
+        "volume": 935.0,
+        "volume11kw": 676.52,
+        "deviation": 0.2764
+      },
+      {
+        "zoneId": "268",
+        "volume": 13175.0,
+        "volume11kw": 9541.18,
+        "deviation": 0.2758
+      },
+      {
+        "zoneId": "305",
+        "volume": 722.5,
+        "volume11kw": 523.68,
+        "deviation": 0.2752
+      },
+      {
+        "zoneId": "369",
+        "volume": 13175.0,
+        "volume11kw": 9575.43,
+        "deviation": 0.2732
+      }
+    ],
+    "summary": {
+      "avgDeviation": 0.13657454545454537,
+      "maxDeviation": 0.2784
+    }
+  },
+  "timestamp": 1795160027368
+}

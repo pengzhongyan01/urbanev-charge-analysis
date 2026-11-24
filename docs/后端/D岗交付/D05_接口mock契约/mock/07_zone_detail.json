@@ -1,0 +1,38 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "zone": {
+      "zoneId": "140",
+      "longitude": 114.16712,
+      "latitude": 22.671,
+      "avgOccupancy": 0.1399,
+      "maxOccupancy": 0.2248,
+      "chargeCount": 310,
+      "poiTotal": 2252
+    },
+    "peakHours": [
+      {
+        "hourOfDay": 18,
+        "avgOccupancy": 0.2273
+      },
+      {
+        "hourOfDay": 17,
+        "avgOccupancy": 0.2116
+      },
+      {
+        "hourOfDay": 19,
+        "avgOccupancy": 0.2046
+      },
+      {
+        "hourOfDay": 12,
+        "avgOccupancy": 0.1906
+      },
+      {
+        "hourOfDay": 13,
+        "avgOccupancy": 0.1801
+      }
+    ]
+  },
+  "timestamp": 1795160027294
+}
