@@ -1,0 +1,67 @@
+<mxfile host="Electron" agent="doubao">
+  <diagram id="p805e5e810" name="C07 筛选与导出交互设计">
+    <mxGraphModel dx="527" dy="448" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1240" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sd5732d81" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="时间范围&#xa;日期选择器 · 默认全区间&#xa;2022-09-01 ~ 2023-02-28" vertex="1">
+          <mxGeometry height="76" width="250" x="60" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="sf98dc036" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="分区&#xa;下拉多选 · 支持搜索 zone_id&#xa;默认「全部」= 275 个" vertex="1">
+          <mxGeometry height="76" width="250" x="330" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="s6b0f9b51" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="小时 / 时段&#xa;0—23 多选 · 快捷「早晚高峰」" vertex="1">
+          <mxGeometry height="66" width="250" x="60" y="236" as="geometry" />
+        </mxCell>
+        <mxCell id="s769d7bf6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="优先级（仅 P6）&#xa;P1 / P2 复选" vertex="1">
+          <mxGeometry height="66" width="250" x="330" y="236" as="geometry" />
+        </mxCell>
+        <mxCell id="sb4406ba2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#8fa8c8;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="重置（清空 → 恢复默认，并同步 URL）" vertex="1">
+          <mxGeometry height="44" width="250" x="60" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="saec65e39" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2a1a12;strokeColor=#ff6b35;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="应用筛选（防抖 300ms，连续点击只发一次请求）" vertex="1">
+          <mxGeometry height="44" width="250" x="330" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="s2d6348aa" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#ff6b35;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="① 导出当前视图 CSV&#xa;按当前筛选行导出（小、快、可核对）" vertex="1">
+          <mxGeometry height="76" width="250" x="660" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="s10ebe4c4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#ff6b35;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="② 导出全量 CSV&#xa;整表导出，用于二次分析" vertex="1">
+          <mxGeometry height="76" width="250" x="930" y="146" as="geometry" />
+        </mxCell>
+        <mxCell id="s28fa0b97" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#ff6b35;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="③ 导出图表 PNG&#xa;canvas.toDataURL(&#39;image/png&#39;)&#xa;1920×1080，给报告/PPT 用" vertex="1">
+          <mxGeometry height="76" width="520" x="660" y="236" as="geometry" />
+        </mxCell>
+        <mxCell id="s6c510908" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#22c55e;fontColor=#e6f1ff;fontSize=9;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="命名规范：&#xa;ads_imbalance_top20_2022-09-01_2023-02-28.csv&#xa;（表名 + 筛选摘要 + 时间戳）" vertex="1">
+          <mxGeometry height="66" width="520" x="660" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="rb5b31f83" parent="1" style="rounded=1;fillColor=#0e2440;strokeColor=#00d4ff;opacity=35;arcSize=6;" value="" vertex="1">
+          <mxGeometry height="470" width="560" x="40" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="rb8f0e73f" parent="1" style="rounded=1;fillColor=#0e2440;strokeColor=#ff6b35;opacity=35;arcSize=6;" value="" vertex="1">
+          <mxGeometry height="470" width="560" x="640" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="t240e8c64" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#e6f1ff;fontSize=18;align=left;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" value="C07  筛选与导出交互（一套控件贯穿六页，导出跟随当前筛选）" vertex="1">
+          <mxGeometry height="40" width="1180" x="40" y="44" as="geometry" />
+        </mxCell>
+        <mxCell id="tcd0814ba" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#00d4ff;fontSize=13;align=left;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" value="A  筛选区（统一控件）" vertex="1">
+          <mxGeometry height="40" width="1160" x="60" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="t65df8d75" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8fa8c8;fontSize=10;align=left;verticalAlign=middle;whiteSpace=wrap;" value="· 筛选状态写进 URL 参数（?start=&amp;end=&amp;zones=&amp;hour=），可分享、可刷新还原&#xa;· 任一控件变化 → 校验 → loadAll() → 全页图表统一刷新&#xa;· 无数据显示空态插画 + 「清除筛选」按钮，不留白屏" vertex="1">
+          <mxGeometry height="40" width="1160" x="60" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="ta7b3a557" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#ff6b35;fontSize=13;align=left;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" value="B  导出区（跟随当前筛选）" vertex="1">
+          <mxGeometry height="40" width="560" x="660" y="106" as="geometry" />
+        </mxCell>
+        <mxCell id="tc5018084" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#8fa8c8;fontSize=10;align=left;verticalAlign=middle;whiteSpace=wrap;" value="导出实现四步：&#xa;1  取 STATE.currentFilters（不读 DOM）&#xa;2  从 STATE.data 过滤行&#xa;3  数组 → CSV（UTF-8 BOM，防 Excel 中文乱码）&#xa;4  Blob + a.download = 文件名含筛选条件与时间戳" vertex="1">
+          <mxGeometry height="40" width="560" x="660" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="t626f2af2" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#ff6b35;fontSize=10;align=left;verticalAlign=middle;whiteSpace=wrap;" value="交互红线：导出按钮在「加载中」置灰；导出流程不得触发接口请求（纯前端拼装，避免拖慢演示）" vertex="1">
+          <mxGeometry height="40" width="1160" x="60" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="te7ef62cf" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#e6f1ff;fontSize=10;align=left;verticalAlign=middle;whiteSpace=wrap;" value="答辩演示顺序建议：先切分区 → 图变 → 再导当前视图 CSV → 打开表格证明「图和表同源」" vertex="1">
+          <mxGeometry height="40" width="1160" x="60" y="628" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

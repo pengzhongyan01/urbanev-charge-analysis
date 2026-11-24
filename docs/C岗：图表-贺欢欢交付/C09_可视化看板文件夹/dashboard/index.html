@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>城市充电桩数据分析系统 · 可视化看板</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>城市充电桩数据分析系统</h1>
+    <span class="tag">UrbanEV · 深圳 275 交通分区 · 2022-09 ~ 2023-02</span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-page="p1">总览</button>
+    <button class="tab" data-page="p2">分区地图</button>
+    <button class="tab" data-page="p3">供需分析</button>
+    <button class="tab" data-page="p4">电价弹性</button>
+    <button class="tab" data-page="p5">需求预测</button>
+    <button class="tab" data-page="p6">布点建议</button>
+  </nav>
+</header>
+
+<div class="filterbar" id="filterbar">
+  <label>时间范围
+    <input type="date" id="fStart" value="2022-09-01">
+    <span class="sep">~</span>
+    <input type="date" id="fEnd" value="2023-02-28">
+  </label>
+  <label>分区
+    <select id="fZone"><option value="all">全部分区（275）</option></select>
+  </label>
+  <label>小时
+    <select id="fHour"><option value="all">全时段</option></select>
+  </label>
+  <label>优先级
+    <select id="fPri">
+      <option value="all">全部</option>
+      <option value="1">P1 持续紧张（先加）</option>
+      <option value="2">P2 尖峰 / 高密度（前瞻加）</option>
+      <option value="3">P3 不加桩（改调度）</option>
+    </select>
+  </label>
+  <div class="btns">
+    <button class="btn ghost" id="btnReset">重置</button>
+    <button class="btn primary" id="btnApply">应用筛选</button>
+    <button class="btn warn" id="btnExport">导出 CSV</button>
+      <button class="btn" id="btnExportPng">导出图表 PNG</button>
+  </div>
+  <span class="src" id="dataSrc">数据源：样例库 11 张应用表（离线）</span>
+</div>
+
+<main>
+  <!-- P1 总览 -->
+  <section class="page active" id="p1">
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="grid2">
+      <div class="card"><h3>24 小时供需曲线与缺口</h3><div class="chart" id="chartHourly"></div>
+        <p class="note">口径：占用率 = 已占用桩位/可用桩位；缺口 = 需求 − 供给。11—16 时最紧。</p></div>
+      <div class="card"><h3>数据质量 8 项体检</h3><div class="chart" id="chartDq"></div>
+        <p class="note">8 类规则实测：有效行 / 时间非法 / 空值 / 越界 / 重复 / 零值行。</p></div>
+    </div>
+  </section>
+
+  <!-- P2 地图 -->
+  <section class="page" id="p2">
+    <div class="grid-map">
+      <div class="card"><h3>275 个交通分区平均占用率空间分布</h3><div class="chart map" id="chartMap"></div>
+        <p class="note">底图：深圳市 9 行政区轮廓（本地 GeoJSON）；点：交通分区经纬度定位。分区 ≠ 行政区，不做面填充。</p></div>
+      <div class="card"><h3>分区平均占用率 TOP20</h3><div class="chart tall" id="chartZoneTop"></div></div>
+    </div>
+  </section>
+
+  <!-- P3 供需 -->
+  <section class="page" id="p3">
+    <div class="grid2">
+      <div class="card"><h3>供需失衡指数 · 分小时分布</h3><div class="chart tall2" id="chartImbalance"></div></div>
+      <div class="card"><h3>小时明细</h3><div class="table-wrap"><table id="tblHour"></table></div>
+        <p class="note">avg_supply 全时段恒为 0.0036（=1/275），分母口径待 B 岗复核。</p></div>
+    </div>
+  </section>
+
+  <!-- P4 电价 -->
+  <section class="page" id="p4">
+    <div class="grid2">
+      <div class="card"><h3>TOU 与 FLAT 两类分区 24 小时占用率</h3><div class="chart" id="chartPrice"></div>
+        <p class="note">分组依据 σ_price（契约 02）：TOU 分时电价区 / FLAT 平段电价区。</p></div>
+      <div class="card"><h3>电价弹性：价差 → 占用率</h3><div class="chart" id="chartElastic"></div>
+        <p class="note">每个点是一小时；价差越大，占用率整体越低（FLAT 组价差高、占用率低）。</p></div>
+    </div>
+  </section>
+
+  <!-- P5 预测 -->
+  <section class="page" id="p5">
+    <div class="grid2">
+      <div class="card"><h3 id="fcTitle">需求预测曲线（实际 vs 预测）</h3><div class="chart" id="chartForecast"></div>
+        <p class="note">指标：MAPE（平均绝对百分比误差），越低越好。</p></div>
+      <div class="card"><h3>预测误差（MAPE）分布</h3><div class="chart" id="chartMape"></div></div>
+    </div>
+  </section>
+
+  <!-- P6 布点 -->
+  <section class="page" id="p6">
+    <div class="grid2">
+      <div class="card"><h3>布点扩容 TOP15：现有桩数 vs 建议新增</h3><div class="chart tall2" id="chartExpansion"></div></div>
+      <div class="card"><h3>建议清单（P1 先加 · P2 前瞻加 · P3 不加桩改调度）</h3><div class="table-wrap"><table id="tblSuggest"></table></div>
+        <p class="note">priority 1 = 峰值缺口最大，优先加桩。</p></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>分析口径唯一事实源：数据字典 v1.0（契约 01）</span>
+  <span id="cacheHit">缓存：未命中</span>
+  <span>渲染：ECharts 5 · 纯静态离线可跑</span>
+</footer>
+
+<script src="js/echarts.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/common.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

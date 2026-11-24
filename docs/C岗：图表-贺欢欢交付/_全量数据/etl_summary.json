@@ -1,0 +1,142 @@
+{
+  "kpi": {
+    "dt": "ALL",
+    "station_count": 275,
+    "pile_count": 23441,
+    "avg_occupancy": 0.270956,
+    "total_volume": 311652819.71,
+    "avg_duration": 13.1055,
+    "avg_duration_per_pile": 0.157421,
+    "imbalance_zones": 275,
+    "persistent_imbalance_zones": 51,
+    "compute_time": "2026-11-24 15:42:31"
+  },
+  "zone_occupancy_rows": 275,
+  "price_elasticity": {
+    "silhouette": 0.8132,
+    "TOU_zones": 31,
+    "FLAT_zones": 244,
+    "sigma_TOU_mean": 0.470008,
+    "sigma_FLAT_mean": 0.034932
+  },
+  "forecast": {
+    "models": {
+      "Naive_Baseline": {
+        "MAPE": 20.72,
+        "MAE": 0.021821,
+        "RMSE": 0.037055,
+        "n_test": 3850
+      },
+      "LinearRegression": {
+        "MAPE": 24.628,
+        "MAE": 0.021457,
+        "RMSE": 0.033266,
+        "n_test": 3850
+      },
+      "RandomForest": {
+        "MAPE": 24.854,
+        "MAE": 0.021132,
+        "RMSE": 0.032672,
+        "n_test": 3850
+      }
+    },
+    "best_model": "Naive_Baseline",
+    "eval_table": [
+      {
+        "model": "Naive_Baseline",
+        "MAPE": 20.72,
+        "MAE": 0.021821,
+        "RMSE": 0.037055,
+        "n_test": 3850
+      },
+      {
+        "model": "LinearRegression",
+        "MAPE": 24.628,
+        "MAE": 0.021457,
+        "RMSE": 0.033266,
+        "n_test": 3850
+      },
+      {
+        "model": "RandomForest",
+        "MAPE": 24.854,
+        "MAE": 0.021132,
+        "RMSE": 0.032672,
+        "n_test": 3850
+      }
+    ],
+    "forecast_rows": 3850,
+    "test_period": "2023-02-15 ~ 2023-02-28",
+    "train_period": "2022-09-01 ~ 2023-02-14"
+  },
+  "expansion_top10": [
+    {
+      "zone_id": "1167",
+      "current_piles": 446,
+      "suggested_piles": 595,
+      "priority": 1
+    },
+    {
+      "zone_id": "1049",
+      "current_piles": 239,
+      "suggested_piles": 319,
+      "priority": 1
+    },
+    {
+      "zone_id": "851",
+      "current_piles": 157,
+      "suggested_piles": 210,
+      "priority": 1
+    },
+    {
+      "zone_id": "704",
+      "current_piles": 141,
+      "suggested_piles": 188,
+      "priority": 1
+    },
+    {
+      "zone_id": "633",
+      "current_piles": 135,
+      "suggested_piles": 180,
+      "priority": 1
+    },
+    {
+      "zone_id": "733",
+      "current_piles": 130,
+      "suggested_piles": 174,
+      "priority": 1
+    },
+    {
+      "zone_id": "965",
+      "current_piles": 129,
+      "suggested_piles": 172,
+      "priority": 1
+    },
+    {
+      "zone_id": "996",
+      "current_piles": 119,
+      "suggested_piles": 159,
+      "priority": 1
+    },
+    {
+      "zone_id": "746",
+      "current_piles": 115,
+      "suggested_piles": 154,
+      "priority": 1
+    },
+    {
+      "zone_id": "522",
+      "current_piles": 112,
+      "suggested_piles": 150,
+      "priority": 1
+    }
+  ],
+  "poi": {
+    "poi_available": true,
+    "poi_rows": 712135,
+    "poi_matched": 274,
+    "poi_total_assigned": 722585
+  },
+  "elapsed_sec": 43.4,
+  "data_dir": "D:\\a-ajava大作业\\_uev_full\\raw",
+  "generated_at": "2026-11-24 15:42:49"
+}

@@ -1,0 +1,88 @@
+/* 城市充电桩数据分析系统 · 深色大屏主题 */
+:root{
+  --bg:#0b1a2f; --panel:#12253f; --panel2:#0e2440; --line:#1e3a5f;
+  --txt:#e6f1ff; --muted:#8fa8c8; --cyan:#00d4ff; --orange:#ff6b35;
+  --green:#22c55e; --yellow:#ffc107; --purple:#8b5cf6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","Segoe UI",sans-serif;
+     font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* 顶栏 */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+        padding:14px 24px;background:linear-gradient(90deg,#0b1a2f,#0f2740);
+        border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9}
+.brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.brand h1{font-size:17px;font-weight:700;letter-spacing:.5px}
+.tag{font-size:11px;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--line);color:var(--muted);
+     padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;transition:.15s}
+.tab:hover{color:var(--txt);border-color:#2f5b86}
+.tab.active{background:rgba(0,212,255,.12);border-color:var(--cyan);color:var(--cyan);font-weight:700}
+
+/* 筛选条 */
+.filterbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+           padding:10px 24px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.filterbar label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.filterbar input,.filterbar select{background:#0b1a2f;border:1px solid var(--line);color:var(--txt);
+           border-radius:5px;padding:4px 8px;font-size:12px;font-family:inherit}
+.filterbar input[type=date]{width:132px}
+.sep{color:var(--muted)}
+.btns{display:flex;gap:8px;margin-left:auto}
+.btn{border:1px solid var(--line);background:#0b1a2f;color:var(--muted);padding:5px 14px;
+     border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit}
+.btn:hover{color:var(--txt)}
+.btn.primary{border-color:var(--cyan);color:var(--cyan)}
+.btn.warn{border-color:var(--orange);color:var(--orange)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.src{font-size:11px;color:var(--muted)}
+
+/* 页面与卡片 */
+main{padding:18px 24px 30px}
+.page{display:none}
+.page.active{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+     position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan)}
+.kpi.orange::after{background:var(--orange)}
+.kpi.green::after{background:var(--green)}
+.kpi .k-name{font-size:11px;color:var(--muted)}
+.kpi .k-val{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:.5px}
+.kpi .k-unit{font-size:11px;color:var(--cyan);margin-top:2px}
+.kpi.orange .k-unit{color:var(--orange)}
+.kpi.green .k-unit{color:var(--green)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-map{display:grid;grid-template-columns:1.55fr 1fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px 8px}
+.card h3{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.card h3::before{content:"";display:inline-block;width:3px;height:11px;background:var(--cyan);
+                 margin-right:7px;vertical-align:-1px;border-radius:2px}
+.chart{width:100%;height:300px}
+.chart.map{height:470px}
+.chart.tall{height:470px}
+.chart.tall2{height:360px}
+.note{font-size:11px;color:var(--muted);margin:4px 0 6px}
+
+.table-wrap{max-height:330px;overflow:auto;border:1px solid var(--line);border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{position:sticky;top:0;background:#0f3f5e;color:var(--txt);font-weight:700;
+         padding:7px 8px;text-align:left;white-space:nowrap}
+tbody td{padding:6px 8px;color:var(--muted);border-bottom:1px solid rgba(30,58,95,.6)}
+tbody tr:hover td{background:rgba(0,212,255,.06);color:var(--txt)}
+
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+      padding:10px 24px;border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+
+@media (max-width:1440px){
+  .grid2,.grid-map{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .chart.map{height:420px}
+}
+@media (max-width:900px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .tabs .tab{padding:5px 10px}
+}

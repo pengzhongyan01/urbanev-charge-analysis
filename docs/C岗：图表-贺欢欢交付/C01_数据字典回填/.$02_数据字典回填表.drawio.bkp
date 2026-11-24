@@ -1,0 +1,232 @@
+<mxfile host="Electron" agent="doubao">
+  <diagram id="p9eb2f5d00" name="C01 数据字典回填表 · 11 张应用表">
+    <mxGraphModel dx="1394" dy="1191" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="s3567c2fb" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3f5e;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;fontStyle=1;" value="表名" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="sccea680b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3f5e;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;fontStyle=1;" value="主键（靠它区分）" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="s784c97b5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3f5e;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;fontStyle=1;" value="字段数" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="s83f0fa20" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3f5e;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;fontStyle=1;" value="关键字段" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="sd468ca5d" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3f5e;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;fontStyle=1;" value="含义 / 单位" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="sa1b38d5f" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3f5e;strokeColor=#00d4ff;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;fontStyle=1;" value="谁在用" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="se75674ed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_dashboard_kpi" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="s5b4e4d75" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="dt" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="sd950ef03" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="8" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="sea2d0872" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="station_count, pile_count,&#xa;avg_occupancy, total_volume" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="s457ef9bd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="全时段平均；比例 0~1、kWh" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="sc440c841" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="首页 KPI" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="s68898fb6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_zone_occupancy" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="sace7b8a2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="zone_id（分区号）" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="s0cfe1fe6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="7" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="s8e3a1db7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="longitude, latitude,&#xa;avg_occupancy, charge_count" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="s73300669" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="每分区一行；比例 0~1，桩数 个" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="sa700c0c7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="地图 / 占用率榜" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="196" as="geometry" />
+        </mxCell>
+        <mxCell id="s22978449" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_hourly_supply_demand" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="s442bb1c8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="hour_of_day" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="s93c97c73" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="6" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="se4e12a07" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="avg_occupancy, avg_demand,&#xa;avg_supply, gap" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="s50804659" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="每小时一行；缺口 = 需求 − 供给" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="s80dcb583" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="24 小时曲线" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="242" as="geometry" />
+        </mxCell>
+        <mxCell id="s94d68b3b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_imbalance_index" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="sdcb0f4ac" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="分区 + 日期 + 小时" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="sc5ba8985" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="9" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="s81fdf7b2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="demand, supply, imbalance,&#xa;rank_no" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="s64a6d7c7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="失衡 = 需求与供给的偏离程度" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="s012d22b5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="失衡排行" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="s807acf69" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_price_elasticity" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="sa8e1d6ca" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="hour_of_day" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="s06f31332" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="6" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="s9e22437b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="avg_occupancy_TOU / FLAT,&#xa;avg_price_gap_TOU / FLAT" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="seb8c4122" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="按电价波动高低分两组；元/kWh" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="s65b3bc13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="电价对比" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="s170377af" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_demand_forecast" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="s064fbbb2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="分区 + 日期 + 小时" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="se626074e" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="6" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="s5196f85b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="predict_volume,&#xa;actual_volume, mape" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="sa8fd617e" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="电量 kWh；MAPE = 误差百分比" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="se7136f36" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="预测曲线" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="s9c275f04" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="ads_expansion_&#xa;suggestion" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="s736ce3aa" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="zone_id（分区号）" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="s192cafc2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="9" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="sac3ccd1d" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="current_piles, suggested_piles,&#xa;priority, reason" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="s62ea4ae4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="桩数 个；priority 1 最急" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="s4cb0b467" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="布点建议" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="426" as="geometry" />
+        </mxCell>
+        <mxCell id="sef77b24b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="insight_zone_price_group" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="s1991804a" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="zone_id（分区号）" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="sdceea0fe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="3" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="s1c23e672" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="sigma, price_type" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="se6845c94" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="把分区按电价分成两类" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="sdb3d65bc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="电价对比" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="472" as="geometry" />
+        </mxCell>
+        <mxCell id="s24633c64" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="insight_dq_summary" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="s2f480fb8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="metric（指标名）" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="s1c9608c1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="11" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="s43f5efda" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="total, valid_rows,&#xa;time_invalid, out_of_range" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="s89ec5bc0" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="行数统计；8 类规则逐条查" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="s44fc42e4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="质量体检图" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="518" as="geometry" />
+        </mxCell>
+        <mxCell id="sfe568eb5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="明细表（抽样）" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="s456a1e78" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="分区 + 时间戳" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="seb0e04b7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="8" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="s05a1cb12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="metric, value,&#xa;hour_of_day, is_zero" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="s38331d6f" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="明细表抽样；6 类指标" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="s6e40d662" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#102a44;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="抽样核对" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="sc65cfed1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="汇总表（抽样）" vertex="1">
+          <mxGeometry height="46" width="235" x="40" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="see7f4836" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="分区 + 日期" vertex="1">
+          <mxGeometry height="46" width="150" x="275" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="s34f40fa9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="7" vertex="1">
+          <mxGeometry height="46" width="72" x="425" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="sde93353d" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="mean, max, min, count" vertex="1">
+          <mxGeometry height="46" width="300" x="497" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="s050f6f6e" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="按天 × 小时汇总" vertex="1">
+          <mxGeometry height="46" width="245" x="797" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="saebf08c5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#12253f;strokeColor=#2f5b86;fontColor=#e6f1ff;fontSize=10;align=center;verticalAlign=middle;arcSize=10;spacing=4;" value="抽样核对" vertex="1">
+          <mxGeometry height="46" width="120" x="1042" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="t0872f432" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#083268;fontSize=18;align=left;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" value="C01  数据字典回填表（11 张应用表）" vertex="1">
+          <mxGeometry height="40" width="1348" x="32" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t181aeee5" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontColor=#083268;fontSize=12;align=left;verticalAlign=middle;whiteSpace=wrap;fontStyle=1;" value="主键、关键字段、含义、单位、谁在用它" vertex="1">
+          <mxGeometry height="40" width="1348" x="32" y="62" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
