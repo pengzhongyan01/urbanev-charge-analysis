@@ -98,15 +98,23 @@ FIG_MAP = {
     # 第四章
     "4-1":  "06_四层数仓规模对比.png",
     "4-2":  "07_系统ER图.png",
-    # 第五章
+    # 第五章（5-6 ~ 5-14 为 E 岗 5.6 节新图，其余沿用）
     "5-1":  "08_Flume采集拓扑图.png",
     "5-2":  "06_四层数仓规模对比.png",
     "5-3":  "10_数据质量实测结果.png",
     "5-4":  "02_分区地图大屏.png",
     "5-5":  "09_接口调用关系与缓存分层图.png",
-    "5-6":  "08_预测误差分布对比.png",
-    "5-7":  "06_电价弹性散点图.png",
-    "5-10": "01_首页大屏.png",
+    "5-6":  "01_24小时供需曲线.png",
+    "5-7":  "02_失衡指数_TOP10.png",
+    "5-8":  "03_电价标准差_可分性.png",
+    "5-9":  "04_TOU_FLAT_占用率对比.png",
+    "5-10": "05_需求预测_曲线.png",
+    "5-11": "08_肘部法_WCSS.png",
+    "5-12": "06_聚类_散点.png",
+    "5-13": "07_聚类_雷达.png",
+    "5-14": "09_双口径_对比.png",
+    "5-15": "01_首页大屏.png",
+    "5-17": "06_四层数仓规模对比.png",
     # 第三章
     "3-1":  "06_四层数仓规模对比.png",
     # 附录用
@@ -115,7 +123,8 @@ FIG_MAP = {
     "7-2":  "03_24小时供需曲线.png",
 }
 
-FIG_DIRS = [CHARTS, REPO / "docs" / "screenshots", REPO / "docs" / "架构图"]
+FIG_DIRS = [CHARTS, REPO / "docs" / "screenshots", REPO / "docs" / "架构图",
+            REPO / "docs" / "report" / "images", REPO / "docs" / "ppt" / "images"]
 
 
 def find_fig(code: str):
@@ -185,6 +194,13 @@ def md_to_html(text: str, img_map: dict) -> str:
         if m:
             alt, path = m.group(1), m.group(2)
             real = img_map.get(path) or (REPO / path if (REPO / path).exists() else None)
+            if real is None:
+                # 形如 ./images/01_xxx.png → 依次到 docs/report/images、docs/ppt/images 找
+                bn = Path(path).name
+                for base in (REPO / "docs" / "report", REPO / "docs" / "ppt"):
+                    cand = base / "images" / bn
+                    if cand.exists():
+                        real = cand; break
             if real and Path(real).exists():
                 # ★ 只放占位标记，不放 <img>。
                 #   Word 从 HTML 导入本地图片时，路径含非 ASCII 字符会静默丢图
@@ -544,7 +560,9 @@ def main():
         _sh.rmtree(figdir, ignore_errors=True)
     figdir.mkdir(parents=True, exist_ok=True)
     img_map = {}
-    src_dirs = [CHARTS, REPO / "docs" / "screenshots", REPO / "docs" / "架构图"]
+    # ★ 必须包含 docs/report/images —— E 岗 5.6 节的 9 张图放在这里
+    src_dirs = [CHARTS, REPO / "docs" / "screenshots", REPO / "docs" / "架构图",
+                REPO / "docs" / "report" / "images", REPO / "docs" / "ppt" / "images"]
     for sd in src_dirs:
         for f in sd.glob("*.png"):
             safe = re.sub(r"[^A-Za-z0-9_.-]", "_", f.name)
