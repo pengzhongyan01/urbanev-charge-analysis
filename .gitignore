@@ -36,6 +36,12 @@ docs/ppt/*.pdf
 # ---- 运行日志 ----
 backend/logs/
 *.log
+# ===== E 组分析脚本运行产物（本地生成，不入库）=====
+analysis/output/
+
+# ===== 备注 =====
+# 大数据文件一律走 HDFS / MySQL，不进 Git。
+# 数据字典、指标定义、接口规范、表结构 DDL 全部是文本，必须进 Git。
 
 # ---- Word 转换临时产物 ----
 docs/report/docx/_tmp_*
