@@ -47,3 +47,8 @@ analysis/output/
 docs/report/docx/_tmp_*
 docs/report/docx/*.html
 docs/report/docx/*.files/
+
+# ---- Maven 编译产物（多模块路径全覆盖）----
+**/target/
+**/target/**
+*.class
