@@ -1,12 +1,12 @@
 # D04 · 登录鉴权
 
-> 截止：11/26　|　应交文件：2（`登录鉴权说明.md` + `代码/`）　|　状态：✅ 已完成
+> 截止：11/26　|　应交文件：2（`01_登录鉴权说明.md` + `代码/`）　|　状态：✅ 已完成
 
 ## 这一项放什么
 
 | 文件 | 说明 |
 |---|---|
-| `登录鉴权说明.md` | 主交付物：JWT 签发/校验、拦截器白名单、BCrypt 存储、实测记录 |
+| `01_登录鉴权说明.md` | 主交付物：JWT 签发/校验、拦截器白名单、BCrypt 存储、实测记录 |
 | `代码/JwtUtil.java` `AuthService.java` `AuthInterceptor.java` `AuthController.java` `LoginRequest.java` `LoginResponse.java` | 鉴权全部真代码（6 个文件，可直接读） |
 | `04_auth_seed.sql` | 角色与账号初始化（密码为 BCrypt 密文） |
 
