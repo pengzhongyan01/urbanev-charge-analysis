@@ -1,12 +1,12 @@
 # D08 · 接入 MySQL 视图
 
-> 截止：11/27　|　应交文件：1（`视图接入说明.md` + 5 份 Mapper XML + 视图 SQL 作附件）　|　状态：✅ 已完成
+> 截止：11/27　|　应交文件：1（`01_视图接入说明.md` + 5 份 Mapper XML + 视图 SQL 作附件）　|　状态：✅ 已完成
 
 ## 这一项放什么
 
 | 文件 | 说明 |
 |---|---|
-| `视图接入说明.md` | 主交付物：视图→Mapper 的对应关系、命名映射、参数落地、SQL 写法约定 |
+| `01_视图接入说明.md` | 主交付物：视图→Mapper 的对应关系、命名映射、参数落地、SQL 写法约定 |
 | `03_views.sql` | 10 个视图的定义（与 B 岗 B10 的对接口） |
 | `KpiMapper.xml` `ZoneMapper.xml` `ChartMapper.xml` `DictionaryMapper.xml` `SystemMapper.xml` | 5 份真 SQL，全部 `FROM v_*` |
 
