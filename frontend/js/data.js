@@ -8,8 +8,8 @@ window.UEV_DATA = {
   "total_volume": 311652819.71,
   "avg_duration": 13.1055,
   "avg_duration_per_pile": 0.157421,
-  "imbalance_zones": 275,
-  "persistent_imbalance_zones": 51,
+  "imbalance_zones": 56,
+  "persistent_imbalance_zones": 33,
   "compute_time": "2026-11-24 15:42:31"
  },
  "zones": [
