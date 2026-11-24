@@ -226,6 +226,49 @@ def main():
             removed += 1
     print(f"  第 10 页 删除冗余链路文本块 {removed} 个（内容与卡片重复）")
 
+    # ── 第 7 页补「数据时效性」答辩要点（与「为什么不用爬虫」并列的另一道必答题）──
+    print("\n【补第 7 页 数据时效性说明】")
+    sl7 = prs.slides[6]
+    P7_OLD = "① 真实性　数据取自 1,682 个公共充电站的运营系统，是真实运营数据，不是前端展示值\n② 可复现　CC0 协议允许自由使用再分发，一份脚本人人可得完全相同的数据集；爬虫受反爬与改版影响不可复现\n③ 合规　公开发布且明确授权，规避服务条款"
+    P7_NEW = ("① 真实性　数据取自 1,682 个公共充电站的运营系统，是真实运营数据，不是前端展示值\n"
+              "② 可复现　CC0 协议允许自由使用再分发，一份脚本人人可得完全相同的数据集；爬虫受反爬与改版影响不可复现\n"
+              "③ 合规　公开发布且明确授权，规避服务条款\n"
+              "④ ★ 时效性（答辩必问）　采集窗口 2022-09~2023-02 即论文发表时的最新可用窗口 —— 公开的高分辨率充电桩数据本身就稀缺；"
+              "本课题研究方法学而非预测当下市场，故结论不随年份失效")
+    hit7 = False
+    for sh in sl7.shapes:
+        if not sh.has_text_frame:
+            continue
+        if "为什么不用爬虫" in sh.text_frame.text:
+            # 标题改为覆盖两个必答题
+            for p0 in sh.text_frame.paragraphs:
+                for r in p0.runs:
+                    if "为什么不用爬虫" in r.text:
+                        r.text = r.text.replace("为什么不用爬虫？（答辩必问）",
+                                                "为什么不用爬虫？为什么是 22—23 年数据？（答辩必问）")
+            print("  ✓ 第 7 页标题已改")
+            continue
+        if P7_OLD in sh.text_frame.text:
+            runs = [(r.font.size, r.font.bold) for p0 in sh.text_frame.paragraphs for r in p0.runs]
+            tf = sh.text_frame
+            for p0 in list(tf.paragraphs[1:]):
+                p0._element.getparent().remove(p0._element)
+            lines = P7_NEW.split("\n")
+            tf.paragraphs[0].text = lines[0]
+            for ln in lines[1:]:
+                np0 = tf.add_paragraph(); np0.text = ln
+            size = runs[0][0] if runs else None
+            for p0 in tf.paragraphs:
+                for r in p0.runs:
+                    if size:
+                        try: r.font.size = Pt(size.pt - 0.5)
+                        except Exception: pass
+            sh.height = Emu(int(2.30 * 914400))
+            hit7 = True
+            print("  ✓ 第 7 页时效性说明已补")
+    if not hit7:
+        print("  ⚠ 第 7 页正文未匹配")
+
     print("\n【嵌入 E 岗素材图】")
     insert_images(prs)
 
