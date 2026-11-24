@@ -45,27 +45,32 @@ ensure_remote() {
 
 check_ssh() {
     echo -e "${BLUE}→${NC} 检查 Gitee SSH 认证…"
+    local out
     if [ -f "$SSH_KEY" ]; then
         out=$(timeout 25 ssh -T -i "$SSH_KEY" -o StrictHostKeyChecking=no \
               -o ConnectTimeout=15 git@gitee.com 2>&1)
-        if echo "$out" | grep -q "successfully authenticated"; then
-            echo -e "  ${GREEN}✓${NC} $(echo "$out" | grep -o 'Hi .*' | head -1)"
-        else
-            echo -e "  ${RED}✗${NC} Gitee SSH 认证失败："
-            echo "$out" | sed 's/^/      /' | head -5
-            return 1
-        fi
     else
         echo -e "  ${YELLOW}⚠${NC} 找不到私钥 $SSH_KEY，尝试用默认密钥"
         out=$(timeout 25 ssh -T -o StrictHostKeyChecking=no -o ConnectTimeout=15 git@gitee.com 2>&1)
-        if echo "$out" | grep -q "successfully authenticated"; then
-            echo -e "  ${GREEN}✓${NC} $(echo "$out" | grep -o 'Hi .*' | head -1)"
-        else
-            echo -e "  ${RED}✗${NC} 认证失败。请运行：bash scripts/setup_ssh.sh"
-            return 1
-        fi
     fi
-    return 0
+    # ★ 两个坑叠在一起，必须都处理：
+    #   1. Gitee 的欢迎语里插了 ANSI 颜色码，
+    #      "successfully" 实际是 "suc\x1b[32mcessfully" → 直接 grep 永远匹配不上。
+    #      所以先去 ANSI 序列再判断。
+    #   2. Windows Git Bash 在中文用户名路径下会先打印 "Could not create directory"
+    #      警告（HOME 被转义成八进制），但认证其实完全成功 —— 误判成失败会卡住推送。
+    local plain
+    plain=$(printf '%s' "$out" | sed 's/\x1b\[[0-9;]*m//g')
+    if printf '%s' "$plain" | grep -q "successfully authenticated"; then
+        echo -e "  ${GREEN}✓${NC} $(printf '%s' "$plain" | grep -o 'Hi .*' | head -1)"
+        printf '%s' "$plain" | grep -q "Could not create directory" && \
+            echo -e "  ${YELLOW}(注)${NC} 上面那句 HOME 路径警告是 Git Bash 中文用户名转义问题，不影响认证"
+        return 0
+    fi
+    echo -e "  ${RED}✗${NC} Gitee SSH 认证失败："
+    echo "$out" | sed 's/^/      /' | head -5
+    echo -e "  ${BLUE}→${NC} 请运行：bash scripts/setup_ssh.sh 重新配置密钥"
+    return 1
 }
 
 check_divergence() {
