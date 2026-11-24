@@ -37,6 +37,8 @@ from matplotlib.patches import Polygon
 
 REPO = Path(__file__).resolve().parent.parent
 SRC = REPO / "data" / "etl_out"
+# E 岗 ADS 产出目录（份额差口径的权威源）
+ADS_DIR = REPO / "analysis" / "output" / "ads"
 CHARTS = REPO / "docs" / "charts"
 SHOTS = REPO / "docs" / "screenshots"
 
@@ -113,7 +115,16 @@ def main():
     kpi = pd.read_csv(SRC / "dashboard_kpi.csv").iloc[0]
     zo = pd.read_csv(SRC / "zone_occupancy.csv")
     hsd = pd.read_csv(SRC / "hourly_supply_demand.csv")
-    imb = pd.read_csv(SRC / "imbalance_index.csv")
+    # ★ 失衡指数用**契约份额差口径**（I = D − S）的 E 岗 ADS 表（275 × 24 = 6600 行）。
+    #   ETL 产出的 imbalance_index.csv 是旧差值口径（I = DI − D̄，峰值 0.88 @ 316 区），
+    #   与契约 02、第 5 章报告、dashboard_kpi 的 56 个分区对不上，不能用于对外图表。
+    imb = pd.read_csv(ADS_DIR / "ads_imbalance_index.csv")
+    # 适配下游绘图代码的列名：契约表按 hour_of_day 聚合（24 个时段），没有 dt / rank_no
+    if "dt" not in imb.columns:
+        imb["dt"] = "全期(h" + imb["hour_of_day"].astype(int).astype(str) + "时)"
+    if "rank_no" not in imb.columns:
+        imb["rank_no"] = imb.groupby("hour_of_day")["imbalance"].rank(
+            ascending=False, method="first").astype(int)
     pe = pd.read_csv(SRC / "price_elasticity.csv")
     fc = pd.read_csv(SRC / "demand_forecast.csv")
     es = pd.read_csv(SRC / "expansion_suggestion.csv")
@@ -255,14 +266,14 @@ def main():
     t20 = top_by_zone(imb, 20)
     fig, ax = plt.subplots(figsize=(13, 9))
     style(ax, "图 04　供需失衡指数 TOP 20（创新点①）",
-          "数据源：uev_ads.imbalance_index　|　I(z,t) = DI(z,t) − D̄(t)，正值=需求高于全市同期")
+          "数据源：uev_ads.imbalance_index　|　契约口径 I(z,t) = D(z,t) − S(z)（需求份额 − 运力份额），正值=供不应求")
     cols = [C_RED if v > 0 else C_BLUE for v in t20["imbalance"]]
     ax.barh(range(len(t20)), t20["imbalance"], color=cols, height=0.68, zorder=3)
     ax.axvline(0, color=INK, lw=1.2, zorder=4)
     ax.set_yticks(range(len(t20)))
     ax.set_yticklabels([f"{z}" for z in t20["zone_id"]], fontsize=10)
     ax.set_ylabel("分区编号（标签右侧为 日期 时段）", color=MUT, fontsize=10)
-    ax.set_xlabel("失衡指数 I（时/桩）", color=INK, fontsize=11)
+    ax.set_xlabel("失衡指数 I（份额差，无量纲）", color=INK, fontsize=11)
     for i, (v, r) in enumerate(zip(t20["imbalance"], t20["rank_no"])):
         ax.text(v + (0.0008 if v > 0 else -0.0008), i, f"{v:+.4f}（第{int(r)}名）",
                 va="center", ha="left" if v > 0 else "right", fontsize=9.3, color=INK)
@@ -468,7 +479,7 @@ def main():
     a2.set_xlabel("失衡指数 I（标签为分区编号，柱内数值见右）", fontsize=10, color=MUT)
     for i, (z, d, h, v) in enumerate(zip(t10["zone_id"], t10["dt"], t10["hour_of_day"],
                                          t10["imbalance"])):
-        a2.text(v + 0.012, i, f"{z}  {d[5:10]} {int(h):02d}时  {v:+.4f}",
+        a2.text(v + 0.012, i, f"{z}  {int(h):02d}时  {v:+.4f}",
                 va="center", fontsize=9.2, color=INK)
     a2.set_xlabel("失衡指数 I", fontsize=10, color=MUT)
     save(fig, "01_首页大屏.png", SHOTS)
@@ -513,7 +524,7 @@ def main():
     axm = fig.add_axes([0, 0, 1, 1]); axm.axis("off")
     axm.text(0.025, 0.955, "供需失衡诊断 · 分区紧张度排序（创新点①）",
              fontsize=21, color=INK, weight="bold", transform=axm.transAxes)
-    axm.text(0.025, 0.923, "I(z,t) = DI(z,t) − D̄(t)　正值=该分区该时段需求高于全市同期",
+    axm.text(0.025, 0.923, "I(z,t) = D(z,t) − S(z)　份额差口径，正值=该分区该时段供不应求",
              fontsize=12, color=MUT, transform=axm.transAxes)
     a1 = fig.add_axes([0.025, 0.10, 0.47, 0.76]); style(a1)
     a1.set_title("失衡指数 TOP 20", fontsize=14, color=INK, weight="bold", pad=8)
@@ -525,7 +536,7 @@ def main():
     for i, (z, d, h, v) in enumerate(zip(t20b["zone_id"], t20b["dt"], t20b["hour_of_day"],
                                          t20b["imbalance"])):
         a1.text(v + (0.0008 if v > 0 else -0.0008), i,
-                f"{z} {d[5:10]} {int(h):02d}时 {v:+.4f}",
+                f"{z} {int(h):02d}时 {v:+.4f}",
                 va="center", ha="left" if v > 0 else "right", fontsize=8.8, color=INK)
     a1.set_xlabel("失衡指数 I", fontsize=10, color=MUT)
     a2 = fig.add_axes([0.525, 0.56, 0.45, 0.30]); style(a2)

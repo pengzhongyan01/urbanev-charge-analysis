@@ -255,15 +255,34 @@ def build_ads(zone_ids, lon, lat, piles, occ_long, dur_long, vol_long, vol11_lon
     occ_all = pd.Series(occ_all_vals).dropna()
     vol_all = pd.Series(vol_all_vals).dropna()
     dur_all = pd.Series(dur_all_vals).dropna()
-    # 失衡分区数：有 ≥1 个时段出现 |I| > 全市同时段标准差 的分区个数
-    # ★ 注意：必须先按 zone 聚合（axis=1），再数分区；
-    #   原写法先 sum 掉 zone 轴，得到的是「(zone,时段) 组合数」，
-    #   曾出现 2160 > 275 的荒谬结果。
+
+    # ── 供需失衡指数（契约口径 M1/M2）────────────────────────────────
+    #   需求份额 D(z,t) = volume(z,t) / Σ_z volume(·,t)
+    #   运力份额 S(z)    = charge_count(z) / Σ_z charge_count
+    #   失衡指数 I(z,t)  = D − S        （份额差，消除分区规模差异）
+    # ★ 口径来源：docs/contracts/02-指标定义表.md
+    # ★ 与 analysis/01_analysis.py（E 岗）完全同口径：
+    #   需求侧先按 hour_of_day 对全期日期取均值（24 个时段），再逐时段归一化；
+    #   运力份额为分区桩数占全市桩数之比。
+    #   供需失衡分区数 = 全时段峰值失衡 I_max(z) > 0 的分区个数
+    #   实测 275 个分区中 56 个（20.4%）命中，峰值分区 595 = 0.1225，
+    #   与第 5 章报告、ads_expansion_suggestion 的 56 条三方一致（互为交叉验证）。
+    # ★ 实现注意：pandas 3.x 中 df.div(series, axis=0) 会把分母的 index 当成行标签 union，
+    #   导致行数凭空多出 24 行（275 → 299）。这里统一用 numpy 矩阵运算，绕开对齐语义。
+    _vol_hod = vol_p.T.groupby(level=1).mean().T          # (zone × hod)，24 个时段
+    _vol_np = _vol_hod.to_numpy(dtype="float64")
+    _denom = _vol_np.sum(axis=0)                           # 每个 hod 的全市总量 (24,)
+    _denom[_denom == 0] = np.nan
+    _d_share = _vol_np / _denom                             # 需求份额 (zone × hod)
+    _s_share = pile_arr.astype("float64") / max(float(pile_arr.sum()), 1.0)   # 运力份额 (zone,)
+    _imb_share = _d_share - _s_share[:, None]               # 失衡指数 I (zone × hod)
+    zone_peak_imbalance = pd.Series(
+        np.nanmax(_imb_share, axis=1), index=_vol_hod.index)  # 每分区全时段峰值失衡
+    imb_zones = int((zone_peak_imbalance > 0).sum())           # 存在供不应求时段的分区数
+    imb_peak = float(zone_peak_imbalance.max())                # 全市峰值失衡（分区 595 = 0.1225）
+
+    # 兼容旧变量：imb_mat 保留差值口径（用于 ④ imbalance_index TOP-N 产出）
     imb_mat = di.sub(baseline_full, axis=1)
-    imb_std = imb_mat.std(axis=0)                       # 形状 (n_col,)：每个 (dt,hod) 的跨分区标准差
-    imb_flag = imb_mat.abs() > imb_std                 # (n_zone, n_col) 布尔
-    per_zone_imp_count = imb_flag.sum(axis=1)           # 每个分区的失衡时段数
-    imb_zones = int((per_zone_imp_count > 0).sum())
 
     kpi = pd.DataFrame([{
         "dt": "ALL",
@@ -274,6 +293,7 @@ def build_ads(zone_ids, lon, lat, piles, occ_long, dur_long, vol_long, vol11_lon
         "avg_duration": round(float(dur_all.mean()), 4),
         "avg_duration_per_pile": round(_nmean(di.to_numpy()), 6),
         "imbalance_zones": imb_zones,
+        "peak_imbalance": round(imb_peak, 6),
         "compute_time": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"),
     }])
     frames["dashboard_kpi"] = kpi
