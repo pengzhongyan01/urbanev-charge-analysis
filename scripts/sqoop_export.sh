@@ -9,8 +9,9 @@
 set -euo pipefail
 
 MYSQL_URI="jdbc:mysql://localhost:3306/uev_charge?useSSL=false&allowPublicKeyRetrieval=true"
-MYSQL_USER="root"
-MYSQL_PWD="uev123456"          # ★ 生产须走配置中心，不硬编码
+MYSQL_USER="${MYSQL_USER:-root}"
+# ★ 口令一律走配置中心：先 cp .env.example .env 并设置 MYSQL_ROOT_PASSWORD，不硬编码
+MYSQL_PWD="${MYSQL_ROOT_PASSWORD:?请先设置环境变量 MYSQL_ROOT_PASSWORD（或 cp .env.example .env）}"
 
 export_table() {
   local hive_table="$1"
