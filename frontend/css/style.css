@@ -155,3 +155,55 @@ body {
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
     .topbar h1 { font-size: 15px; }
 }
+
+/* ==================== 多页面框架（A 岗 11/24 补充，供 C 岗接续） ==================== */
+
+/* 顶部导航 */
+.page-nav {
+    display: flex;
+    gap: 2px;
+    margin-right: 18px;
+}
+.page-nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all .18s;
+    white-space: nowrap;
+}
+.page-nav a:hover {
+    color: #e2e8f0;
+    background: rgba(148, 163, 184, .12);
+}
+.page-nav a.active {
+    color: #93c5fd;
+    background: rgba(37, 99, 235, .18);
+    font-weight: 600;
+}
+
+/* 页面主容器 */
+.page-main {
+    padding: 18px 24px 8px;
+}
+
+/* 说明块：C 岗接手提示 */
+.dev-note {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    background: rgba(37, 99, 235, .10);
+    border: 1px solid rgba(59, 130, 246, .30);
+    border-radius: 8px;
+    color: #bfdbfe;
+    font-size: 13px;
+    line-height: 1.7;
+}
+.dev-note strong { color: #e2e8f0; }
+.dev-note code {
+    background: rgba(15, 23, 42, .55);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12px;
+}
