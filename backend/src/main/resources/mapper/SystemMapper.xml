@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- SystemMapper.xml —— 用户表 + 查询日志表 -->
+<mapper namespace="com.uev.mapper.SystemMapper">
+
+    <select id="selectUserByUsername" resultType="com.uev.entity.SysUser">
+        SELECT id,
+               username,
+               password_hash,
+               real_name,
+               role_code,
+               status,
+               created_at,
+               last_login_at
+        FROM sys_user
+        WHERE username = #{username}
+        LIMIT 1
+    </select>
+
+    <update id="updateLastLogin">
+        UPDATE sys_user
+        SET last_login_at = #{lastLoginAt}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertQueryLog" parameterType="com.uev.entity.QueryLog"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO query_log (api_path, params, cost_ms, hit_cache, created_at)
+        VALUES (#{apiPath}, #{params}, #{costMs}, #{hitCache}, NOW())
+    </insert>
+
+</mapper>

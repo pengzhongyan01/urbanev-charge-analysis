@@ -1,0 +1,9 @@
+接口：GET /api/charts/imbalance?limit=7
+第1次（缓存未命中，回源查 MySQL）：9.1 ms
+后续 5 次（命中缓存）：
+6.7 / 5.7 / 6.4 / 5.9 / 6.1
+ ms
+平均命中耗时：6.1 ms
+
+服务端统计：
+{"code":200,"message":"success","data":{"type":"local","hitCount":5,"missCount":1,"hitRate":0.833,"hitAvgMs":0.003,"missAvgMs":1.952,"speedup":650.733,"localEntries":10},"timestamp":1795160035043}

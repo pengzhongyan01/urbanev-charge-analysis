@@ -1,0 +1,15 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "type": "local",
+    "hitCount": 9,
+    "missCount": 9,
+    "hitRate": 0.5,
+    "hitAvgMs": 0.003,
+    "missAvgMs": 8.816,
+    "speedup": 2584.472,
+    "localEntries": 9
+  },
+  "timestamp": 1795160027417
+}

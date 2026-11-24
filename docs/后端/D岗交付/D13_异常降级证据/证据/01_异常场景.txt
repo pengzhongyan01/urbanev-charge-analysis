@@ -1,0 +1,7 @@
+== 异常场景（HTTP 状态码 + body）==
+GET /api/charts/imbalance?limit=999  -> 200 {"code":400,"message":"limit 最大值为 100","timestamp":1795159893782}
+GET /api/zones/999                  -> 200 {"code":404,"message":"分区 999 不存在","timestamp":1795159893804}
+GET /api/hours/xx (不存在路径)      -> 200 {"code":404,"message":"接口不存在，请核对路径","timestamp":1795159893813}
+GET /api/auth/me (无令牌)           -> 200 {"code":401,"message":"未携带令牌，请先登录","timestamp":1795159893819}
+POST /api/auth/login 错误密码       -> 200 {"code":401,"message":"用户名或密码错误","timestamp":1795159893923}
+GET /api/charts/hourly?hourRange=19-17 -> 200 {"code":400,"message":"hourRange 起始小时不能大于结束小时","timestamp":1795159893939}

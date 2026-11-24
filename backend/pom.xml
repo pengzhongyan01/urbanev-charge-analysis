@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  pom.xml —— Spring Boot 后端 Maven 配置（骨架模板）
-
-  维护人：D（杨珊珊）　|　骨架由 A（彭忠燕）提供，11/26 前按需修改
-
-  说明：这是可直接编译运行的最小骨架。
-       杨珊珊在此基础上补充 Controller / Service / Mapper / Entity。
-       依赖版本已按 Java 17 + Spring Boot 3.2.5 对齐，不要随意升级大版本。
-
-  ★ 版本历史
-    v1.0  11/19  A  建立骨架
-    v1.1  11/20  A  【修复致命 bug】原文件在 <?xml?> 声明之前写了 9 行 # 注释，
-                   XML 规范不允许，导致 Maven 直接报
-                   "Non-parseable POM ... only whitespace content allowed before start tag"
-                   → 项目完全无法编译。已把注释改为合法 XML 注释并移到声明之后。
-                   ★ D 同学 11/20 拉代码后请先跑一次 mvn clean package 验证。
-
-  ★ 如果你要用 MyBatis-Plus（而不是 MyBatis），必须换成 SB3 专用坐标：
-      <dependency>
-          <groupId>com.baomidou</groupId>
-          <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-          <version>3.5.5</version>
-      </dependency>
-    注意 artifactId 必须是 mybatis-plus-spring-boot3-starter（带 spring-boot3），
-    用 mybatis-plus-boot-starter 在 Spring Boot 3 下会启动失败。
+  pom.xml —— UrbanEV 后端 Maven 配置
+  维护人：杨珊珊（D 岗）
+  v1.2  11/20  D  在 A 提供的骨架上补齐 JWT / AOP / BCrypt 依赖，去掉 hive profile 的必需性
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -47,98 +26,93 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mybatis.version>3.0.3</mybatis.version>
+        <jjwt.version>0.12.5</jjwt.version>
     </properties>
 
     <dependencies>
-        <!-- Web -->
+        <!-- Web MVC -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-        <!-- 参数校验 -->
+        <!-- 参数校验 @Valid / @NotBlank -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-
+        <!-- AOP：缓存切面 @UevCache -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <!-- MySQL 驱动 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- MyBatis（不用 JPA，因为 ADS 层表结构是宽表，SQL 控制更直接） -->
+        <!-- MyBatis：ADS 层是宽表，SQL 直控比 JPA 更合适 -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${mybatis.version}</version>
         </dependency>
-
-        <!-- Redis 缓存 -->
+        <!-- Redis 缓存（可降级为本地缓存） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
-        <!-- 通用缓存注解 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+        <!-- 缓存抽象 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
-
-        <!-- 开发工具 -->
+        <!-- 密码加密 BCrypt（只引 crypto，不引整包 spring-security） -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
         </dependency>
-
-        <!-- Lombok（简化实体类） -->
+        <!-- JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 单测用的内存库（不连真实 MySQL 也能跑 MockMvc 层测试） -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-    <!--
-      ★ Hive JDBC —— 默认不启用（profile: hive）
-      原因：hive-jdbc 3.1.3 的传递依赖里有 jdk.tools:jdk.tools:1.6（system scope），
-            那是 JDK 8 的产物，在 JDK 17 下已移除，会导致
-            "Could not find artifact jdk.tools:jdk.tools:jar:1.6" 而构建失败。
-            而且它会拖入 hadoop-common / guava / netty 等大量传递依赖，
-            与 Spring Boot 的依赖版本容易冲突，首次构建要多花 3–5 分钟。
-      本系统后端的 16 个接口全部基于 MySQL 视图查询，不需要连 Hive，
-      因此把它做成可选 profile：
-            mvn clean package                → 默认构建（不含 hive-jdbc，快）
-            mvn clean package -Phive         → 需要直连 Hive 时启用
-      备注：契约 04 中「数据准确性测试」的 Hive 侧对照值，由 B 岗用 beeline 查，
-            不走后端接口，不需要 hive-jdbc。
-    -->
-    <profiles>
-        <profile>
-            <id>hive</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.hive</groupId>
-                    <artifactId>hive-jdbc</artifactId>
-                    <version>3.1.3</version>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>jdk.tools</groupId>
-                            <artifactId>jdk.tools</artifactId>
-                        </exclusion>
-                        <exclusion>
-                            <groupId>org.slf4j</groupId>
-                            <artifactId>slf4j-log4j12</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 
     <build>
         <finalName>uev-charge-analysis</finalName>
@@ -153,6 +127,13 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
                 </configuration>
             </plugin>
         </plugins>

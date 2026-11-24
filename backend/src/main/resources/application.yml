@@ -1,15 +1,11 @@
 # ==============================================================================
-# application.yml —— 后端配置
+# application.yml —— 后端配置（D 岗维护）
 #
-# 维护人：D（杨珊珊）　|　骨架由 A（彭忠燕）提供
-#
-# 关键点：
-#   - 环境变量优先，用 ${VAR:default} 形式
-#   - Docker 部署时由 docker-compose.yml 注入 SPRING_* 环境变量
-#   - 本机开发时改下面的默认值即可
+# 原则：所有可变项走环境变量 ${VAR:默认值}，不硬编码任何绝对路径 / 明文密钥。
+#       Docker 部署时由 docker-compose.yml 注入 SPRING_* 与 MYSQL_* 环境变量。
 # ==============================================================================
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
     encoding:
       charset: UTF-8
@@ -18,7 +14,6 @@ server:
 spring:
   application:
     name: uev-charge-analysis
-
   # ---------- 数据源 ----------
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -28,69 +23,70 @@ spring:
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
-      connection-timeout: 30000
+      connection-timeout: 5000      # 5s：MySQL 挂掉时快速失败，不拖死线程池
       idle-timeout: 600000
       max-lifetime: 1800000
       pool-name: UevHikariPool
-
   # ---------- Redis ----------
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:uev_redis_pass}
+      password: ${REDIS_PASSWORD:}
       database: 0
-      timeout: 5000ms
+      timeout: 2000ms              # 2s：Redis 挂掉时快速降级
+      connect-timeout: 2000ms
       lettuce:
         pool:
           max-active: 20
           max-idle: 10
           min-idle: 2
-          max-wait: 3000ms
-
+          max-wait: 1000ms
   # ---------- Jackson ----------
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
     default-property-inclusion: non_null
 
-  # ---------- 文件上传 ----------
-  servlet:
-    multipart:
-      max-file-size: 20MB
-      max-request-size: 50MB
-
 # ---------- MyBatis ----------
 mybatis:
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.uev.mapper
+  type-aliases-package: com.uev.entity
   configuration:
     map-underscore-to-camel-case: true
     default-fetch-size: 500
     default-statement-timeout: 30
 
-# ---------- Hive（可选，查 ADS 用） ----------
-hive:
-  jdbc:
-    url: ${HIVE_JDBC_URL:jdbc:hive2://localhost:10000/default}
-    username: ${HIVE_USER:}
-
-# ---------- 业务配置 ----------
+# ---------- 业务配置（D 岗自维护，全部可被环境变量覆盖）----------
 uev:
-  # 缓存过期时间（秒）
+  jwt:
+    # ★ 密钥走环境变量，仓库里不落明文；默认值仅供本地开发
+    secret: ${JWT_SECRET:uev-local-dev-secret-key-please-change-in-prod-2026}
+    expire-hours: ${JWT_EXPIRE_HOURS:8}
+  auth:
+    # 默认关闭：前端骨架是裸 GET，答辩演示直接可用；开启后需带 Authorization 头
+    enabled: ${AUTH_ENABLED:false}
+    exclude-paths:
+      - /api/health
+      - /api/auth/login
+      - /error
   cache:
-    dashboard-ttl: 300
-    filter-ttl: 120
-    chart-ttl: 600
-  # 数据时间范围
-  # ★ 口径以 docs/contracts/01-数据字典.md v1.0 为准：
-  #   2022-09-01 00:00 ~ 2023-02-28 23:00，4344 小时 = 181 天 × 24
+    # auto = 先探活 Redis，连不上自动降级为本地缓存（D13 降级证据）
+    type: ${CACHE_TYPE:auto}
+    redis:
+      kpi-ttl: 300          # 契约 1.4：/dashboard/kpi 300s
+      zone-ttl: 600         # 契约 1.4：/zones/occupancy 600s
+      chart-ttl: 120        # 契约 1.4：/charts/* 120s
+    local:
+      max-size: 2000
   data:
     start-date: ${DATA_START:2022-09-01}
     end-date: ${DATA_END:2023-02-28}
-    region-count: ${DATA_REGION_COUNT:275}
+    region-count: ${DATA_REGION_COUNT:275}     # ★ 契约要求 275，不是 96
     pile-count: ${DATA_PILE_COUNT:23441}
     hour-count: ${DATA_HOUR_COUNT:4344}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
 
 # ---------- 日志 ----------
 logging:
@@ -101,18 +97,4 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
   file:
-    name: logs/uev-backend.log
-
----
-# 开发环境（覆盖上面的默认值）
-spring:
-  config:
-    activate:
-      on-profile: dev
-  devtools:
-    restart:
-      enabled: true
-logging:
-  level:
-    com.uev: DEBUG
-    com.uev.mapper: DEBUG
+    name: ${LOG_PATH:logs}/uev-backend.log

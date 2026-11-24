@@ -1,0 +1,19 @@
+===== UrbanEV 后端冒烟测试 =====
+目标：http://127.0.0.1:18080/api
+  [PASS] 01 健康检查                            code=200
+  [PASS] 02 登录                              code=200
+  [PASS] 04 KPI 概览                          code=200
+  [PASS] 05 分区清单                            code=200
+  [PASS] 06 分区占用率                           code=200
+  [PASS] 07 分区详情                            code=200
+  [PASS] 08 24 小时曲线                         code=200
+  [PASS] 09 失衡 TOP10                        code=200
+  [PASS] 10 电价弹性                            code=200
+  [PASS] 11 需求预测                            code=200
+  [PASS] 12 布点建议                            code=200
+  [PASS] 13 双口径偏差                           code=200
+  [PASS] 14 POI 关联                          code=200
+  [PASS] 15 数据字典                            code=200
+  [PASS] 16 缓存统计                            code=200
+
+结果：通过 15　失败 0

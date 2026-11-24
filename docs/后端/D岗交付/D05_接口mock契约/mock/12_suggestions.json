@@ -1,0 +1,73 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "zoneId": "297",
+      "longitude": 114.16122,
+      "latitude": 22.72684,
+      "currentPiles": 83,
+      "suggestedPiles": 10,
+      "priority": 1,
+      "reason": "该分区在 18 时出现供需失衡（失衡指数 0.0029），现有 83 个充电桩，建议新增 10 个桩",
+      "avgOccupancy": 0.7777,
+      "peakGap": 0.002866
+    },
+    {
+      "zoneId": "164",
+      "longitude": 114.02898,
+      "latitude": 22.57069,
+      "currentPiles": 13,
+      "suggestedPiles": 2,
+      "priority": 2,
+      "reason": "该分区在 12 时出现供需失衡（失衡指数 0.0026），现有 13 个充电桩，建议新增 2 个桩",
+      "avgOccupancy": 0.7762,
+      "peakGap": 0.002645
+    },
+    {
+      "zoneId": "343",
+      "longitude": 114.07575,
+      "latitude": 22.76177,
+      "currentPiles": 22,
+      "suggestedPiles": 2,
+      "priority": 3,
+      "reason": "该分区在 18 时出现供需失衡（失衡指数 0.0024），现有 22 个充电桩，建议新增 2 个桩",
+      "avgOccupancy": 0.7754,
+      "peakGap": 0.002432
+    },
+    {
+      "zoneId": "236",
+      "longitude": 113.96724,
+      "latitude": 22.49212,
+      "currentPiles": 153,
+      "suggestedPiles": 14,
+      "priority": 4,
+      "reason": "该分区在 12 时出现供需失衡（失衡指数 0.0022），现有 153 个充电桩，建议新增 14 个桩",
+      "avgOccupancy": 0.7735,
+      "peakGap": 0.002226
+    },
+    {
+      "zoneId": "340",
+      "longitude": 114.05905,
+      "latitude": 22.63262,
+      "currentPiles": 54,
+      "suggestedPiles": 6,
+      "priority": 5,
+      "reason": "该分区在 18 时出现供需失衡（失衡指数 0.0028），现有 54 个充电桩，建议新增 6 个桩",
+      "avgOccupancy": 0.7721,
+      "peakGap": 0.002751
+    },
+    {
+      "zoneId": "341",
+      "longitude": 113.77023,
+      "latitude": 22.63083,
+      "currentPiles": 111,
+      "suggestedPiles": 11,
+      "priority": 6,
+      "reason": "该分区在 12 时出现供需失衡（失衡指数 0.0025），现有 111 个充电桩，建议新增 11 个桩",
+      "avgOccupancy": 0.7691,
+      "peakGap": 0.002542
+    }
+  ],
+  "timestamp": 1795160027353
+}

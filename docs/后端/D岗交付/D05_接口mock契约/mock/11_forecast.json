@@ -1,0 +1,52 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "mape": 5.92,
+    "series": [
+      {
+        "zoneId": "140",
+        "forecastDate": "2023-02-22",
+        "hourOfDay": 0,
+        "predictVolume": 33.06,
+        "actualVolume": 32.91
+      },
+      {
+        "zoneId": "140",
+        "forecastDate": "2023-02-22",
+        "hourOfDay": 1,
+        "predictVolume": 24.37,
+        "actualVolume": 26.17
+      },
+      {
+        "zoneId": "140",
+        "forecastDate": "2023-02-22",
+        "hourOfDay": 2,
+        "predictVolume": 18.02,
+        "actualVolume": 19.9
+      },
+      {
+        "zoneId": "140",
+        "forecastDate": "2023-02-22",
+        "hourOfDay": 3,
+        "predictVolume": 19.31,
+        "actualVolume": 21.17
+      },
+      {
+        "zoneId": "140",
+        "forecastDate": "2023-02-22",
+        "hourOfDay": 4,
+        "predictVolume": 15.39,
+        "actualVolume": 16.51
+      },
+      {
+        "zoneId": "140",
+        "forecastDate": "2023-02-22",
+        "hourOfDay": 5,
+        "predictVolume": 27.96,
+        "actualVolume": 25.78
+      }
+    ]
+  },
+  "timestamp": 1795160027345
+}

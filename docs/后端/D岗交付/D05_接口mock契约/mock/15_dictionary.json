@@ -1,0 +1,55 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "fileName": "occupancy.csv",
+      "metricName": "充电桩占用率",
+      "unit": "比例(0-1)",
+      "rowCount": 4344,
+      "grain": "分区 × 小时",
+      "description": "各交通分区每小时充电桩占用率"
+    },
+    {
+      "fileName": "duration.csv",
+      "metricName": "平均充电时长",
+      "unit": "小时",
+      "rowCount": 4344,
+      "grain": "分区 × 小时",
+      "description": "各分区每小时的单次平均充电时长"
+    },
+    {
+      "fileName": "volume.csv",
+      "metricName": "充电电量（上报口径）",
+      "unit": "kWh",
+      "rowCount": 4344,
+      "grain": "分区 × 小时",
+      "description": "运营方上报的充电电量"
+    },
+    {
+      "fileName": "volume_11kw.csv",
+      "metricName": "充电电量（11kW 折算口径）",
+      "unit": "kWh",
+      "rowCount": 4344,
+      "grain": "分区 × 小时",
+      "description": "按 11kW 桩功率折算的电量"
+    },
+    {
+      "fileName": "e_price.csv",
+      "metricName": "电价",
+      "unit": "元/kWh",
+      "rowCount": 4344,
+      "grain": "分区 × 小时",
+      "description": "各分区逐小时电价，用于分时电价弹性分析"
+    },
+    {
+      "fileName": "s_price.csv",
+      "metricName": "服务费",
+      "unit": "元/kWh",
+      "rowCount": 4344,
+      "grain": "分区 × 小时",
+      "description": "各分区逐小时服务费"
+    }
+  ],
+  "timestamp": 1795160027405
+}
