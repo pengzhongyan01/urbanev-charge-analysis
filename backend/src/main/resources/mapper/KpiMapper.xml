@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  KpiMapper.xml —— D08 · 接入 MySQL 视图
+  只允许查询 v_* 视图，不允许直接查 ads 表：
+  视图由 B 岗（B10）维护，口径变了只改视图定义，D 的代码不用动。
+-->
+<mapper namespace="com.uev.mapper.KpiMapper">
+
+    <select id="selectLatest" resultType="com.uev.entity.DashboardKpi">
+        SELECT id,
+               dt,
+               station_count,
+               pile_count,
+               avg_occupancy,
+               total_volume,
+               avg_duration,
+               imbalance_zones,
+               compute_time
+        FROM v_kpi_overview
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectRegions" resultType="com.uev.vo.RegionVO">
+        SELECT zone_id      AS zoneId,
+               charge_count AS pileCount
+        FROM v_zone_occupancy
+        ORDER BY charge_count DESC
+    </select>
+
+</mapper>

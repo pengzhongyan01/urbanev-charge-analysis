@@ -1,0 +1,589 @@
+{
+  "info": {
+    "name": "UrbanEV D岗 16 接口全量测试",
+    "description": "运行顺序：先跑 02_login（会写入 {{token}} 变量），再跑其余接口。集合变量 baseUrl 默认 http://127.0.0.1:18080/api。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:18080/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01_health 健康检查",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "02_login 登录获取令牌",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});",
+              "pm.test('返回 token', () => pm.expect(j.data.token).to.be.a('string'));",
+              "pm.collectionVariables.set('token', j.data.token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"admin\",\"password\":\"uev123456\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "03_me 当前登录用户",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "me"
+          ]
+        }
+      }
+    },
+    {
+      "name": "04_kpi KPI 概览",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});",
+              "pm.test('regionCount=275', () => pm.expect(j.data.regions.length).to.eql(275));",
+              "pm.test('avgOccupancy 是比例', () => pm.expect(j.data.avgOccupancy).to.be.below(1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/dashboard/kpi",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "dashboard",
+            "kpi"
+          ]
+        }
+      }
+    },
+    {
+      "name": "05_zones 分区清单",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/zones",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "zones"
+          ]
+        }
+      }
+    },
+    {
+      "name": "06_occupancy 分区占用率（热力图）",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/zones/occupancy",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "zones",
+            "occupancy"
+          ]
+        }
+      }
+    },
+    {
+      "name": "07_zone_detail 分区详情",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/zones/140",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "zones",
+            "140"
+          ]
+        }
+      }
+    },
+    {
+      "name": "08_hourly 24 小时供需曲线",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/hourly",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "hourly"
+          ]
+        }
+      }
+    },
+    {
+      "name": "09_imbalance 供需失衡 TOP",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});",
+              "pm.test('严格按失衡指数降序', () => {",
+              "  const arr = j.data.top.map(x => x.imbalance);",
+              "  for (let i = 1; i < arr.length; i++) pm.expect(arr[i]).to.be.at.most(arr[i-1]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/imbalance?limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "imbalance"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "10_price 电价弹性双曲线",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/price-elasticity",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "price-elasticity"
+          ]
+        }
+      }
+    },
+    {
+      "name": "11_forecast 需求预测",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/forecast?zoneId=140",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "forecast"
+          ],
+          "query": [
+            {
+              "key": "zoneId",
+              "value": "140"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "12_suggestions 布点扩容建议",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/suggestions?limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "suggestions"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "13_volume_dev 双口径电量偏差",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/volume-deviation",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "volume-deviation"
+          ]
+        }
+      }
+    },
+    {
+      "name": "14_poi POI 关联分析",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/charts/poi-correlation",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "charts",
+            "poi-correlation"
+          ]
+        }
+      }
+    },
+    {
+      "name": "15_dictionary 数据字典",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/dictionary",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "dictionary"
+          ]
+        }
+      }
+    },
+    {
+      "name": "16_cache_stats 缓存统计",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const j = pm.response.json();",
+              "pm.test('业务码 code=200', () => pm.expect(j.code).to.eql(200));",
+              "pm.test('含统一响应四字段', () => {",
+              "  pm.expect(j).to.have.all.keys('code','message','data','timestamp');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/system/cache-stats",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "system",
+            "cache-stats"
+          ]
+        }
+      }
+    }
+  ]
+}

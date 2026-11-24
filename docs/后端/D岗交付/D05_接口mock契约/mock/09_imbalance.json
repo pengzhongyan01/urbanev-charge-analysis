@@ -1,0 +1,69 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "top": [
+      {
+        "zoneId": "297",
+        "longitude": 114.16122,
+        "latitude": 22.72684,
+        "hourOfDay": 18,
+        "demandShare": 0.00796,
+        "supplyShare": 0.005094,
+        "imbalance": 0.002866,
+        "rankNo": 1
+      },
+      {
+        "zoneId": "340",
+        "longitude": 114.05905,
+        "latitude": 22.63262,
+        "hourOfDay": 18,
+        "demandShare": 0.00724,
+        "supplyShare": 0.004489,
+        "imbalance": 0.002751,
+        "rankNo": 5
+      },
+      {
+        "zoneId": "164",
+        "longitude": 114.02898,
+        "latitude": 22.57069,
+        "hourOfDay": 12,
+        "demandShare": 0.00778,
+        "supplyShare": 0.005135,
+        "imbalance": 0.002645,
+        "rankNo": 2
+      },
+      {
+        "zoneId": "341",
+        "longitude": 113.77023,
+        "latitude": 22.63083,
+        "hourOfDay": 12,
+        "demandShare": 0.00706,
+        "supplyShare": 0.004518,
+        "imbalance": 0.002542,
+        "rankNo": 6
+      },
+      {
+        "zoneId": "343",
+        "longitude": 114.07575,
+        "latitude": 22.76177,
+        "hourOfDay": 18,
+        "demandShare": 0.0076,
+        "supplyShare": 0.005168,
+        "imbalance": 0.002432,
+        "rankNo": 3
+      },
+      {
+        "zoneId": "300",
+        "longitude": 114.05154,
+        "latitude": 22.74497,
+        "hourOfDay": 12,
+        "demandShare": 0.00634,
+        "supplyShare": 0.003931,
+        "imbalance": 0.002409,
+        "rankNo": 10
+      }
+    ]
+  },
+  "timestamp": 1795160027319
+}

@@ -1,0 +1,91 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "tou": [
+      {
+        "hourOfDay": 0,
+        "avgOccupancy": 0.4541,
+        "zoneCount": 112,
+        "avgPriceGap": 0.6821
+      },
+      {
+        "hourOfDay": 1,
+        "avgOccupancy": 0.4484,
+        "zoneCount": 112,
+        "avgPriceGap": 0.6821
+      },
+      {
+        "hourOfDay": 2,
+        "avgOccupancy": 0.4427,
+        "zoneCount": 112,
+        "avgPriceGap": 0.6821
+      },
+      {
+        "hourOfDay": 3,
+        "avgOccupancy": 0.4389,
+        "zoneCount": 112,
+        "avgPriceGap": 0.6821
+      },
+      {
+        "hourOfDay": 4,
+        "avgOccupancy": 0.4389,
+        "zoneCount": 112,
+        "avgPriceGap": 0.6821
+      },
+      {
+        "hourOfDay": 5,
+        "avgOccupancy": 0.4465,
+        "zoneCount": 112,
+        "avgPriceGap": 0.6821
+      }
+    ],
+    "flat": [
+      {
+        "hourOfDay": 0,
+        "avgOccupancy": 0.5206,
+        "zoneCount": 163,
+        "avgPriceGap": 0.0234
+      },
+      {
+        "hourOfDay": 1,
+        "avgOccupancy": 0.5105,
+        "zoneCount": 163,
+        "avgPriceGap": 0.0234
+      },
+      {
+        "hourOfDay": 2,
+        "avgOccupancy": 0.5004,
+        "zoneCount": 163,
+        "avgPriceGap": 0.0234
+      },
+      {
+        "hourOfDay": 3,
+        "avgOccupancy": 0.4937,
+        "zoneCount": 163,
+        "avgPriceGap": 0.0234
+      },
+      {
+        "hourOfDay": 4,
+        "avgOccupancy": 0.4937,
+        "zoneCount": 163,
+        "avgPriceGap": 0.0234
+      },
+      {
+        "hourOfDay": 5,
+        "avgOccupancy": 0.5072,
+        "zoneCount": 163,
+        "avgPriceGap": 0.0234
+      }
+    ],
+    "summary": {
+      "touElasticity": 0.1611,
+      "flatElasticity": 0.2863,
+      "touGap": 0.6821,
+      "flatGap": 0.0234,
+      "touZoneCount": 112,
+      "flatZoneCount": 163
+    }
+  },
+  "timestamp": 1795160027335
+}

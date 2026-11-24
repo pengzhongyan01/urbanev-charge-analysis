@@ -1,0 +1,16 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "status": "DEGRADED",
+    "timestamp": "2026-11-20T15:33:47",
+    "application": "uev-charge-analysis",
+    "version": "1.0.0",
+    "regionCount": 275,
+    "components": {
+      "mysql": "UP",
+      "redis": "DOWN"
+    }
+  },
+  "timestamp": 1795160027015
+}

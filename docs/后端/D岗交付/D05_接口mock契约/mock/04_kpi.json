@@ -1,0 +1,39 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "stationCount": 275,
+    "pileCount": 23441,
+    "avgOccupancy": 0.4587,
+    "totalVolume": 904822.6,
+    "avgDuration": 2.8765,
+    "imbalanceZones": 23,
+    "regions": [
+      {
+        "zoneId": "140",
+        "pileCount": 310
+      },
+      {
+        "zoneId": "145",
+        "pileCount": 310
+      },
+      {
+        "zoneId": "152",
+        "pileCount": 310
+      },
+      {
+        "zoneId": "170",
+        "pileCount": 310
+      },
+      {
+        "zoneId": "171",
+        "pileCount": 310
+      },
+      {
+        "zoneId": "174",
+        "pileCount": 310
+      }
+    ]
+  },
+  "timestamp": 1795160027232
+}

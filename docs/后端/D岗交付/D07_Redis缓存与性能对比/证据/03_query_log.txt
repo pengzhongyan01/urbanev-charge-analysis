@@ -1,0 +1,11 @@
+id	api_path	cost_ms	hit_cache	created_at
+25	/api/charts/imbalance	2	1	2026-11-20 15:31:34
+24	/api/charts/imbalance	3	1	2026-11-20 15:31:34
+23	/api/charts/imbalance	2	1	2026-11-20 15:31:34
+22	/api/charts/imbalance	3	1	2026-11-20 15:31:34
+21	/api/charts/imbalance	13	1	2026-11-20 15:31:34
+20	/api/charts/imbalance	31	0	2026-11-20 15:31:34
+19	/api/charts/hourly	11	0	2026-11-20 15:31:33
+18	/api/auth/login	96	0	2026-11-20 15:31:33
+17	/api/auth/me	0	0	2026-11-20 15:31:33
+16	/api/hours/xx	2	0	2026-11-20 15:31:33

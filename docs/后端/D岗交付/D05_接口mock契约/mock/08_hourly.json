@@ -1,0 +1,57 @@
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "hourly": [
+      {
+        "hourOfDay": 0,
+        "avgOccupancy": 0.2431,
+        "demandShare": 0.015915,
+        "supplyShare": 0.035417,
+        "gap": -0.019502,
+        "imbalance": -0.019502
+      },
+      {
+        "hourOfDay": 1,
+        "avgOccupancy": 0.2293,
+        "demandShare": 0.013263,
+        "supplyShare": 0.039507,
+        "gap": -0.026244,
+        "imbalance": -0.026244
+      },
+      {
+        "hourOfDay": 2,
+        "avgOccupancy": 0.2156,
+        "demandShare": 0.01061,
+        "supplyShare": 0.043146,
+        "gap": -0.032536,
+        "imbalance": -0.032536
+      },
+      {
+        "hourOfDay": 3,
+        "avgOccupancy": 0.2064,
+        "demandShare": 0.008842,
+        "supplyShare": 0.045935,
+        "gap": -0.037093,
+        "imbalance": -0.037093
+      },
+      {
+        "hourOfDay": 4,
+        "avgOccupancy": 0.2064,
+        "demandShare": 0.008842,
+        "supplyShare": 0.047566,
+        "gap": -0.038724,
+        "imbalance": -0.038724
+      },
+      {
+        "hourOfDay": 5,
+        "avgOccupancy": 0.2247,
+        "demandShare": 0.012378,
+        "supplyShare": 0.047859,
+        "gap": -0.035481,
+        "imbalance": -0.035481
+      }
+    ]
+  },
+  "timestamp": 1795160027310
+}

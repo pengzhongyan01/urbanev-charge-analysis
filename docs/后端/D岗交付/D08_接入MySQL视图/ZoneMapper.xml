@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  ZoneMapper.xml —— 分区占用率 / 详情
+-->
+<mapper namespace="com.uev.mapper.ZoneMapper">
+
+    <select id="selectOccupancy" resultType="com.uev.entity.ZoneOccupancy">
+        SELECT zone_id,
+               longitude,
+               latitude,
+               avg_occupancy,
+               max_occupancy,
+               charge_count,
+               poi_total
+        FROM v_zone_occupancy
+        <where>
+            <if test="zoneId != null and zoneId != ''">
+                AND zone_id = #{zoneId}
+            </if>
+        </where>
+        ORDER BY avg_occupancy DESC
+    </select>
+
+    <select id="selectByZoneId" resultType="com.uev.entity.ZoneOccupancy">
+        SELECT zone_id,
+               longitude,
+               latitude,
+               avg_occupancy,
+               max_occupancy,
+               charge_count,
+               poi_total
+        FROM v_zone_occupancy
+        WHERE zone_id = #{zoneId}
+        LIMIT 1
+    </select>
+
+    <select id="selectZoneHourProfile" resultType="com.uev.vo.HourlyVO">
+        SELECT hour_of_day   AS hourOfDay,
+               avg_occupancy AS avgOccupancy
+        FROM v_zone_hour_profile
+        WHERE zone_id = #{zoneId}
+        ORDER BY avg_occupancy DESC
+        LIMIT 5
+    </select>
+
+</mapper>

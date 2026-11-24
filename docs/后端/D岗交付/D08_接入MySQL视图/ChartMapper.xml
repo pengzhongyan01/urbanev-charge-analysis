@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+  ChartMapper.xml —— 7 个图表接口的取数 SQL
+  说明：ADS 层是全期聚合表，没有日期维度，因此 startDate / endDate 只作为
+       接口签名保留（前端会传），实际过滤生效的是 zoneId / hourRange / limit。
+       这一点已写进 D09 接口文档，避免 C 岗误以为日期筛选没生效。
+-->
+<mapper namespace="com.uev.mapper.ChartMapper">
+
+    <!-- 2.4 24 小时供需曲线 -->
+    <select id="selectHourly" resultType="com.uev.entity.HourlySupplyDemand">
+        SELECT hour_of_day,
+               avg_occupancy,
+               avg_demand,
+               avg_supply,
+               gap,
+               imbalance
+        FROM v_hourly_supply_demand
+        <where>
+            <if test="hourFrom != null">
+                AND hour_of_day &gt;= #{hourFrom}
+            </if>
+            <if test="hourTo != null">
+                AND hour_of_day &lt;= #{hourTo}
+            </if>
+        </where>
+        ORDER BY hour_of_day
+    </select>
+
+    <!-- 2.5 供需失衡 TOP N -->
+    <select id="selectImbalanceTop" resultType="com.uev.entity.ImbalanceIndex">
+        SELECT zone_id,
+               longitude,
+               latitude,
+               hour_of_day,
+               demand_share,
+               supply_share,
+               imbalance,
+               rank_no
+        FROM v_imbalance_top
+        <where>
+            <if test="zoneId != null and zoneId != ''">
+                AND zone_id = #{zoneId}
+            </if>
+            <if test="hourFrom != null">
+                AND hour_of_day &gt;= #{hourFrom}
+            </if>
+            <if test="hourTo != null">
+                AND hour_of_day &lt;= #{hourTo}
+            </if>
+        </where>
+        ORDER BY imbalance DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 2.6 电价弹性（一次查一种电价类型，Service 层拼两组） -->
+    <select id="selectPriceByType" resultType="com.uev.entity.PriceElasticity">
+        SELECT price_type,
+               hour_of_day,
+               avg_occupancy,
+               zone_count,
+               avg_price_gap
+        FROM v_price_elasticity
+        WHERE price_type = #{priceType}
+        ORDER BY hour_of_day
+    </select>
+
+    <!-- 2.7 需求预测 -->
+    <select id="selectForecast" resultType="com.uev.entity.DemandForecast">
+        SELECT zone_id,
+               forecast_date,
+               hour_of_day,
+               predict_volume,
+               actual_volume,
+               mape
+        FROM v_forecast_series
+        <where>
+            <if test="zoneId != null and zoneId != ''">
+                AND zone_id = #{zoneId}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND forecast_date &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND forecast_date &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY forecast_date, hour_of_day
+        LIMIT #{limit}
+    </select>
+
+    <!-- 2.8 布点扩容建议 -->
+    <select id="selectSuggestions" resultType="com.uev.entity.ExpansionSuggestion">
+        SELECT zone_id,
+               longitude,
+               latitude,
+               current_piles,
+               suggested_piles,
+               priority,
+               reason,
+               avg_occupancy,
+               peak_gap
+        FROM v_suggestions
+        ORDER BY priority
+        LIMIT #{limit}
+    </select>
+
+    <!-- 2.9 双口径电量偏差 -->
+    <select id="selectVolumeDeviation" resultType="com.uev.entity.VolumeDeviation">
+        SELECT zone_id,
+               volume,
+               volume_11kw,
+               deviation
+        FROM v_volume_deviation
+        <where>
+            <if test="zoneId != null and zoneId != ''">
+                AND zone_id = #{zoneId}
+            </if>
+        </where>
+        ORDER BY deviation DESC
+    </select>
+
+    <!-- 2.10 POI 关联分析 -->
+    <select id="selectPoiCorrelation" resultType="com.uev.entity.PoiCorrelation">
+        SELECT zone_id,
+               poi_total,
+               poi_density,
+               pile_density,
+               avg_occupancy
+        FROM v_poi_correlation
+        <where>
+            <if test="zoneId != null and zoneId != ''">
+                AND zone_id = #{zoneId}
+            </if>
+        </where>
+        ORDER BY poi_density DESC
+    </select>
+
+</mapper>
