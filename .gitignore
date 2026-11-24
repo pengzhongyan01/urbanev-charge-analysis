@@ -52,3 +52,8 @@ docs/report/docx/*.files/
 **/target/
 **/target/**
 *.class
+
+# ---- Maven 编译产物（多模块路径全覆盖）----
+**/target/
+**/target/**
+*.class
