@@ -9,7 +9,11 @@
 set -e
 
 KEY="$HOME/.ssh/id_ed25519_git"
-EMAIL="${GIT_EMAIL:-15085958265@163.com}"
+
+# ★ 邮箱必须是你自己的，且已验证到你的 GitHub 账号。
+#   GitHub 靠邮箱把提交关联到账号 —— 用别人的邮箱，提交就署到别人名下，
+#   你的「个人贡献说明」在提交记录里就没有痕迹。
+LEADER_EMAIL="15085958265@163.com"
 
 echo "=============================================="
 echo " 组员上手 · 配置 Git 推送权限"
@@ -17,16 +21,36 @@ echo "=============================================="
 
 # 1. git 身份
 if ! git config --global user.email >/dev/null 2>&1; then
-  git config --global user.email "$EMAIL"
-  echo "[1/3] 已设置 git email：$EMAIL"
-else
-  echo "[1/3] git email 已有：$(git config --global user.email)"
+  echo "[1/3] ✗ 你的 git 邮箱还没设置。"
+  echo ""
+  echo "      请先设置成【你自己的、已验证到 GitHub 账号的】邮箱："
+  echo "        git config --global user.email \"你的邮箱@example.com\""
+  echo ""
+  echo "      查自己的 GitHub 邮箱："
+  echo "        https://github.com/settings/emails"
+  echo "      （GitHub 右上角 → Settings → Emails，能看到 Primary 那个）"
+  echo ""
+  echo "      ⚠ 不要用组长的邮箱 $LEADER_EMAIL ——"
+  echo "        那样你的提交在 GitHub 上会署成别人，个人贡献说明就没证据了。"
+  exit 1
 fi
+
+CURRENT_EMAIL="$(git config --global user.email)"
+if [ "$CURRENT_EMAIL" = "$LEADER_EMAIL" ]; then
+  echo "[1/3] ✗ 你现在用的是组长的邮箱，提交会署到别人名下。"
+  echo ""
+  echo "      请改成你自己的："
+  echo "        git config --global user.email \"你的邮箱@example.com\""
+  echo "      （在 https://github.com/settings/emails 里查你的 Primary 邮箱）"
+  exit 1
+fi
+echo "[1/3] git email：$CURRENT_EMAIL"
+
 if ! git config --global user.name >/dev/null 2>&1; then
   git config --global user.name "请改成你的名字"
-  echo "      ↑ 记得改：git config --global user.name \"你的名字\""
+  echo "      ↑ git name 请改：git config --global user.name \"你的名字\""
 else
-  echo "      git name 已有：$(git config --global user.name)"
+  echo "      git name：$(git config --global user.name)"
 fi
 
 # 2. SSH 密钥
