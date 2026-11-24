@@ -1,0 +1,7 @@
+﻿metric,total,time_invalid,value_nan_before,out_of_range,dropped_invalid_time,is_zero_rows,dup_removed,valid_rows,nan_after_clean
+occupancy,1194600,0,0,0,0,32307,0,1194600,0
+duration,1194600,0,0,0,0,65365,0,1194600,0
+volume,1194600,0,0,0,0,65365,0,1194600,0
+volume_11kw,1194600,0,0,0,0,65169,0,1194600,0
+e_price,1194600,0,0,0,0,0,0,1194600,0
+s_price,1194600,0,0,0,0,8886,0,1194600,0
