@@ -12,7 +12,7 @@ import org.springframework.core.env.Environment;
  * Controller（只做参数接收与响应包装） → Service（业务编排 / 缓存 / 降级）
  * → Mapper（SQL，只读 ADS 表与视图） → MySQL。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @SpringBootApplication
 @MapperScan("com.uev.mapper")

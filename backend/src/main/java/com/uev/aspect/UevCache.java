@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * <p>TTL 按契约 03 · 1.4：
  * KPI 300s、分区占用率 600s、图表 120s。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

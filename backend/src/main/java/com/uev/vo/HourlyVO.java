@@ -8,7 +8,7 @@ import lombok.Data;
  * <p>数据库列名是 avg_demand / avg_supply，接口字段是 demandShare / supplyShare，
  * 名字必须对齐接口规范，这个转换放在 Service 层完成（不要在前端硬改）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class HourlyVO {

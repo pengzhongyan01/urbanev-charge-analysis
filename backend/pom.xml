@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   pom.xml —— UrbanEV 后端 Maven 配置
-  维护人：杨珊珊（D 岗）
+  维护人：杨姗姗（D 岗）
   v1.2  11/20  D  在 A 提供的骨架上补齐 JWT / AOP / BCrypt 依赖，去掉 hive profile 的必需性
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"

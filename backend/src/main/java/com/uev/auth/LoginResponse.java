@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * 登录返回：令牌 + 有效期 + 最小必要的用户信息（不含密码）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class LoginResponse {

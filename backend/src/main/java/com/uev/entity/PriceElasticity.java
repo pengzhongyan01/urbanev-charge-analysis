@@ -7,7 +7,7 @@ import lombok.Data;
  *
  * <p>priceType：TOU = 分时电价区，FLAT = 固定电价区（由 E02 的 σ_price 反推）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class PriceElasticity {

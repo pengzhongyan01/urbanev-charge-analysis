@@ -24,7 +24,7 @@ import java.util.Map;
  * 前端状态灯需要读 components，如果 MySQL 挂了直接返回 HTTP 500，
  * 前端只会显示"后端未连接"，反而看不出是哪个组件出了问题。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 @Service

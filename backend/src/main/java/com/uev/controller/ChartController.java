@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * 图表接口 —— 6 个图表（契约 03 · 2.4 ~ 2.10）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Validated
 @RestController

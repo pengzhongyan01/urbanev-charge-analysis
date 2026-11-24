@@ -1,6 +1,6 @@
 -- =============================================================================
 -- 02_seed_mock.sql —— 演示数据（由 scripts/gen_seed.py 自动生成，勿手改）
--- 生成时间：2026-11-20　|　维护人：杨珊珊（D 岗）
+-- 生成时间：2026-11-20　|　维护人：杨姗姗（D 岗）
 -- 说明：B 岗 Sqoop 真数据到位后执行 TRUNCATE + 重新导入即可，接口不用改。
 -- =============================================================================
 USE uev_charge;
@@ -14,7 +14,7 @@ INSERT INTO sys_role (role_code, role_name, description) VALUES
 -- 用户（密码均为 uev123456，BCrypt 密文，明文不入库）
 INSERT INTO sys_user (username, password_hash, real_name, role_code, status) VALUES
 ('admin','$2a$10$AizSB.CVvR9Y0agOlJjXbeTzWi3CjUt4D3OA.TlDq4fqyMpVyWiJK','系统管理员','ADMIN',1),
-('analyst','$2a$10$AizSB.CVvR9Y0agOlJjXbeTzWi3CjUt4D3OA.TlDq4fqyMpVyWiJK','杨珊珊','ANALYST',1);
+('analyst','$2a$10$AizSB.CVvR9Y0agOlJjXbeTzWi3CjUt4D3OA.TlDq4fqyMpVyWiJK','杨姗姗','ANALYST',1);
 
 -- 分区占用率（275 行）
 INSERT INTO zone_occupancy (zone_id, longitude, latitude, avg_occupancy, max_occupancy, charge_count, poi_total) VALUES

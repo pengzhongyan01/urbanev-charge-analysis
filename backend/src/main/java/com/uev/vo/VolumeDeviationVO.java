@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * /api/charts/volume-deviation 的 data 载荷（契约 03 · 2.9）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class VolumeDeviationVO {

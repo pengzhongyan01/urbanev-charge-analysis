@@ -9,7 +9,7 @@ import java.util.List;
  *
  * <p>字段名与契约 03 · 2.2 完全一致（大小写敏感，前端按名字取值）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class KpiVO {

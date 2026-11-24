@@ -19,7 +19,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * <p>{@code uev.auth.enabled=false}（默认）时直接放行，保证前端骨架裸 GET 也能联调；
  * 打开开关后，除 /api/health 与 /api/auth/login 外都要求带 {@code Authorization: Bearer <token>}。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 @Component

@@ -8,7 +8,7 @@ import lombok.Data;
  *
  * <p>注意：{@code avgOccupancy} 是 0-1 的比例，不是百分数（契约 03 明示）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class ZoneOccupancy {

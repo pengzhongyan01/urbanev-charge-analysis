@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * hourly_supply_demand 表实体 —— 24 小时供需曲线。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class HourlySupplyDemand {

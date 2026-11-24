@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>Controller 层只做三件事：接参数、调 Service、包 ApiResponse。
  * 不写 if-else 判空、不写 try-catch、不写 SQL —— 这是 D01 分层规范的红线。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @RestController
 @RequestMapping("/api")

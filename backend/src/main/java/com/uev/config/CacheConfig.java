@@ -17,7 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  *   <li>{@code auto}（默认）：先探活 Redis，通就走 Redis，不通就降级。</li>
  * </ul>
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 @Configuration

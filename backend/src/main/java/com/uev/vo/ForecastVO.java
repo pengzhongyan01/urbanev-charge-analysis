@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * /api/charts/forecast 的 data 载荷：{ "mape": 11.32, "series": [ ... ] }。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class ForecastVO {

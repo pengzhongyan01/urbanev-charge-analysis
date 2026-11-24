@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * sys_user 表实体（D03 设计的业务库表，D04 登录鉴权使用）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class SysUser {

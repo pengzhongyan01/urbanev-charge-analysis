@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * <p>拦截器顺序很重要：先鉴权（AuthInterceptor）再记日志（QueryLogInterceptor），
  * 这样未通过鉴权的请求不会污染 query_log。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Configuration
 @RequiredArgsConstructor

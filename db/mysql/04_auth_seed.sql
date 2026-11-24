@@ -1,7 +1,7 @@
 -- =============================================================================
 -- 04_auth_seed.sql —— 用户与角色初始化（D04 交付配套）
 -- =============================================================================
--- 维护人：杨珊珊（D 岗）
+-- 维护人：杨姗姗（D 岗）
 -- 说明：演示账号 admin / uev123456 与 analyst / uev123456
 --       密码字段存 BCrypt 密文（$2a$10$... 固定 60 字符），不放明文。
 --       明文只出现在本文档注释与本机演示说明里，不进代码仓库。
@@ -17,7 +17,7 @@ ON DUPLICATE KEY UPDATE role_name = VALUES(role_name);
 
 -- BCrypt('uev123456', cost=10)
 INSERT INTO sys_user (username, password_hash, real_name, role_code, status) VALUES
- ('admin',   '$2a$10$AizSB.CVvR9Y0agOlJjXbeTzWi3CjUt4D3OA.TlDq4fqyMpVyWiJK', '杨珊珊', 'ADMIN',  1),
+ ('admin',   '$2a$10$AizSB.CVvR9Y0agOlJjXbeTzWi3CjUt4D3OA.TlDq4fqyMpVyWiJK', '杨姗姗', 'ADMIN',  1),
  ('analyst', '$2a$10$AizSB.CVvR9Y0agOlJjXbeTzWi3CjUt4D3OA.TlDq4fqyMpVyWiJK', '分析账号', 'ANALYST', 1)
 ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), status = VALUES(status);
 

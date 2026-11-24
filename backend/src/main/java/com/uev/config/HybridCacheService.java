@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>这段代码就是答辩时"系统可用性"那一页的证据：
  * 把 Redis 停掉，接口照样返回 200，只是第二次请求变慢，日志里能看到降级记录。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 public class HybridCacheService implements CacheService {

@@ -9,7 +9,7 @@ import com.uev.vo.CacheStatsVO;
  * 所有缓存读写都走这个接口，实现类内部自己决定是走 Redis 还是本地，
  * Service / Controller 完全不需要知道当前用的是哪种缓存。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 public interface CacheService {
 

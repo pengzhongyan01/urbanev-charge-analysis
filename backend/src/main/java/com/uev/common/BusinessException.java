@@ -6,7 +6,7 @@ package com.uev.common;
  * <p>好处：Controller 里不出现 try-catch，也不出现 new ResponseEntity(...)，
  * 三层职责彻底分开（D01 分层规范第 4 条）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 public class BusinessException extends RuntimeException {
 

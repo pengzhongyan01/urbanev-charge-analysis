@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
  *   <li>停用账号（status=0）不允许登录。</li>
  * </ol>
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 @Service

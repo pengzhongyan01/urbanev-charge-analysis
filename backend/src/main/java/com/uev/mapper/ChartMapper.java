@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * 图表读接口 —— 全部落在 ADS 层视图上，Service 只做组装，不写聚合 SQL。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Mapper
 public interface ChartMapper {

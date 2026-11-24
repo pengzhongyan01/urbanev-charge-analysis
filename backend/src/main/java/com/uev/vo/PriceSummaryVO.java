@@ -10,7 +10,7 @@ import lombok.Data;
  * summary.flatElasticity = FLAT 组峰谷差
  * </pre>
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class PriceSummaryVO {

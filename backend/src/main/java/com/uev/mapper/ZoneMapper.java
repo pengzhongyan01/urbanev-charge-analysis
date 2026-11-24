@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 分区读接口。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Mapper
 public interface ZoneMapper {

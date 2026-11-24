@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  *       反而把后端写的中文提示丢掉，页面只剩 "HTTP 500"。</li>
  * </ol>
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 @RestControllerAdvice

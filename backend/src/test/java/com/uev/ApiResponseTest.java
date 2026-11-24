@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * 统一响应结构单测 —— D12「工程化五条」里"有单元测试"的证据。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 class ApiResponseTest {
 

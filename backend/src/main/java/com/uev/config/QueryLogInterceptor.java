@@ -19,7 +19,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * <p>性能保护：健康检查与缓存统计接口不落库，避免监控请求把日志表刷爆；
  * 落库失败只打 WARN，绝不影响业务响应。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Slf4j
 @Component

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * /api/zones/{zoneId} 的 data 载荷 —— 分区详情 + 该分区的峰谷时段。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class ZoneDetailVO {

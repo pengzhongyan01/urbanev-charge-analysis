@@ -6,7 +6,7 @@ import lombok.Data;
 /**
  * imbalance_index 表实体 —— 创新点① 供需失衡指数 TOP。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class ImbalanceIndex {

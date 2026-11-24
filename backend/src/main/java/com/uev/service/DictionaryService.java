@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 数据字典服务 —— 前端"数据源说明"页。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Service
 @RequiredArgsConstructor

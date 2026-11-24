@@ -6,7 +6,7 @@ package com.uev.common;
  * <p>约定：200 成功 / 400 参数错误 / 404 资源不存在 / 500 服务异常；
  * 401、403、405、503 是在骨架上补充的细分码，前端遇到非 200 一律展示 message。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 public enum ErrorCode {
 

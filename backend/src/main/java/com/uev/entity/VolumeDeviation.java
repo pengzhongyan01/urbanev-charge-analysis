@@ -7,7 +7,7 @@ import lombok.Data;
  *
  * <p>由 E 岗（双口径对比）灌数，D 只负责读。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class VolumeDeviation {

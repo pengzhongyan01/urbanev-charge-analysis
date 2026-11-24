@@ -17,7 +17,7 @@ import jakarta.validation.constraints.Size;
  * <p>所有图表接口都支持这 5 个可选参数；<b>缓存 key 必须包含全部筛选参数</b>，
  * 否则改了筛选条件会拿到旧数据（契约里点名的"最常见的缓存 bug"）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class QueryParams {

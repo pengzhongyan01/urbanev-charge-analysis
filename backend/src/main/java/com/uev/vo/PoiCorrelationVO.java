@@ -11,7 +11,7 @@ import java.util.List;
  * <p>correlation 里的皮尔逊系数由 Service 层对 rows 现算（MySQL 没有 CORREL 函数），
  * 这样即使 B 岗还没灌 poi_correlation 表，接口也不会报 500，只会返回空列表。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class PoiCorrelationVO {

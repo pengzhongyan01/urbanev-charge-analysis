@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 /**
  * 分区下拉框的一项：{ zoneId, pileCount }。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 @NoArgsConstructor

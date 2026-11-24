@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * 系统表读接口（用户 + 查询日志）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Mapper
 public interface SystemMapper {

@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * dashboard_kpi 表实体（ADS 层导出表）—— 对应契约 03 的 /api/dashboard/kpi。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class DashboardKpi {

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * 公共查询参数单测 —— 重点是"缓存 key 必须包含全部筛选参数"这条契约。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 class QueryParamsTest {
 

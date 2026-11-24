@@ -8,7 +8,7 @@ import lombok.Data;
  * <p>答辩时直接打开这个接口截图：命中率、命中/未命中平均耗时，
  * 就是"加了缓存快了多少"的最硬证据。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class CacheStatsVO {

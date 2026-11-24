@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 数据字典接口（契约 03 · 2.11）。
  *
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @RestController
 @RequestMapping("/api/dictionary")

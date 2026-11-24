@@ -15,7 +15,7 @@ import java.io.Serializable;
  * {@link GlobalExceptionHandler} 里被转成本结构。
  *
  * @param <T> 数据载荷类型
- * @author 杨珊珊（D 岗）
+ * @author 杨姗姗（D 岗）
  */
 @Data
 public class ApiResponse<T> implements Serializable {
